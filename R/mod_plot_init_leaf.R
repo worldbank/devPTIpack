@@ -68,10 +68,7 @@ plot_leaf_line_map2 <-
       leaflet::addMapPane("polygons", zIndex = 410) %>%
       leaflet::addMapPane("bubles", zIndex = 430)  %>%
       leaflet::addMapPane("points", zIndex = 440) %>%
-      leaflet::addProviderTiles(
-        provider = leaflet::providers$CartoDB.Voyager,
-        options = pathOptions(pane = "basetile")
-      ) %>%
+      addTiles(urlTemplate = "https://api.mapbox.com/styles/v1/gsdpm/cjrc1z9u53oci2tqxvbhhnf7r/tiles/256/{z}/{x}/{y}@2x?access_token=MAPBOX_TOKEN_REMOVED") %>% 
       list() %>%
       append(show_shps) %>%
       reduce2(seq_along(show_shps), function(x, y, i) {

@@ -1,0 +1,831 @@
+# devPTIpack — Working Plan
+
+> **Living document.** Tracks current phase, immediate next actions, and
+> shared workflow conventions. Every PR that touches tracked work
+> updates this file in the same commit (see
+> [`.claude/CLAUDE.md`](https://worldbank.github.io/devPTIpack/.claude/CLAUDE.md)
+> §“PLAN.md Sync”). The authoritative architecture lives under
+> [`.github/docs/`](https://worldbank.github.io/devPTIpack/.github/docs/)
+> and the master GitHub tracker is
+> [`#9`](https://github.com/worldbank/devPTIpack/issues/9). When this
+> file disagrees with `.github/docs/`, `.github/docs/` wins.
+
+------------------------------------------------------------------------
+
+## 1. Where we are
+
+| Concern | Source of truth |
+|----|----|
+| Architecture overview & redesign workflow | [`.github/docs/arch-00-overview.md`](https://worldbank.github.io/devPTIpack/docs/arch-00-overview.md) |
+| Function-by-function cleanup audit | [`.github/docs/arch-01-cleanup.md`](https://worldbank.github.io/devPTIpack/docs/arch-01-cleanup.md) |
+| Roxygen2 standards | [`.claude/rules/roxygen-documentation.md`](https://worldbank.github.io/devPTIpack/.claude/rules/roxygen-documentation.md) |
+| Documentation implementation order | [`.github/docs/arch-02-docs.md`](https://worldbank.github.io/devPTIpack/docs/arch-02-docs.md) |
+| Calculation pipeline test spec (~71 cases) | [`.github/docs/arch-02.01-testing-calc-pipeline.md`](https://worldbank.github.io/devPTIpack/docs/arch-02.01-testing-calc-pipeline.md) |
+| Three-tier testing strategy + per-fn test map | [`.github/docs/arch-03-testing.md`](https://worldbank.github.io/devPTIpack/docs/arch-03-testing.md) |
+| Workspace, vignettes & pkgdown plan | [`.github/docs/arch-04-workspace.md`](https://worldbank.github.io/devPTIpack/docs/arch-04-workspace.md) |
+| Hex (H3) ingestion design | [`.github/docs/arch-05-hex-ingestion.md`](https://worldbank.github.io/devPTIpack/docs/arch-05-hex-ingestion.md) |
+| Per-change log (compulsory) | [`.github/docs/changelog.md`](https://worldbank.github.io/devPTIpack/docs/changelog.md) |
+| Project conventions for AI agents | [`.claude/CLAUDE.md`](https://worldbank.github.io/devPTIpack/.claude/CLAUDE.md) |
+
+GitHub issues map: -
+[\#9](https://github.com/worldbank/devPTIpack/issues/9) — master
+tracker - [\#10](https://github.com/worldbank/devPTIpack/issues/10) —
+testing framework +
+[`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
+orchestrator - [\#8](https://github.com/worldbank/devPTIpack/issues/8) —
+legacy cleanup (subsumes \#2/#3/#4) -
+[\#11](https://github.com/worldbank/devPTIpack/issues/11) — roxygen2
+documentation -
+[\#12](https://github.com/worldbank/devPTIpack/issues/12) — workspace,
+vignettes, pkgdown site -
+[\#13](https://github.com/worldbank/devPTIpack/issues/13) — hex
+ingestion pipeline (independent) -
+[\#5](https://github.com/worldbank/devPTIpack/issues/5),
+[\#7](https://github.com/worldbank/devPTIpack/issues/7),
+[\#6](https://github.com/worldbank/devPTIpack/issues/6),
+[\#1](https://github.com/worldbank/devPTIpack/issues/1) — relate to
+upstream/global DB and validation; partially superseded by \#9
+sub-issues, see arch-00 § “Relationship to Pre-Existing Issues”
+
+------------------------------------------------------------------------
+
+## 2. Execution order (TDD-first)
+
+    Phase 0  Setup & shared workflow ──────────────────────────────┐  ✓ done
+                                                                   │
+    Phase 1  Test baseline for permanent functions     (#10)       │  ✓ done
+       ├─ 1a   `run_pti_pipeline()` orchestrator             ✓ #15 │
+       ├─ 1b   Tier-1 calc-pipeline tests                    ✓ #15-#18
+       ├─ 1e   Tier-1 tests for the remaining files         ✓ #20-#29
+       ├─ 1f   CI guard via .github/workflows/tests.yaml     ✓ #30
+       └─ 1g   Tier 2 (shiny::testServer for 7 modules)            ✓ all 7 covered
+                ▼                                                  │
+    Phase 2  Cleanup legacy code in batches            (#8)        │  ✓ done
+       ├─ Batch 1  Dead files & functions                          │
+       ├─ Batch 2  Legacy runners + app_server/app_ui              │
+       ├─ Batch 3  Legacy map server (~1200 lines)                 │
+       ├─ Batch 4  Migrate sample app to launch_pti()              │
+       ├─ Batch 5  Remove mod_weights.R legacy                     │
+       └─ Batch 6  Delete convenience wrappers                     │
+                ▼                                                  │
+    Phase 3  Roxygen2 docs for all permanent fns       (#11)       │
+                ▼                                                  │
+    Phase 4  Vignettes + pkgdown deploy                (#12)       │
+                ▼                                                  │
+    Phase 5  Hex ingestion pipeline                    (#13)  ← independent; can start anytime on a parallel branch
+
+**Why this order.** Tests pin behaviour before we delete or refactor.
+Each cleanup batch then re-runs the suite — green = no regression. Docs
+come once the API stabilises (no point documenting code that’s about to
+be deleted). Vignettes & pkgdown depend on stable, documented exports.
+
+**Hybrid (in effect):** when writing a Tier-1 test for a permanent
+function, we also draft its roxygen at the same time. Phase 3 then
+sweeps only what’s missed.
+
+------------------------------------------------------------------------
+
+## 3. Phase 0 — Setup & shared workflow ✓
+
+### 3.1 Branch strategy (resolved)
+
+- Integration branch: **`koichi-arch-redesign`** off `main`.
+- Sub-branches per phase / batch (e.g. `tests/calc-pipeline-baseline`,
+  `cleanup/batch-1`) PR’d into `koichi-arch-redesign`.
+- Once Phase 1–4 are complete, `koichi-arch-redesign` PRs into `main`.
+- Each PR keeps `R CMD check` green and updates the changelog and
+  `PLAN.md`.
+
+### 3.2 Tooling — committed under `.claude/` ✓
+
+| Tool | Type | Status |
+|----|----|----|
+| [`tdd-permanent-fn`](https://worldbank.github.io/devPTIpack/.claude/skills/tdd-permanent-fn/SKILL.md) | skill | ✓ committed |
+| [`cleanup-batch`](https://worldbank.github.io/devPTIpack/.claude/skills/cleanup-batch/SKILL.md) | skill | ✓ committed |
+| [`roxygen-document`](https://worldbank.github.io/devPTIpack/.claude/skills/roxygen-document/SKILL.md) | skill | ✓ committed |
+| [`issue-progress-comment`](https://worldbank.github.io/devPTIpack/.claude/skills/issue-progress-comment/SKILL.md) | skill | ✓ committed |
+| [`r-package-reviewer`](https://worldbank.github.io/devPTIpack/.claude/agents/r-package-reviewer.md) | sub-agent | ✓ committed |
+| [`auto-changelog.sh`](https://worldbank.github.io/devPTIpack/.claude/hooks/auto-changelog.sh) | Stop hook | ✓ committed (auto-drafts changelog rows from the diff) |
+
+### 3.3 Working agreements
+
+- **Changelog is mandatory.** Hook drafts; humans refine.
+- **PLAN.md sync is mandatory.** Skills include the step; CLAUDE.md
+  states the rule.
+- **Examples in roxygen** must use only `ukr_shp` / `ukr_mtdt_full`.
+- **Don’t touch legacy code** flagged for deletion in arch-01 unless
+  executing a cleanup batch.
+- **`R CMD check` must stay green** between phases.
+
+------------------------------------------------------------------------
+
+## 4. Phase 1 — Tests (#10)
+
+> **Critical scoping rule.** Write tests *only* for the permanent
+> functions listed in arch-01 § “Permanent Functions”. Do not test
+> legacy functions scheduled for deletion in arch-01 batches.
+
+### 4.1 Concrete next actions
+
+**1a — Orchestrator.**
+[`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
+exported, documented, used as the test seam (PR \#15).
+
+**1b — Helper + initial fixtures.** `tests/testthat/helper-test-data.R`
+with deterministic intermediates (PR \#15, extended in \#16, \#17).
+
+**1c — Tier 1 calc pipeline.**
+[`test-calc-pipeline.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R)
+now covers the full arch-02.01 spec — Level A.1–A.11, Level B
+integration (7 pairs), Level C end-to-end (PRs \#15→#16→#17→#18). Suite
+total: 398 expectations passing. Synthetic `.rds` fixtures (`fx_shp_*`)
+deferred — added when a test cannot be expressed inline.
+
+**1e — Tier 1 remaining files** (arch-03 §1.2–1.11): **all 10 files
+done**, suite total 725 expectations. - \[x\]
+[`test-validators.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-validators.R)
+— `validate_geometries`, `validate_single_geom`, `validate_metadata`,
+`validate_read_shp`, `validate_read_metadata` (PR \#20; 12 blocks / 52
+expectations; pinned the empty-pattern str_detect bug in
+`validate_read_shp`) - \[x\]
+[`test-template-reader.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-template-reader.R)
+— `fct_template_reader`, `fct_convert_weight_to_clean`, `get_shape`,
+`create_new_pti` (PR \#21; 11 blocks / 28 expectations) - \[x\]
+[`test-indicators-list.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-indicators-list.R)
+— `get_indicators_list` (PR \#22; 7 blocks / 29 expectations; replaces
+the placeholder `test-get_indicators_list.R`) - \[x\]
+[`test-legend-palette.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-legend-palette.R)
+— `legend_map_satelite`, `recode_val_base` (PR \#24; 12 blocks / 19
+expectations; pinned arch-03 §1.5 spec corrections — integer vs
+continuous branch behaviour) - \[x\]
+[`test-plot-helpers.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R)
+— `preplot_reshape_wghtd_dta`, `get_current_levels`,
+`filter_admin_levels`, `add_legend_paras`, `complete_pti_labels`,
+`check_existing_groups` (PR \#25; 18 blocks / 73 expectations; pinned 2
+newly-discovered bugs and 1 spec asymmetry — see §12 Discovered bugs).
+`plot_pti_polygons`/`clean_pti_polygons`/`add_pti_poly_controls`/`clean_pti_poly_controls`
+are leaflet-rendering helpers and stay in Tier 3 (manual) - \[x\]
+[`test-drop-inval-adm.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-drop-inval-adm.R)
+— `get_vars_un_avbil`, `get_min_admin_wght`, `drop_inval_adm` (PR \#23;
+10 blocks / 16 expectations) - \[x\]
+[`test-export.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-export.R)
+— `get_pti_scores_export`, `get_pti_weights_export`, `fct_inp_for_exp`,
+`fct_internal_wt_to_exp` (PR \#26; 14 blocks / 58 expectations; pinned
+`fct_internal_wt_to_exp(list())` left-join error) - \[x\]
+[`test-explorer-helpers.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-explorer-helpers.R)
+— `reshaped_explorer_dta`, `get_var_choices`, `filter_var_explorer` (PR
+\#27; 11 blocks / 27 expectations; pinned `get_var_choices` empty-tibble
+error and the actual nested-by-pillar return shape) - \[x\]
+[`test-map-render.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-map-render.R)
+— `make_ggmap`, `make_gg_line_map`, `plot_leaf_line_map2` (PR \#28; 7
+blocks / 8 expectations; class-only assertions for ggplot/leaflet
+renderers) - \[x\]
+[`test-dt-construction.R`](https://worldbank.github.io/devPTIpack/tests/testthat/test-dt-construction.R)
+— `prep_input_data`, `make_vis_targets_for_dt`, `make_input_DT` (PR
+\#29; 8 blocks / 17 expectations; pinned arch-03 §1.11 spec correction —
+pillar rows interleaved with variable rows)
+
+**1f — CI guard.**
+[`.github/workflows/tests.yaml`](https://worldbank.github.io/devPTIpack/.github/workflows/tests.yaml)
+runs
+[`testthat::test_local()`](https://testthat.r-lib.org/reference/test_package.html)
+on every push / PR to `main` / `koichi-arch-redesign`. Local suite
+finishes in ~30s, well under arch-03’s 2-min budget. PR \#30.
+
+**1g — Tier 2 (after Tier 1 green).** Module-server tests via
+[`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html)
+(arch-03 §2). 7 modules — one PR each: - \[x\] `mod_calc_pti2_server` —
+happy path, all-zero, single-indicator, identical-input dedup,
+weight-change recompute (PR \#31; 5 blocks / 67 expectations) - \[x\]
+`mod_DT_inputs_server` — initial render (NA weights, all var_codes),
+direct numericInput → current_values, all-zero + all-one button paths
+(round-trip simulated via `setInputs` because `updateNumericInput` does
+not round-trip in `MockShinySession`), `update_dta()` push, 500ms
+throttle window (PR \#33; 6 blocks / 13 expectations) - \[x\]
+`mod_drop_inval_adm` — no-drops happy path, indicator missing at admin1
+→ admin1 dropped, `showNotification` fires on drop (mocked via
+`local_mocked_bindings`), notification suppressed when no drops,
+weight-0 indicator does not trigger a drop. Pinned the asymmetric
+`get_vars_un_avbil` fill direction (PLAN.md §12 new entry). PR \#34; 5
+blocks / 10 expectations - \[x\] `mod_get_admin_levels_srv` — no-filter
+passthrough, `default_adm_level` matches admin key / display value /
+“All” (case-insensitive) / nothing (→ last element), `show_adm_levels`
+filtering by name and value, single non-matching `show_adm_levels` (→
+last element), `default_adm_level` precedence over `show_adm_levels`,
+update on `cur_levels` reactive change. PR \#36; 11 blocks / 12
+expectations - \[x\] `mod_fltr_sel_var2_srv` — initial
+`updatePickerInput` with display-name choices, selection → debounced
+filter of `preplot_dta`, switching selection swaps surviving slots,
+`first_open(TRUE)` → auto-select first display name, `add_selected()`
+override (single-var-per-pillar happy path) + pinned multi-var-pillar
+[`purrr::map_lgl`](https://purrr.tidyverse.org/reference/map.html) bug
+(PLAN.md §12 new entry). PR \#37; 7 blocks / 18 expectations - \[x\]
+`mod_wt_save_newsrv` — save-new (empty store), overwrite,
+save-alongside-existing; button-UI labels and disabled state for “Save
+and plot new PTI” / “Provide a name” / “Modify weights” / “No changes to
+save” / “Save changes and plot PTI”. Internal `current_btn_ui()`
+reactiveVal tapped directly from `expr` scope (renderUI side effect).
+Delete logic lives in `mod_wt_delete_newsrv`, out of scope for arch-03
+§2.6. PR \#38; 8 blocks / 17 expectations - \[x\]
+`mod_export_pti_data_server` — returned named list shape (`Country` +
+`Weighting schemes` + per-admin scores), `Country` slot mirrors
+`weights_dta()$general`, weights tibble has one column per scheme,
+per-admin score slots are reversed (finer admin first), `req()` halts
+when `plotted_dta()` is NULL. Synthetic minimal inputs (the wrapper does
+no calc work itself). PR \#39; 6 blocks / 13 expectations
+
+### 4.2 Tier 3 timing
+
+`shinytest2` automation deferred until **after** pkgdown deploys (Phase
+4). Tier 3 stays manual until then (arch-03 §3.2 checklist).
+
+------------------------------------------------------------------------
+
+## 5. Phase 2 — Cleanup (#8)
+
+Drive each batch from arch-01 § “Removal Batches” using the
+[`cleanup-batch`](https://worldbank.github.io/devPTIpack/.claude/skills/cleanup-batch/SKILL.md)
+skill. Discipline:
+
+1.  Branch off integration: `cleanup/batch-N`.
+2.  Delete files/functions per the batch table.
+3.  Run `devtools::document()` → `devtools::test()` →
+    `devtools::check()`.
+4.  Smoke-test: `launch_pti(shp_dta = ukr_shp, inp_dta = ukr_mtdt_full)`
+    opens.
+5.  Append changelog row(s) and update `PLAN.md`.
+6.  Open PR; merge once green.
+
+Batch order is fixed by dependencies (arch-01 §“Cleanup Strategy”).
+Don’t reorder without re-checking caller graphs.
+
+Batch 1 — dead files & functions ([PR
+\#40](https://github.com/worldbank/devPTIpack/pull/40)): 4 whole files
+(`fct_export_data.R`, `mod_explorer.R`, `mod_info_page.R`,
+`mod_calc_pti.R`), ~20 individual functions, 1 orphan `.rda`, and 3
+NAMESPACE exports (`extrapo_one_weight`, `fct_exp_wt_to_internal`,
+`mod_weights_html_ui`). Plus a pre-existing DESCRIPTION fix (<Authors@R>
+needed comma-separated `c(...)` wrapping; added explicit
+Author/Maintainer fields) that was needed to make `R CMD check` produce
+useful output.
+
+Batch 2 — legacy runners + app_server/app_ui ([PR
+\#41](https://github.com/worldbank/devPTIpack/pull/41)): deleted whole
+file `R/mod_pti_onepage.R` (both UI + server) and 10 individual
+functions across `R/run_app.R` (`run_pti`, `run_onepage_pti`,
+`run_onepage_pti_sample`, `run_dev_map_pti`, `run_dev_pti_plot`),
+`R/app_server.R` (`app_server`, `app_server_input_simple`,
+`app_server_sample_pti_vis`), and `R/app_ui.R` (`app_ui`,
+`app_server_sample_pti_vis_ui`). Kept `run_new_pti` /
+`app_new_pti_server` / `app_new_pti_ui` / `golem_add_external_resources`
+(Batch 4 territory). Removed 7 NAMESPACE exports via
+[`roxygen2::roxygenise()`](https://roxygen2.r-lib.org/reference/roxygenize.html).
+Suite stays at 682 PASS — no regressions.
+
+Batch 3 — legacy map server (~1200 lines) (PR \#43): extracted
+`mod_map_pti_leaf_ui` to its own file `R/mod_map_pti_leaf_ui.R` (the
+kept UI used by `mod_pti_comparepage_ui`, `mod_weights_ui`, and
+`mod_ptipage_core.R`). Deleted whole file `R/mod_map_pti_leaf.R` (1258
+lines, all 12 legacy server functions go) and `make_shapes()` +
+`make_labels()` from `R/fct_legend_map_satelites.R`. Folded in a
+one-line patch to `app_new_pti_ui` to use the modern
+`mod_pti_comparepage_ui` instead of the deleted
+`mod_map_pti_leaf_page_ui`. Relocated 2 `@importFrom` tags
+([`leaflet::colorFactor`](https://rstudio.github.io/leaflet/reference/colorNumeric.html)
+→ `legend_map_satelite`,
+[`leaflet::addTiles`](https://rstudio.github.io/leaflet/reference/map-layers.html)
+→ `plot_leaf_line_map2`) that were auto-pruned from NAMESPACE because
+their roxygen lived in the deleted file. Suite stays at 682 PASS — no
+regressions.
+
+Batch 4 — migrate sample app to
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+(PR \#44): rewrote `inst/sample_pti/app.R` to load shapes via
+[`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md)
+and metadata via
+[`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md),
+then call
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+directly (drops `default_adm_level`, `choose_adm_levels`, `explorer_*`,
+`full_ui`, and `pti_landing_page` knobs that have no modern equivalent —
+`launch_pti` would need a signature extension to preserve them, out of
+scope for this batch). Deleted `run_new_pti` (whole `R/run_app.R`),
+`app_new_pti_server` (whole `R/app_server.R` — file `git rm`’d),
+`app_new_pti_ui` (kept only `golem_add_external_resources` in
+`R/app_ui.R`), and `mod_plot_pti_comparison_srv` from
+`R/mod_plot_pti2.R`. Relocated 5 `@importFrom` tags auto-pruned from
+NAMESPACE because their roxygen lived in the deleted files:
+[`shiny::shinyApp`](https://rdrr.io/pkg/shiny/man/shinyApp.html),
+[`shiny::navbarPage`](https://rdrr.io/pkg/shiny/man/navbarPage.html),
+[`shiny::tabPanel`](https://rdrr.io/pkg/shiny/man/tabPanel.html),
+[`golem::with_golem_options`](https://thinkr-open.github.io/golem/reference/with_golem_options.html)
+→ `launch_pti_onepage`;
+[`shiny::reactiveValues`](https://rdrr.io/pkg/shiny/man/reactiveValues.html)
+→ `mod_wt_inp_ui`. Suite stays at 682 PASS — no regressions.
+
+Batch 5 — remove `mod_weights.R` legacy (PR \#45): extracted
+`mod_wt_btns_srv` and `mod_collect_wt_srv` (the only two functions
+`mod_DT_inputs_server` still uses) to a new file
+`R/mod_wt_btns_collect.R` with proper `@noRd` roxygen and explicit
+`@importFrom` tags (`shiny`, `dplyr`, `purrr`, `stringr`, `tibble`).
+Deleted whole file `R/mod_weights.R` (928 lines, all 13 remaining legacy
+functions go: `mod_weights_ui`, `mod_weights_server`,
+`mod_indicarots_srv`, `mod_gen_wt_inputs_srv`, `mod_wt_name_srv`,
+`mod_wt_select_srv`, `mod_wt_uplod_srv`, `mod_wt_delete_srv`,
+`mod_wt_fill_srv`, `mod_wt_save_srv`, `mod_download_wt_srv`, plus the
+originals of the two extracted functions). Deleted whole file
+`R/mod_new_weights.R` (112 lines — `mod_new_demo_weights_server` +
+`mod_new_weights_server`; only caller `mod_pti_onepage_server` was
+removed in Batch 2). Net diff ~970 lines net removed (largest single
+batch). NAMESPACE: dropped 1 export (`mod_weights_ui`); added 4 imports
+from the new file
+([`purrr::map2`](https://purrr.tidyverse.org/reference/map2.html),
+[`purrr::map_dfr`](https://purrr.tidyverse.org/reference/map_dfr.html),
+[`shiny::updateNumericInput`](https://rdrr.io/pkg/shiny/man/updateNumericInput.html),
+[`tibble::tibble`](https://tibble.tidyverse.org/reference/tibble.html));
+no auto-prune fallout. `mod_weights_rand.R` retains only
+`mod_weights_rand_ui`, `get_rand_weights`, `get_all_weights_combs` as
+planned. Suite stays at 682 PASS — no regressions.
+
+Batch 6 — delete convenience wrappers ([PR
+\#46](https://github.com/worldbank/devPTIpack/pull/46)): deleted whole
+files `R/mod_explrr_onepage.R` (`mod_explrr_onepage_ui`,
+`mod_explrr_onepage_server`, both exported thin wrappers over
+`mod_dta_explorer2_*`) and `R/render_metadata_pdf.R` (`render_metadata`,
+exported wrapper over
+[`rmarkdown::render`](https://pkgs.rstudio.com/rmarkdown/reference/render.html)).
+**Departure from arch-01’s “deprecate first” framing** — the audit
+showed both targets had no live external surface: (a)
+`mod_explrr_onepage_*`’s only callers are in `dev/90-app-examples.R`,
+itself broken since Batch 2 (it still references the removed
+`mod_pti_onepage_*`) and slated for arch-04 Phase 4 deletion; (b)
+`render_metadata` is already broken on shipped installs because it calls
+`system.file("pti-metadata-pdf.Rmd")` which resolves to `""` (the Rmd
+actually lives at `inst/sample_pti/app-data/`, not the `inst/` package
+root). A formal deprecation cycle
+([`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) body for one
+release) is bureaucratic without a release cadence to deprecate against;
+both also violate the project’s `@noRd + @export` rule. The arch-04
+reference to `render_metadata()` (workspace doc plan) is a one-line
+`system.file` fix away from working — when arch-04 wants this, it can
+reintroduce it as a fixed function rather than carrying the broken one
+forward. NAMESPACE delta: dropped 3 exports (`mod_explrr_onepage_ui`,
+`mod_explrr_onepage_server`, `render_metadata`) and 2 importFroms
+([`here::here`](https://here.r-lib.org/reference/here.html),
+[`rmarkdown::render`](https://pkgs.rstudio.com/rmarkdown/reference/render.html)
+— neither used elsewhere in `R/`). Net diff ~50 lines removed. **Closes
+Phase 2.** Suite stays at 682 PASS — no regressions.
+
+------------------------------------------------------------------------
+
+## 6. Phase 3 — Documentation (#11)
+
+Follow arch-02-docs § “Implementation Order” and use the
+[`roxygen-document`](https://worldbank.github.io/devPTIpack/.claude/skills/roxygen-document/SKILL.md)
+skill.
+
+**Batch 1 — Package data** ([PR
+\#47](https://github.com/worldbank/devPTIpack/pull/47)): rewrote
+`R/data.R` standalone roxygen for `ukr_shp` and `ukr_mtdt_full` per the
+rules-file data template (`@format` with `\describe{}` per slot,
+`@source`, runnable `@examples`). Replaced `@describeIn` inheritance on
+`ukr_mtdt_full` (which mis-attributed it as a geometries doc).
+Documented real bundled-data shape (`admin0/1/2/4` not the rules-file
+example’s stale `admin1/2/3`; real column names `adminNPcod` /
+`adminNName` / `area` / `geometry`). Two `man/*.Rd` help pages now exist
+where there was previously one shared inherited page.
+
+**Batch 2 — Core calculation** ([PR
+\#48](https://github.com/worldbank/devPTIpack/pull/48)): rewrote roxygen
+for all 12 functions across `R/calc_pti_helpers.R` (6 fns) and
+`R/calc_pti_expander.R` (6 fns). **Honored arch-01’s “Permanent
+Functions” classification** — un-exported the 10 INTERNAL fns (`get_mt`,
+`get_adm_levels`, `pivot_pti_dta`, `clean_geoms`, `get_weighted_data`,
+`get_scores_data`, `expand_adm_levels`, `agg_pti_scores`,
+`structure_pti_data`; `merge_expandedn_adm_levels` was already
+non-exported) and re-typed them with the internal `@noRd` template
+(typed `@param`, explicit `@return`, full `@importFrom`, no
+`@examples`). Closes the 10× `@noRd + @export` rule violation. Promoted
+`generic_pti_glue` from `@describeIn label_generic_pti` to a standalone
+exported doc; both retained `@export` per arch-01 (users may customise
+PTI popup labels). Pinned 3 §12 bugs via `@note`: lex-sort in
+`get_adm_levels`, 1-row → NA in `get_scores_data`, \>1 element silent
+NULL in `expand_adm_levels`. Stripped pre-existing debug residue per
+arch-01:436 (~50 lines: 2 `# browser()`, 2 large commented-out alternate
+implementations in `structure_pti_data`, several stray comment lines).
+NAMESPACE delta: dropped 9 `export()`, added 7 `importFrom`s for
+explicit dependencies that lost their previous bulk-import coverage.
+Test-side: converted 7 `devPTIpack::fn()` qualified calls in 3
+pre-existing test files
+([test-shps-converters.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-shps-converters.R),
+[test-calc_pti.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc_pti.R),
+[test-weighting-logic.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-weighting-logic.R))
+to unqualified — needed because `::` requires export and the tests’
+[`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html)
+exposure is unaffected.
+
+**Batch 3 – Data I/O & validation** ([PR
+\#49](https://github.com/worldbank/devPTIpack/pull/49)): rewrote roxygen
+for 11 functions across 5 files – `R/fct_template_reader.R` (2 fns),
+`R/fct_validate_metadata.R` (3 fns), `R/validators.R` (2 fns),
+`R/dta_cleaners.R` (1 fn), and `R/mod_drop_inval_adm.R` (4 fns – folded
+in here for thematic coherence with the validation theme; arch-02-docs
+§3 listed them implicitly in §6, but `drop_inval_adm` /
+`get_vars_un_avbil` / `get_min_admin_wght` are tightly coupled with the
+validators). Honored arch-01’s “Permanent Functions” classification:
+un-exported `validate_single_geom` and `get_indicators_list` (closes the
+`@noRd + @export` rule violations on both); promoted `validate_read_shp`
+/ `validate_read_metadata` / `get_vars_un_avbil` / `get_min_admin_wght`
+/ `drop_inval_adm` from `@describeIn` chains to standalone exported docs
+(each gets its own `man/*.Rd` help page; previously they shared the
+umbrella’s help page). Pinned 2 §12 bugs via `@note`:
+`validate_read_shp` empty-pattern `str_detect` (issue \#7),
+`get_vars_un_avbil` asymmetric
+[`lag()`](https://rdrr.io/r/stats/lag.html) fill (PR \#34). Stripped 4
+`# browser()` debug residue lines per arch-01:436 (fct_template_reader.R
+x2, validators.R, dta_cleaners.R) plus an 8-line commented-out runtime
+`test_that` block in validators.R replaced by the live
+`if (is.na(adm_order)...)` block. NAMESPACE delta: dropped 2 `export()`
+(`validate_single_geom`, `get_indicators_list`); added explicit
+`importFrom`s on the rewritten functions. Kept the
+`@import dplyr purrr stringr readxl` bulk-import directive on
+`fct_template_reader` – the
+[`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html)
+test environment relies on the bulk import to keep
+`mod_DT_inputs_server`’s 500ms throttle test deterministic across
+`testServer` calls (subtle shiny scheduler interaction;
+explicit-import-only triggers a cross-test reactive-state leak in the
+throttle Tier-2 test). Test-side: converted 7
+`devPTIpack::get_indicators_list()` qualified calls in 2 pre-existing
+test files
+([test-calc_pti.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc_pti.R)
+x4,
+[test-weighting-logic.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-weighting-logic.R)
+x3) to unqualified, and qualified 5 unqualified `tribble(` calls in
+[test-get_uavailab_admin.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-get_uavailab_admin.R)
+to `tibble::tribble(` (the previous transitive availability via bulk
+imports no longer covers it). Suite stays at 682 PASS – no regressions.
+
+**Batch 4 – Visualisation helpers** ([PR
+\#50](https://github.com/worldbank/devPTIpack/pull/50)): rewrote roxygen
+for 12 functions across `R/plot_pti_helpers.R` (10 fns) and
+`R/fct_legend_map_satelites.R` (2 fns). All 12 are INTERNAL per arch-01
+§ “Permanent Functions” / “Visualisation Helpers” – this batch
+un-exports every one of them and converts each to the `@noRd` internal
+template (typed `@param`, explicit `@return`, full `@importFrom`, no
+`@export`, no `@examples`). Closes 4 `@noRd + @export` rule violations
+(`get_current_levels`, `filter_admin_levels`, `add_legend_paras`,
+`legend_map_satelite`) plus 1 stray-tag typo (the original
+`legend_map_satelite` had a `@param dta` tag for a parameter the
+function never had). Promoted 4 `@describeIn plot_pti_polygons` chains
+to standalone `@noRd` docs (`clean_pti_polygons`,
+`add_pti_poly_controls`, `clean_pti_poly_controls`,
+`check_existing_groups`); the `@describeIn` chain was acceptable while
+all 5 were exported but becomes meaningless when nothing has a help
+page. Pinned 3 §12 bugs via `@note` (all from PR \#25, all in
+plot_pti_helpers.R): `filter_admin_levels` name-vs-value asymmetry,
+`complete_pti_labels` missing-assignment no-op (priority-rank suffix
+never appended in production), `check_existing_groups` empty-pattern
+`str_detect` error. Stripped 4 `# browser()` debug-residue lines per
+arch-01:436 (plot_pti_helpers.R x2, fct_legend_map_satelites.R x2). Left
+the larger commented-out alternate-implementation blocks in
+fct_legend_map_satelites.R alone (lines 60-83 alternate quantile
+fallbacks, ~190-210 alternate `recode_values` closure, ~310-360
+commented-out `get_shift` / `generic_pal` – these are
+alternate-algorithm drafts, not debug residue, and stripping them is out
+of arch-01’s “remove commented-out blocks” mandate which lists specific
+files; `fct_legend_map_satelites.R` is not on that list). Fixed the
+`@describeIn plot_pti_polygons plot_pti_polygons` typo on
+`add_pti_poly_controls` (function name appeared twice in the previous
+one-liner). Package-source fix: converted one
+`devPTIpack::get_current_levels()` qualified call in
+`R/mod_export_pti_data.R::get_pti_scores_export` to unqualified (the
+`::` form requires export and now errors after the un-export); 9
+export-data tests broke and went green again after this one-line fix.
+NAMESPACE delta: dropped 11 `export()` (`add_legend_paras`,
+`add_pti_poly_controls`, `check_existing_groups`,
+`clean_pti_poly_controls`, `clean_pti_polygons`, `complete_pti_labels`,
+`filter_admin_levels`, `get_current_levels`, `legend_map_satelite`,
+`plot_pti_polygons`, `preplot_reshape_wghtd_dta`); added 7 `importFrom`s
+([`leaflet::addLayersControl`](https://rstudio.github.io/leaflet/reference/addLayersControl.html)
+/ `clearGroup` / `layersControlOptions` / `showGroup`;
+[`purrr::map2_chr`](https://purrr.tidyverse.org/reference/map2.html);
+[`shiny::HTML`](https://rstudio.github.io/htmltools/reference/HTML.html);
+and a few re-localised tags from explicit `@importFrom` sweeps).
+Test-side: no qualified-call conversions needed – the existing
+`devPTIpack:::legend_map_satelite` triple-colon calls in
+`tests/testthat/test-legend-mapping.R` keep working across the export
+status flip (`:::` resolves regardless of export); other test files use
+unqualified calls that resolve via
+[`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html).
+Suite stays at 682 PASS – no regressions.
+
+**Batch 5 – Entry points & app infrastructure** ([PR
+\#51](https://github.com/worldbank/devPTIpack/pull/51)): rewrote roxygen
+for 5 functions across 4 files – `R/launch_pti.R`
+(`launch_pti_onepage` + `launch_pti`), `R/fct_create_new_pti.R`
+(`create_new_pti`), `R/app_config.R` (`app_sys`), and `R/app_ui.R`
+(`golem_add_external_resources` – folded in here for thematic coherence
+with the entry-points theme; arch-01:24 classifies it as EXPORTED but it
+lived in app_ui.R behind `@noRd`). All 5 are EXPORTED per arch-01 §
+“Entry Points & App Scaffolding” – this batch is the inverse shape of
+Batches 2-4 (no un-exports; one promote-to-exported on
+`golem_add_external_resources`). Honored the rules-file Exported
+template: typed `@param`, `@return`, `@importFrom`, `@export`, runnable
+or `\dontrun{}` `@examples`. Closes 1 `@noRd + @export` rule violation
+(`app_sys` had both tags), 1 `@noRd`-on-an-EXPORTED-fn arch-01 violation
+(`golem_add_external_resources`). Promoted the
+`@describeIn launch_pti_onepage` chain on `launch_pti` to a standalone
+help page – the chain was awkward because the two apps diverge in usage
+(one-page is a focused viewer, multi-tab pulls in compare + explorer +
+cicerone tour), and only `launch_pti` takes the `tabs` and `app_name`
+parameters. Examples: `app_sys` runs unwrapped
+(`app_sys("app", "www")`); `create_new_pti` runs unwrapped via a
+[`tempdir()`](https://rdrr.io/r/base/tempfile.html) scaffold with
+`open = FALSE` (rstudioapi gates skip cleanly outside RStudio);
+`launch_pti` / `launch_pti_onepage` / `golem_add_external_resources` use
+`\dontrun{}` per the rules-file “side-effect-heavy code” clause.
+Stripped 1 debug-residue line (`R/launch_pti.R:173` – a commented-out
+`observe(cat("tab: ", active_tab(), "\n"))` instrumentation). No pinned
+§12 bugs touched this batch. NAMESPACE delta: added 1 export
+(`golem_add_external_resources`); added 2 `importFrom`s
+([`cicerone::use_cicerone`](https://rdrr.io/pkg/cicerone/man/use_cicerone.html),
+[`rlang::dots_list`](https://rlang.r-lib.org/reference/list2.html));
+dropped 1 stale `importFrom`
+([`bsplus::use_bs_tooltip`](https://ijlyttle.github.io/bsplus/reference/bs_embed_tooltip.html)
+– carried over on `golem_add_external_resources` from the `@noRd` era
+but never called in `R/`; reviewer-flagged should-fix). Test-side: no
+qualified-call conversions needed – nothing was un-exported; the new
+`golem_add_external_resources` export strictly widens the public
+surface. Folded in the Batch 4 `TBD -> #50` swap on the §6 row above and
+on the §11 row below. Suite stays at 682 PASS – no regressions.
+
+**Batch 6a – PTI rendering & display stack** ([PR
+\#52](https://github.com/worldbank/devPTIpack/pull/52)): rewrote roxygen
+for 44 functions across 16 files in the rendering stack –
+`R/mod_ptipage_core.R` (3), `R/mod_pti_comparepage.R` (2),
+`R/mod_calc_pti2.R` (2), `R/mod_dta_explorer2.R` (8),
+`R/mod_export_pti_data.R` (3), `R/mod_load_shapes.R` (2),
+`R/mod_plot_pti2.R` (1), `R/mod_plot_init_leaf.R` (2),
+`R/mod_plot_poly_leaf.R` (4), `R/mod_plot_poly_legend.R` (3),
+`R/mod_pti_map_side_pan.R` (7), `R/mod_map_pti_leaf_ui.R` (1),
+`R/mod_dwnld_dta.R` (3), `R/mod_dwnld_local_file.R` (1),
+`R/run_pti_pipeline.R` (1), `R/mod_fetch_data.R` (1). Honored arch-01:
+un-exported 15 INTERNAL fns (6 in `mod_dta_explorer2.R`, 4 in
+`mod_plot_poly_leaf.R`, 3 in `mod_plot_poly_legend.R`, 2 in
+`mod_plot_init_leaf.R`); promoted 3 EXPORTED fns from `@noRd` to
+`@export` (closes 3 arch-01 violations: `mod_leaf_side_panel_ui`,
+`mod_map_pti_leaf_ui`, `mod_pti_comparepage_newsrv`). Promoted 14
+`@describeIn` members to standalone docs across the chains in
+`mod_dta_explorer2`, `mod_plot_init_leaf`, `mod_plot_poly_leaf`,
+`mod_plot_poly_legend`, and `mod_ptipage_core` (split
+`mod_ptipage_newsrv` out of the UI chain since server vs UI diverged in
+usage). Pinned 2 §12 bugs via `@note`: `get_var_choices`
+empty-indicators NULL-attr (PR \#27), `mod_fltr_sel_var2_srv`
+multi-var-pillar predicate (PR \#37). Stripped 6 debug-residue lines per
+arch-01:436: 4 `# browser()` in `mod_plot_poly_leaf.R`, 1 in
+`mod_pti_map_side_pan.R`, 1 in `mod_dta_explorer2.R`; plus the 14-line
+commented-out `withProgress`/`tempfile` block in `mod_plot_leaf_export`
+(alternate impl that was never re-enabled). Reviewer-iteration fixes:
+rewrote `get_pti_weights_export` and `run_pti_pipeline` examples to drop
+the un-exported `get_indicators_list()` call (used
+`ukr_mtdt_full$metadata` directly instead – the function only reads
+`var_code`/`var_name`/`pillar_name`, all present) so both examples pass
+under `R CMD check --run-examples` where only exported symbols resolve
+through
+[`library(devPTIpack)`](https://worldbank.github.io/devPTIpack/);
+flattened all `[name()]` cross-refs from EXPORTED roxygen blocks to
+plain backticks where the target is `@noRd` (cosmetic; package isn’t in
+markdown mode so the link syntax rendered literally). Suite stays at 682
+PASS – no regression.
+
+**Batch 6b – All remaining weights-input + UI infra utilities** ([PR
+TBD](https://github.com/worldbank/devPTIpack/pull/TBD)): audited 37
+functions across 12 files closing Phase 3 – 35 fns across 11 files
+rewritten in this PR; 2 fns in `R/mod_wt_btns_collect.R` already at
+standard from Batch 5 extraction PR \#45, no edits needed. File-by-file:
+`R/mod_wt_inp.R` (14), `R/mod_DT_inputs.R` (7),
+`R/mod_wt_btns_collect.R` (2; verified-only), `R/mod_first_open_count.R`
+(1), `R/mod_tab_open.R` (1), `R/mod_waiter.R` (3),
+`R/mod_weights_rand.R` (3), `R/mod_infotab.R` (1), `R/fct_guide.R` (1),
+`R/fct_helpers.R` (1; `add_logo`), `R/fct_inp_for_exp.R` (2),
+`R/supporting-goe-prep.R` (1; `gg_admin_list`). Honored arch-01:
+un-exported 2 INTERNAL fns (`fct_inp_for_exp`, `fct_internal_wt_to_exp`
+– arch-01:166-167 classifies both INTERNAL but they were exported via
+the `@noRd + @export` rule violation; un-exporting now closes the
+violation and aligns NAMESPACE with arch-01); kept 4 EXPORTED fns
+exported (`mod_tab_open_first_newserv`, `gg_admin_list`,
+`get_rand_weights`, `get_all_weights_combs`) by dropping their `@noRd`
+tags (closes 4 more `@noRd + @export` rule violations without moving
+NAMESPACE). Net 6 rule-violations closed in this batch. Promoted the
+14-fn `@describeIn mod_wt_inp_ui` chain in `R/mod_wt_inp.R` to
+standalone `@noRd` docs (Batch 4 precedent for full-chain split when
+umbrella + members are all INTERNAL); promoted the 3-fn
+`@describeIn mod_waiter_newsrv` chain similarly; split
+`get_rand_weights` and `get_all_weights_combs` out of the
+`@describeIn mod_weights_rand_ui` chain so their EXPORTED help pages
+stand alone. Pinned 1 §12 bug via `@note`:
+`fct_internal_wt_to_exp(list())` left-join error (PR \#26). Stripped 8
+`# browser()` debug-residue lines per arch-01:436: 4 in
+`R/mod_DT_inputs.R` (lines 71/170/254/277 in the pre-Batch-6b file), 1
+in `R/mod_wt_inp.R` (line 790, inside the upload-stub
+`mod_wt_uplod_newsrv` body), 3 in `R/supporting-goe-prep.R` (lines
+17/22/38). Also stripped the 8-line commented-out alternate-impl
+`observeEvent(update_dta())` block in `R/mod_DT_inputs.R` (lines 77-84
+in the pre-Batch-6b file; contained an embedded
+[`browser()`](https://rdrr.io/r/base/browser.html) on line 81; the live
+`observe(...)` block above already implements the same logic without the
+debugger trap). User’s prompt-time hypothesis counts diverged in three
+places that surfaced during the audit and were corrected at the
+scope-proposal gate before any roxygen edit: (1) `fct_inp_for_exp` +
+`fct_internal_wt_to_exp` are arch-01-INTERNAL not EXPORTED, so the close
+direction was drop-`@export` not drop-`@noRd`; (2) `R/mod_infotab.R` had
+no `# browser()` at line ~71 (and none anywhere); (3) total
+browser-strip count was 8 lines + 1 alt-impl block, not the 1 implied.
+NAMESPACE delta: dropped 2 `export()` (`fct_inp_for_exp`,
+`fct_internal_wt_to_exp`); added a batch of explicit `importFrom`s on
+the rewritten functions that lost bulk-import coverage when their
+`@describeIn` chain dispersed. Test-side: no qualified-call conversions
+needed – the existing unqualified `fct_inp_for_exp(...)` /
+`fct_internal_wt_to_exp(...)` calls in `tests/testthat/test-export.R`
+resolve via
+[`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html)
+regardless of export status. Folded in the Batch 6a `TBD -> #52` swap on
+the §6 row above and on the §11 row below. **Closes Phase 3 (#11).**
+Suite stays at 682 PASS – no regressions.
+
+Any function whose body changed in Phase 2 cleanup needs its docs
+reviewed.
+
+After each batch lands, run `devtools::document()` and confirm
+`R CMD check` produces no doc-related notes.
+
+------------------------------------------------------------------------
+
+## 7. Phase 4 — Workspace, vignettes & pkgdown (#12)
+
+Per arch-04. Concrete cuts:
+
+Delete `dev/` (git history preserves it).
+
+Replace `vignettes/dataprep.Rmd` stub with the grouped articles in
+arch-04 §“Vignette Groups”. **Highest-value first:**
+`calculation-pipeline.Rmd`, `data-preparation.Rmd`.
+
+Source for `pti-overview.Rmd` / `project-history.Rmd`: the [WB
+OpenKnowledge PTI
+article](https://openknowledge.worldbank.org/server/api/core/bitstreams/1fa677a7-7c1c-5a39-8705-511a7038e3a2/content).
+
+Update `_pkgdown.yml` to add grouped article navigation per arch-04
+§“\_pkgdown.yml Updates”.
+
+Add a GitHub Action for pkgdown build & GitHub Pages deploy.
+
+Confirm `R CMD check` builds vignettes cleanly.
+
+**After this phase:** add `shinytest2` automation for Tier 3.
+
+------------------------------------------------------------------------
+
+## 8. Phase 5 — Hex ingestion (#13, independent)
+
+Independent track. Five new exported functions, all developer-facing,
+all pre-deployment. Spec: arch-05.
+
+**Decision:** deferred until Phases 1–4 are complete. The calculation
+pipeline is geometry-agnostic so this is non-blocking.
+
+------------------------------------------------------------------------
+
+## 9. Open questions for the team
+
+*(All Phase 0 questions resolved — see §3. Below are the still-open
+ones.)*
+
+1.  **Tier 2 module-server tests.** Cover all 7 modules listed in
+    arch-03 §2.1–2.7 in one PR, or one per PR? Recommend one per PR for
+    review velocity.
+2.  **CI runtime budget.** arch-03 sets \<2 min for `devtools::test()`.
+    Phase 1c currently runs in well under that locally; confirm
+    post-cleanup once GitHub Actions runner timing is known.
+
+------------------------------------------------------------------------
+
+## 10. Definition of done (end-state, all phases)
+
+Lifted from arch-00 §“End-State Goals”:
+
+Only the modern pipeline remains. Public entry points:
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md),
+[`launch_pti_onepage()`](https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.md),
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md).
+
+All ~95 permanent functions have complete roxygen2 docs.
+
+Test coverage \> 80%; Tier 1 + Tier 2 automated in CI.
+
+Package website deployed on GitHub Pages with grouped vignettes.
+
+Hex ingestion pipeline (#13) lands on its own milestone.
+
+`R CMD check` passes with 0 warnings, 0 errors, 0 notes.
+
+------------------------------------------------------------------------
+
+## 11. Progress log
+
+> One line per merged PR — what changed and which PLAN item it advanced.
+
+| PR | Date | Phase item | Outcome |
+|----|----|----|----|
+| [\#15](https://github.com/worldbank/devPTIpack/pull/15) | 2026-04-30 | 1a, 1b, 1c (start) | [`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md) orchestrator + helper + Level A.1–A.6 + Level C |
+| [\#16](https://github.com/worldbank/devPTIpack/pull/16) | 2026-05-01 | 1c | Level A.7 (`expand_adm_levels`) + A.8 (`merge_expandedn_adm_levels`) |
+| [\#17](https://github.com/worldbank/devPTIpack/pull/17) | 2026-05-01 | 1c | Level A.9 (`agg_pti_scores`) |
+| [\#18](https://github.com/worldbank/devPTIpack/pull/18) | 2026-05-01 | 1c | Level A.10 (`label_generic_pti`) + A.11 (`structure_pti_data`) + Level B integration |
+| [\#19](https://github.com/worldbank/devPTIpack/pull/19) | 2026-05-01 | tooling | Operationalize PLAN.md sync (CLAUDE.md rule + skill steps); sync PLAN.md to current state |
+| [\#20](https://github.com/worldbank/devPTIpack/pull/20) | 2026-05-01 | 1e (validators) | Tier-1 tests for `validate_*` functions; pinned the empty-pattern bug in `validate_read_shp` |
+| [\#21](https://github.com/worldbank/devPTIpack/pull/21) | 2026-05-01 | 1e (template-reader) | Tier-1 tests for `fct_template_reader`, `fct_convert_weight_to_clean`, `get_shape`, `create_new_pti` |
+| [\#22](https://github.com/worldbank/devPTIpack/pull/22) | 2026-05-01 | 1e (indicators-list) | Tier-1 tests for `get_indicators_list`; deleted the placeholder `test-get_indicators_list.R` |
+| [\#23](https://github.com/worldbank/devPTIpack/pull/23) | 2026-05-01 | 1e (drop-inval-adm) | Tier-1 tests for `get_vars_un_avbil`, `get_min_admin_wght`, `drop_inval_adm` |
+| [\#24](https://github.com/worldbank/devPTIpack/pull/24) | 2026-05-01 | 1e (legend-palette) | Tier-1 tests for `legend_map_satelite`, `recode_val_base`; pinned the integer/continuous branch split |
+| [\#25](https://github.com/worldbank/devPTIpack/pull/25) | 2026-05-01 | 1e (plot-helpers) | Tier-1 tests for `preplot_reshape_wghtd_dta`/`get_current_levels`/`filter_admin_levels`/`add_legend_paras`/`complete_pti_labels`/`check_existing_groups`; pinned 2 bugs (see §12) |
+| [\#26](https://github.com/worldbank/devPTIpack/pull/26) | 2026-05-01 | 1e (export) | Tier-1 tests for `get_pti_scores_export`, `get_pti_weights_export`, `fct_inp_for_exp`, `fct_internal_wt_to_exp`; pinned `fct_internal_wt_to_exp(list())` failure (see §12) |
+| [\#27](https://github.com/worldbank/devPTIpack/pull/27) | 2026-05-01 | 1e (explorer-helpers) | Tier-1 tests for `reshaped_explorer_dta`, `get_var_choices`, `filter_var_explorer`; pinned `get_var_choices(empty)` NULL-attribute error (see §12) |
+| [\#28](https://github.com/worldbank/devPTIpack/pull/28) | 2026-05-01 | 1e (map-render) | Tier-1 class-assertion tests for `make_ggmap`, `make_gg_line_map`, `plot_leaf_line_map2` |
+| [\#29](https://github.com/worldbank/devPTIpack/pull/29) | 2026-05-01 | **1e complete** (dt-construction) | Tier-1 tests for `prep_input_data`, `make_vis_targets_for_dt`, `make_input_DT`; pinned arch-03 §1.11 spec correction — pillar rows interleaved with variable rows |
+| [\#30](https://github.com/worldbank/devPTIpack/pull/30) | 2026-05-02 | 1f (CI guard) | `.github/workflows/tests.yaml` runs [`testthat::test_local()`](https://testthat.r-lib.org/reference/test_package.html) on push / PR; local suite ~30s, well under the 2-min budget |
+| [\#31](https://github.com/worldbank/devPTIpack/pull/31) | 2026-05-02 | 1g (mod_calc_pti2) | Tier-2 [`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html) tests for `mod_calc_pti2_server` — happy path, all-zero, single-indicator, dedup, weight-change recompute |
+| [\#33](https://github.com/worldbank/devPTIpack/pull/33) | 2026-05-02 | 1g (mod_DT_inputs) | Tier-2 [`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html) tests for `mod_DT_inputs_server` — initial-render NA weights, direct input → current_values, all-zero + all-one button paths, `update_dta()` push, 500ms throttle window. Recounted §11 suite total via summary-reporter `PASS` |
+| [\#34](https://github.com/worldbank/devPTIpack/pull/34) | 2026-05-02 | 1g (mod_drop_inval_adm) | Tier-2 [`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html) tests for `mod_drop_inval_adm` — no-drops happy path, indicator missing at admin1 → admin1 dropped, `showNotification` fires on drop (mocked via `local_mocked_bindings`), suppressed when no drops, weight-0 indicator does not trigger a drop. Pinned `get_vars_un_avbil` fill-direction asymmetry as §12 entry |
+| [\#35](https://github.com/worldbank/devPTIpack/pull/35) | 2026-05-02 | chore (PLAN/gitignore) | Replace two PR-#34 `TBD` placeholders in PLAN.md with `#34`; gitignore `.claude/scheduled_tasks.lock` so the auto-changelog hook stops drafting noise rows for it |
+| [\#36](https://github.com/worldbank/devPTIpack/pull/36) | 2026-05-02 | 1g (mod_get_admin_levels_srv) | Tier-2 [`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html) tests for `mod_get_admin_levels_srv` — no-filter passthrough, `default_adm_level` (name / value / “All” case-insensitive / non-match → last), `show_adm_levels` filtering, single non-match → last, `default_adm_level` precedence over `show_adm_levels`, update on `cur_levels` change |
+| [\#37](https://github.com/worldbank/devPTIpack/pull/37) | 2026-05-02 | 1g (mod_fltr_sel_var2_srv) | Tier-2 [`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html) tests for `mod_fltr_sel_var2_srv` — initial `updatePickerInput` with display-name choices (mocked via `local_mocked_bindings(.package = "shinyWidgets")`), selection → debounced filter of `preplot_dta`, switching selection swaps surviving slots, `first_open(TRUE)` → auto-select first display name, `add_selected()` override (single-var-per-pillar happy path) + pinned multi-var-pillar [`purrr::map_lgl`](https://purrr.tidyverse.org/reference/map.html) bug as new §12 entry |
+| [\#38](https://github.com/worldbank/devPTIpack/pull/38) | 2026-05-02 | 1g (mod_wt_save_newsrv) | Tier-2 [`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html) tests for `mod_wt_save_newsrv` — save-new (empty store), overwrite, save-alongside-existing; button-UI states for “Save and plot new PTI” / “Provide a name” / “Modify weights” / “No changes to save” / “Save changes and plot PTI” via internal `current_btn_ui()` reactiveVal. Delete logic lives in `mod_wt_delete_newsrv`, out of scope |
+| [\#39](https://github.com/worldbank/devPTIpack/pull/39) | 2026-05-02 | **1g complete** (mod_export_pti_data_server) | Tier-2 [`shiny::testServer`](https://rdrr.io/pkg/shiny/man/testServer.html) tests for `mod_export_pti_data_server` — returned named list (`Country` + `Weighting schemes` + per-admin scores), `Country` slot mirrors `weights_dta()$general`, weights tibble has one column per scheme, per-admin score slots are reversed (finer admin first), `req()` halts on NULL `plotted_dta`. **Closes 1g — all 7 Tier-2 modules covered.** |
+| [\#40](https://github.com/worldbank/devPTIpack/pull/40) | 2026-05-02 | **Phase 2 starts** (Batch 1) | arch-01 Batch 1 — delete 4 whole files (`fct_export_data.R`, `mod_explorer.R`, `mod_info_page.R`, `mod_calc_pti.R`), ~20 dead functions, 1 orphan `.rda`, 3 NAMESPACE exports; clean up commented-out `do.call(make_*_2/spplot/sp_line_map, ...)` lines; regenerate NAMESPACE/Rd via [`roxygen2::roxygenise()`](https://roxygen2.r-lib.org/reference/roxygenize.html). Pre-existing DESCRIPTION fix (<Authors@R> `c(...)` wrap + explicit Author/Maintainer) folded in to make `R CMD check` produce useful output. Suite stays at 682 PASS — no regression. |
+| [\#41](https://github.com/worldbank/devPTIpack/pull/41) | 2026-05-02 | Phase 2 Batch 2 | arch-01 Batch 2 — delete whole file `R/mod_pti_onepage.R` (both `mod_pti_onepage_ui` + `mod_pti_onepage_server`), trim `R/run_app.R` to keep only `run_new_pti` (delete `run_pti`/`run_onepage_pti`/`run_onepage_pti_sample`/`run_dev_map_pti`/`run_dev_pti_plot`), trim `R/app_server.R` to keep only `app_new_pti_server` (delete `app_server`/`app_server_input_simple`/`app_server_sample_pti_vis`), trim `R/app_ui.R` to keep `app_new_pti_ui` + `golem_add_external_resources` (delete `app_ui`/`app_server_sample_pti_vis_ui`). 7 NAMESPACE exports dropped via [`roxygen2::roxygenise()`](https://roxygen2.r-lib.org/reference/roxygenize.html). Suite stays at 682 PASS — no regression. |
+| [\#43](https://github.com/worldbank/devPTIpack/pull/43) | 2026-05-02 | Phase 2 Batch 3 | arch-01 Batch 3 — extract `mod_map_pti_leaf_ui` to new file `R/mod_map_pti_leaf_ui.R`, delete whole file `R/mod_map_pti_leaf.R` (1258 lines, all 12 legacy server functions), delete `make_shapes()` + `make_labels()` from `R/fct_legend_map_satelites.R`. Patched `app_new_pti_ui` to use modern `mod_pti_comparepage_ui` instead of deleted `mod_map_pti_leaf_page_ui` (Batch-4 mini-patch folded in to avoid `R CMD check` undefined-symbol note). Relocated 2 `@importFrom` tags ([`leaflet::colorFactor`](https://rstudio.github.io/leaflet/reference/colorNumeric.html) → `legend_map_satelite`; [`leaflet::addTiles`](https://rstudio.github.io/leaflet/reference/map-layers.html) → `plot_leaf_line_map2`) auto-pruned from NAMESPACE because their roxygen lived in the deleted file. Suite stays at 682 PASS — no regression. |
+| [\#44](https://github.com/worldbank/devPTIpack/pull/44) | 2026-05-03 | Phase 2 Batch 4 | arch-01 Batch 4 — rewrote `inst/sample_pti/app.R` to call [`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md) directly (loads shapes via [`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md) and metadata via [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md); drops `default_adm_level`, `choose_adm_levels`, `explorer_*`, `full_ui`, `pti_landing_page` knobs that have no modern equivalent — `launch_pti` would need a signature extension to preserve them). Deleted `run_new_pti` (whole `R/run_app.R`), `app_new_pti_server` (whole `R/app_server.R` — file `git rm`’d), `app_new_pti_ui` (kept only `golem_add_external_resources` in `R/app_ui.R`), and `mod_plot_pti_comparison_srv` from `R/mod_plot_pti2.R`. Relocated 5 `@importFrom` tags auto-pruned from NAMESPACE because their roxygen lived in the deleted files: [`shiny::shinyApp`](https://rdrr.io/pkg/shiny/man/shinyApp.html), [`shiny::navbarPage`](https://rdrr.io/pkg/shiny/man/navbarPage.html), [`shiny::tabPanel`](https://rdrr.io/pkg/shiny/man/tabPanel.html), [`golem::with_golem_options`](https://thinkr-open.github.io/golem/reference/with_golem_options.html) → `launch_pti_onepage`; [`shiny::reactiveValues`](https://rdrr.io/pkg/shiny/man/reactiveValues.html) → `mod_wt_inp_ui`. Folded in the long-pending Batch 3 `TBD → #43` swap on the §11 row above. Suite stays at 682 PASS — no regression. |
+| [\#45](https://github.com/worldbank/devPTIpack/pull/45) | 2026-05-03 | Phase 2 Batch 5 | arch-01 Batch 5 — extracted `mod_wt_btns_srv` (~67 lines) and `mod_collect_wt_srv` (~20 lines) to a new file `R/mod_wt_btns_collect.R` with `@noRd` roxygen and explicit `@importFrom` tags; both are still used by `mod_DT_inputs_server` (the only modern caller). Deleted whole file `R/mod_weights.R` (928 lines, 13 zero-caller legacy functions: `mod_weights_ui`, `mod_weights_server`, `mod_indicarots_srv`, `mod_gen_wt_inputs_srv`, `mod_wt_name_srv`, `mod_wt_select_srv`, `mod_wt_uplod_srv`, `mod_wt_delete_srv`, `mod_wt_fill_srv`, `mod_wt_save_srv`, `mod_download_wt_srv`, plus the originals of the 2 extracted functions). Deleted whole file `R/mod_new_weights.R` (112 lines, `mod_new_demo_weights_server` + `mod_new_weights_server` — only caller `mod_pti_onepage_server` was removed in Batch 2). Net diff ~970 lines net removed (largest single batch in Phase 2). NAMESPACE delta: dropped 1 export (`mod_weights_ui`); added 4 imports from the new file ([`purrr::map2`](https://purrr.tidyverse.org/reference/map2.html), [`purrr::map_dfr`](https://purrr.tidyverse.org/reference/map_dfr.html), [`shiny::updateNumericInput`](https://rdrr.io/pkg/shiny/man/updateNumericInput.html), [`tibble::tibble`](https://tibble.tidyverse.org/reference/tibble.html)); no auto-prune fallout. Folded in the long-pending Batch 4 `TBD → #44` swap on the §11 row above and on the §5 Batch-4 row. Suite stays at 682 PASS — no regression. |
+| [\#46](https://github.com/worldbank/devPTIpack/pull/46) | 2026-05-03 | **Phase 2 Batch 6 (closes Phase 2)** | arch-01 Batch 6 — convenience-wrapper deletion. Departure from the doc’s “Optional / deprecate first” framing: caller-graph audit showed both targets had no live external surface so a deprecation cycle would be bureaucratic. Deleted whole file `R/mod_explrr_onepage.R` (39 lines, `mod_explrr_onepage_ui` + `mod_explrr_onepage_server`, exported thin wrappers over `mod_dta_explorer2_*` — only callers in `dev/90-app-examples.R`, itself broken since Batch 2 and slated for arch-04 Phase 4 deletion). Deleted whole file `R/render_metadata_pdf.R` (14 lines, `render_metadata` exported wrapper over [`rmarkdown::render`](https://pkgs.rstudio.com/rmarkdown/reference/render.html)) — already broken on shipped installs because `system.file("pti-metadata-pdf.Rmd", package = "devPTIpack")` resolves to `""` (the Rmd lives at `inst/sample_pti/app-data/`, not the `inst/` package root); arch-04’s reference to `render_metadata()` is one `system.file` keyword away from working and can be reintroduced as a fixed function when arch-04 wants it. Both also violated the project’s `@noRd + @export` rule (creates exported functions with no help page). NAMESPACE delta: dropped 3 exports (`mod_explrr_onepage_ui`, `mod_explrr_onepage_server`, `render_metadata`) and 2 importFroms ([`here::here`](https://here.r-lib.org/reference/here.html), [`rmarkdown::render`](https://pkgs.rstudio.com/rmarkdown/reference/render.html) — neither used elsewhere in `R/`). Folded in the Batch 5 `TBD → #45` swap on the §11 row above and on the §5 Batch-5 row. **Closes Phase 2 (#8).** Suite stays at 682 PASS — no regression. |
+| [\#47](https://github.com/worldbank/devPTIpack/pull/47) | 2026-05-03 | **Phase 3 starts** (Batch 1 — package data) | arch-02-docs Phase 3.1 — rewrote `R/data.R` with standalone roxygen2 docs for `ukr_shp` and `ukr_mtdt_full` per the rules-file data template. Replaced the misleading `@describeIn ukr_shp` on `ukr_mtdt_full` (it was inheriting a *geometries* description for a *metadata* object). Documented the real bundled-data shape: `ukr_shp` has 4 admin levels (`admin0_Country` / `admin1_Oblast` (27) / `admin2_Rayon` (629) / `admin4_Hexagon` (1,939); columns `adminNPcod` / `adminNName` / `area` / `geometry`) — diverges from the rules-file example’s stale `admin1/2/3` skeleton; `ukr_mtdt_full` has 5 slots (`general` country tibble, 3 per-admin indicator tibbles, `metadata` 9×14 indicator dictionary). Both gain `@source`, `@format` with `\describe{}` per slot, and runnable `@examples` using only bundled data. Two `man/*.Rd` help pages now exist where there was previously one shared inherited page. Folded in the Batch 6 `TBD → #46` swap on the §5 row above and the §11 row above. Suite stays at 682 PASS — no regression. |
+| [\#48](https://github.com/worldbank/devPTIpack/pull/48) | 2026-05-03 | Phase 3 Batch 2 (core calculation) | arch-02-docs Phase 3.2 — rewrote roxygen for all 12 functions in `R/calc_pti_helpers.R` (6) and `R/calc_pti_expander.R` (6). Honored arch-01 § “Permanent Functions”: un-exported the 10 INTERNAL fns and re-typed them with the `@noRd` template (typed `@param`, explicit `@return`, no `@examples`); kept `label_generic_pti` and `generic_pti_glue` exported with synthetic-input `@examples` (real input is now from internal `agg_pti_scores`, so the example builds a minimal scores list directly). Promoted `generic_pti_glue` from `@describeIn label_generic_pti` to standalone. Pinned 3 §12 bugs via `@note` tags: `get_adm_levels` lex sort, `get_scores_data` 1-row → NA, `expand_adm_levels` \>1 element silent NULL. Stripped pre-existing debug residue per arch-01:436 (~50 lines: 2 `# browser()`, 2 large commented-out alternate implementations in `structure_pti_data`, several stray comment lines). NAMESPACE delta: dropped 9 `export()` (`agg_pti_scores`, `clean_geoms`, `expand_adm_levels`, `get_adm_levels`, `get_mt`, `get_scores_data`, `get_weighted_data`, `pivot_pti_dta`, `structure_pti_data`); added 7 `importFrom`s ([`dplyr::bind_rows`](https://dplyr.tidyverse.org/reference/bind_rows.html), [`magrittr::extract`](https://magrittr.tidyverse.org/reference/aliases.html)/`extract2`, [`rlang::set_names`](https://rlang.r-lib.org/reference/set_names.html)/`sym`, [`tidyr::expand`](https://tidyr.tidyverse.org/reference/expand.html), [`golem::get_golem_options`](https://thinkr-open.github.io/golem/reference/get_golem_options.html)) that lost their previous bulk-import coverage. Test-side: converted 7 `devPTIpack::fn()` qualified calls in 3 pre-existing test files (`test-shps-converters.R`, `test-calc_pti.R`, `test-weighting-logic.R`) to unqualified — needed because `::` requires export and the tests’ [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) exposure is unaffected. Suite stays at 682 PASS — no regression. |
+| [\#49](https://github.com/worldbank/devPTIpack/pull/49) | 2026-05-03 | Phase 3 Batch 3 (data I/O & validation) | arch-02-docs Phase 3.3 – rewrote roxygen for 11 functions across 5 files: `R/fct_template_reader.R` (`fct_template_reader` exported, `fct_convert_weight_to_clean` internal), `R/fct_validate_metadata.R` (`validate_metadata` + `validate_read_shp` + `validate_read_metadata`, all exported), `R/validators.R` (`validate_geometries` exported, `validate_single_geom` un-exported per arch-01), `R/dta_cleaners.R` (`get_indicators_list` un-exported per arch-01), `R/mod_drop_inval_adm.R` (`mod_drop_inval_adm` module + `get_vars_un_avbil` + `get_min_admin_wght` + `drop_inval_adm`, all exported – folded in here for thematic coherence with the validation theme). Honored arch-01: closes 3x `@noRd + @export` rule violations (`validate_single_geom`, `validate_geometries`, `get_indicators_list`); promoted 5 functions from `@describeIn` chains to standalone exported help pages (`validate_read_shp`, `validate_read_metadata`, `get_vars_un_avbil`, `get_min_admin_wght`, `drop_inval_adm`). Pinned 2 §12 bugs via `@note`: `validate_read_shp` empty-pattern `str_detect` (issue \#7), `get_vars_un_avbil` asymmetric [`lag()`](https://rdrr.io/r/stats/lag.html) fill (PR \#34); the second `@note` flipped my initial example to use the working direction (admin2-only -\> admin1 unavailable) instead of the buggy direction. Stripped 4 `# browser()` debug-residue lines per arch-01:436 (`fct_template_reader.R` x2, `validators.R`, `dta_cleaners.R`) plus an 8-line commented-out runtime `test_that` block in `validators.R` replaced by the live `if (is.na(adm_order)...)` branch. **Kept the `@import dplyr purrr stringr readxl` bulk-import directive on `fct_template_reader`** – the [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) test environment relies on the bulk import to keep `mod_DT_inputs_server`’s 500ms throttle test deterministic across `testServer` calls (subtle shiny scheduler interaction; explicit-import-only triggers a cross-test reactive-state leak in the throttle Tier-2 test). Replaced `admin\d` regex notation in roxygen prose with `admin<N>` to avoid Rd “Lost braces” warnings; replaced em-dashes and arrows with `--` and `->` per the Batch 2 reviewer ASCII fix. NAMESPACE delta: dropped 2 `export()` (`get_indicators_list`, `validate_single_geom`); kept 4 bulk `import()` directives intact. Test-side: converted 7 `devPTIpack::get_indicators_list()` qualified calls in 2 pre-existing test files ([test-calc_pti.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc_pti.R) x4, [test-weighting-logic.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-weighting-logic.R) x3) to unqualified, and qualified 5 unqualified `tribble(` calls in [test-get_uavailab_admin.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-get_uavailab_admin.R) to `tibble::tribble(`. Folded in the Batch 2 `TBD -> #48` swap on the §6 row and the §11 row above. Suite stays at 682 PASS – no regression. |
+| [\#50](https://github.com/worldbank/devPTIpack/pull/50) | 2026-05-04 | Phase 3 Batch 4 (visualisation helpers) | arch-02-docs Phase 3.4 – rewrote roxygen for 12 functions across `R/plot_pti_helpers.R` (10) and `R/fct_legend_map_satelites.R` (2). All 12 are INTERNAL per arch-01 § “Permanent Functions” / “Visualisation Helpers”; batch un-exports every one and converts to the `@noRd` internal template. Closes 4 `@noRd + @export` rule violations (`get_current_levels`, `filter_admin_levels`, `add_legend_paras`, `legend_map_satelite`; `recode_val_base` was already correct). Promoted 4 `@describeIn plot_pti_polygons` chains to standalone `@noRd` docs (`clean_pti_polygons`, `add_pti_poly_controls`, `clean_pti_poly_controls`, `check_existing_groups`) – the chain was acceptable while all 5 were exported but becomes meaningless once nothing has a help page. Pinned 3 §12 bugs via `@note` (all PR \#25, all in `plot_pti_helpers.R`): `filter_admin_levels` name-vs-value asymmetry, `complete_pti_labels` missing-assignment no-op (priority-rank suffix never appended in production), `check_existing_groups` empty-pattern `str_detect` error. Stripped 4 `# browser()` debug-residue lines per arch-01:436 (`plot_pti_helpers.R` x2, `fct_legend_map_satelites.R` x2). Left larger commented-out alternate-implementation blocks in `fct_legend_map_satelites.R` alone – arch-01’s “remove commented-out blocks” mandate names specific files and that file is not on the list. Fixed `@describeIn plot_pti_polygons plot_pti_polygons` typo on `add_pti_poly_controls`. Package-source fix: converted one `devPTIpack::get_current_levels()` qualified call in `R/mod_export_pti_data.R::get_pti_scores_export` to unqualified (the `::` form requires export and now errors after the un-export); 9 export-data tests broke and went green again after this one-line fix. NAMESPACE delta: dropped 11 `export()`; added 7 `importFrom`s ([`leaflet::addLayersControl`](https://rstudio.github.io/leaflet/reference/addLayersControl.html) / `clearGroup` / `layersControlOptions` / `showGroup`; [`purrr::map2_chr`](https://purrr.tidyverse.org/reference/map2.html); [`shiny::HTML`](https://rstudio.github.io/htmltools/reference/HTML.html); plus minor re-localisations from explicit-import sweeps). Test-side: no qualified-call conversions needed – the existing `devPTIpack:::legend_map_satelite` triple-colon calls in `tests/testthat/test-legend-mapping.R` keep working (`:::` resolves regardless of export status); other test files use unqualified calls that resolve via [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html). Folded in the Batch 3 `TBD -> #49` swap on the §6 row above and the §11 row above. Suite stays at 682 PASS – no regression. |
+| [\#51](https://github.com/worldbank/devPTIpack/pull/51) | 2026-05-04 | Phase 3 Batch 5 (entry points & app infrastructure) | arch-02-docs Phase 3.5 – rewrote roxygen for 5 functions across 4 files: `R/launch_pti.R` (`launch_pti_onepage` + `launch_pti`), `R/fct_create_new_pti.R` (`create_new_pti`), `R/app_config.R` (`app_sys`), `R/app_ui.R` (`golem_add_external_resources` – folded in here for thematic coherence with the entry-points theme; arch-01:24 classifies it as EXPORTED but it lived in app_ui.R behind `@noRd`). All 5 are EXPORTED per arch-01 § “Entry Points & App Scaffolding” – this batch is the inverse shape of Batches 2-4 (no un-exports; one promote-to-exported on `golem_add_external_resources`). Honored the rules-file Exported template: typed `@param`, `@return`, `@importFrom`, `@export`, runnable or `\dontrun{}` `@examples`. Closes 1 `@noRd + @export` rule violation (`app_sys`) and 1 `@noRd`-on-an-EXPORTED-fn arch-01 violation (`golem_add_external_resources`). Promoted the `@describeIn launch_pti_onepage` chain on `launch_pti` to a standalone help page – the two apps diverge in usage (one-page is a focused viewer, multi-tab pulls in compare + explorer + cicerone tour), and only `launch_pti` takes the `tabs` and `app_name` parameters. Examples: `app_sys` runs unwrapped (`app_sys("app", "www")`); `create_new_pti` runs unwrapped via a [`tempdir()`](https://rdrr.io/r/base/tempfile.html) scaffold with `open = FALSE` (rstudioapi gates skip cleanly outside RStudio); `launch_pti` / `launch_pti_onepage` / `golem_add_external_resources` use `\dontrun{}` per the rules-file “side-effect-heavy code” clause. Stripped 1 debug-residue line (`R/launch_pti.R:173` – a commented-out `observe(cat("tab: ", active_tab(), "\n"))` instrumentation). No pinned §12 bugs touched this batch. Reviewer-iteration adjustments: dropped a stale `@importFrom bsplus use_bs_tooltip` directive on `golem_add_external_resources` (carried from the `@noRd` era but the body never called it); flattened a `[add_logo()]` cross-ref to plain backticks since `add_logo()` is `@noRd` (avoids an “Rd cross-reference to non-existent topic” R CMD check note); added the `tabs` default to its `@param` description. NAMESPACE delta: added 1 export (`golem_add_external_resources`); added 2 `importFrom`s ([`cicerone::use_cicerone`](https://rdrr.io/pkg/cicerone/man/use_cicerone.html), [`rlang::dots_list`](https://rlang.r-lib.org/reference/list2.html)); dropped 1 stale `importFrom` ([`bsplus::use_bs_tooltip`](https://ijlyttle.github.io/bsplus/reference/bs_embed_tooltip.html)). Test-side: no qualified-call conversions needed – nothing was un-exported; the new `golem_add_external_resources` export strictly widens the public surface. Folded in the Batch 4 `TBD -> #50` swap on the §6 row and the §11 row above. Suite stays at 682 PASS – no regression. |
+| [\#52](https://github.com/worldbank/devPTIpack/pull/52) | 2026-05-04 | Phase 3 Batch 6a (PTI rendering & display stack) | arch-02-docs Phase 3.6a – rewrote roxygen for 44 functions across 16 files in the rendering stack: `R/mod_ptipage_core.R` (3), `R/mod_pti_comparepage.R` (2), `R/mod_calc_pti2.R` (2), `R/mod_dta_explorer2.R` (8), `R/mod_export_pti_data.R` (3), `R/mod_load_shapes.R` (2), `R/mod_plot_pti2.R` (1), `R/mod_plot_init_leaf.R` (2), `R/mod_plot_poly_leaf.R` (4), `R/mod_plot_poly_legend.R` (3), `R/mod_pti_map_side_pan.R` (7), `R/mod_map_pti_leaf_ui.R` (1), `R/mod_dwnld_dta.R` (3), `R/mod_dwnld_local_file.R` (1), `R/run_pti_pipeline.R` (1; cross-ref cleanup only), `R/mod_fetch_data.R` (1). Honored arch-01 § “Permanent Functions”: un-exported 15 INTERNAL fns (`filter_var_explorer`, `get_var_choices`, `make_gg_line_map`, `make_ggmap`, `mod_dta_explorer2_side_ui`, `mod_fltr_sel_var2_srv`, `mod_plot_init_leaf_server`, `mod_plot_leaf_export`, `mod_plot_poly_leaf_server`, `mod_plot_poly_legend_server`, `mod_select_var_ui`, `plot_leaf_line_map2`, `plot_pti_legend`, `remove_pti_legend`, `reshaped_explorer_dta`); promoted 3 EXPORTED fns from `@noRd` to `@export` (`mod_leaf_side_panel_ui`, `mod_map_pti_leaf_ui`, `mod_pti_comparepage_newsrv` – closes 3 arch-01 violations; the `mod_pti_comparepage_newsrv` one was missed by the scope inventory and surfaced when roxygen2 wrote out the new NAMESPACE). Promoted 14 `@describeIn` members to standalone docs across the chains in `mod_dta_explorer2`, `mod_plot_init_leaf`, `mod_plot_poly_leaf`, `mod_plot_poly_legend`; split `mod_ptipage_newsrv` out of the UI chain since server vs UI diverged in usage (Batch 5 `launch_pti` precedent). Pinned 2 §12 bugs via `@note` – `get_var_choices` empty-indicators NULL-attr (PR \#27), `mod_fltr_sel_var2_srv` multi-var-pillar predicate (PR \#37); the second `@note` had to escape `\%in\%` and avoid raw `~ {` brace literals to keep the Rd parser happy. Stripped 6 debug-residue lines per arch-01:436: 4 `# browser()` in `mod_plot_poly_leaf.R` (one in `mod_plot_leaf_export`, three in `make_ggmap` / `make_gg_line_map`), 1 in `mod_pti_map_side_pan.R` (PNG download handler), 1 in `mod_dta_explorer2.R` (`mod_fltr_sel_var2_srv` `add_selected` observer); plus the 14-line commented-out `withProgress` / `tempfile` / `mapview` block in `mod_plot_leaf_export` (alternate impl that was never re-enabled). Left the larger commented-out alternate-implementation blocks in `mod_pti_map_side_pan.R` (chromote / mapshot / webshot2 PNG path, ggsave alternative; ~50 commented lines total) and the `radioButtons` / `adm_lvl_debounce` alternate path in `mod_get_admin_levels_srv` alone – arch-01’s “remove commented-out blocks” mandate names specific files and `mod_pti_map_side_pan.R` is not one of them. Examples: `get_shape` runs unwrapped via the `shape_dta = ukr_shp` short-circuit; `get_pti_weights_export` runs unwrapped via `get_indicators_list(ukr_mtdt_full)` + [`get_rand_weights()`](https://worldbank.github.io/devPTIpack/reference/get_rand_weights.md); UI / server modules use `\dontrun{}` per the rules-file “Shiny modules” clause; `get_pti_scores_export` uses `\dontrun{}` because reproducing its expected `plotted_dta` shape requires the full reactive chain (preplot + drop_inval_adm + filter_admin_levels + add_legend_paras + complete_pti_labels). NAMESPACE delta: dropped 15 `export()`; added 3 `export()`; added 5 `importFrom`s ([`purrr::pmap_dfr`](https://purrr.tidyverse.org/reference/map_dfr.html), [`shiny::fillPage`](https://rdrr.io/pkg/shiny/man/fillPage.html), [`shiny::incProgress`](https://rdrr.io/pkg/shiny/man/withProgress.html), [`shiny::uiOutput`](https://rdrr.io/pkg/shiny/man/htmlOutput.html), [`shiny::withProgress`](https://rdrr.io/pkg/shiny/man/withProgress.html)) that lost their previous bulk-import coverage. Test-side: no qualified-call conversions needed – the existing `devPTIpack:::*` triple-colon calls in tests resolve regardless of export status; no `devPTIpack::` calls existed for any of the 15 un-exported fns. Cross-ref cleanup: flattened `[mod_calc_pti2_server()]`, `[get_indicators_list()]`, `[agg_pti_scores()]` cross-refs in `run_pti_pipeline` to plain backticks since those targets are `@noRd` (avoids “Rd cross-reference to non-existent topic” R CMD check notes per the Batch 5 reviewer fix). No prior-batch TBD swap to fold in – Batch 5 (#51) merged with the PR number already in place. Suite stays at 682 PASS – no regression. |
+| [TBD](https://github.com/worldbank/devPTIpack/pull/TBD) | 2026-05-04 | **Phase 3 Batch 6b (closes Phase 3 – \#11)** | arch-02-docs Phase 3.6b – audited 37 functions across 12 files closing the Phase 3 sweep (35 fns across 11 files rewritten in this PR; 2 fns in `mod_wt_btns_collect.R` already at standard from Batch 5 extraction PR \#45, no edits): `R/mod_wt_inp.R` (14), `R/mod_DT_inputs.R` (7), `R/mod_wt_btns_collect.R` (2; verified-only), `R/mod_first_open_count.R` (1), `R/mod_tab_open.R` (1), `R/mod_waiter.R` (3), `R/mod_weights_rand.R` (3), `R/mod_infotab.R` (1), `R/fct_guide.R` (1), `R/fct_helpers.R` (1; `add_logo`), `R/fct_inp_for_exp.R` (2), `R/supporting-goe-prep.R` (1; `gg_admin_list`). Honored arch-01 § “Permanent Functions”: un-exported 2 INTERNAL fns (`fct_inp_for_exp`, `fct_internal_wt_to_exp` – arch-01:166-167 classifies both INTERNAL but they were exported via the `@noRd + @export` rule violation; un-exporting closes the violation and aligns NAMESPACE with arch-01); kept 4 EXPORTED fns exported by dropping their `@noRd` tags (`mod_tab_open_first_newserv`, `gg_admin_list`, `get_rand_weights`, `get_all_weights_combs` – closes 4 more `@noRd + @export` rule violations without moving NAMESPACE). Net 6 rule-violations closed. Promoted the 14-fn `@describeIn mod_wt_inp_ui` chain to standalone `@noRd` docs (Batch 4 precedent for full-chain split when umbrella + members are all INTERNAL); promoted the 3-fn `@describeIn mod_waiter_newsrv` chain similarly; split `get_rand_weights` and `get_all_weights_combs` out of the `@describeIn mod_weights_rand_ui` chain so their EXPORTED help pages stand alone. Pinned 1 §12 bug via `@note`: `fct_internal_wt_to_exp(list())` left-join error (PR \#26). Stripped 8 `# browser()` debug-residue lines per arch-01:436 (4 in `mod_DT_inputs.R`, 1 in `mod_wt_inp.R`’s upload-stub `mod_wt_uplod_newsrv` body, 3 in `supporting-goe-prep.R`); also stripped the 8-line commented-out `observeEvent(update_dta())` alternate-impl block in `mod_DT_inputs.R` (contained an embedded [`browser()`](https://rdrr.io/r/base/browser.html); the live `observe(...)` block above implements the same logic without the debugger trap). Three scope-proposal-time corrections vs the user’s prompt-time hypotheses, surfaced and corrected at the gate before any roxygen edit: (1) `fct_inp_for_exp` + `fct_internal_wt_to_exp` are arch-01-INTERNAL not EXPORTED, so the close direction was drop-`@export` not drop-`@noRd`; (2) `mod_infotab.R` had no `# browser()` at line ~71 (and none anywhere); (3) total browser-strip count was 8 lines + 1 alt-impl block, not the 1 implied. NAMESPACE delta: dropped 2 `export()` (`fct_inp_for_exp`, `fct_internal_wt_to_exp`); added a batch of explicit `importFrom`s on the rewritten functions that lost bulk-import coverage when their `@describeIn` chains dispersed (notable: [`ggplot2::aes`](https://ggplot2.tidyverse.org/reference/aes.html)/`geom_sf`/`ggplot`/`labs`/`theme`/`theme_minimal` localised onto `gg_admin_list`; [`dplyr::case_when`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html)/`if_any`/`right_join`; `purrr::flatten`/`imap_dfr`/`pmap_chr`/`pwalk`; ~15 new `shiny::*` symbols including `actionLink`/`fileInput`/`isolate`/`modalDialog`/`renderUI`/`throttle`/`updateSelectInput`/`verbatimTextOutput`). Test-side: no qualified-call conversions needed – existing unqualified `fct_inp_for_exp(...)` / `fct_internal_wt_to_exp(...)` calls in `tests/testthat/test-export.R` resolve via [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) regardless of export status. Folded in the Batch 6a `TBD -> #52` swap on the §6 row above and the §11 row above. **Closes Phase 3 (#11).** Suite stays at 682 PASS – no regression. |
+
+Suite total after this branch: **0 failures / 1 skip / 682 PASS**
+([`testthat::test_local()`](https://testthat.r-lib.org/reference/test_package.html);
+docs-only PR, no test delta).
+
+> **Suite totals revised on 2026-05-02:** prior counts in §11 were
+> derived from `sum(res$nb)` over
+> `as.data.frame(testthat::test_local())`, which over-counts internal
+> [`testthat::test_that()`](https://testthat.r-lib.org/reference/test_that.html)
+> calls inside
+> [`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md)
+> and `validate_single_geom()` (those use `test_that()` as a runtime
+> validation mechanism — pinned in §12 as candidates for the \#7
+> refactor). The summary-reporter `PASS` count is now the source of
+> truth. Per-PR “expectations” deltas above were measured the same way
+> and are similarly inflated; left as-is for historical record, with
+> this footnote covering the methodology shift.
+>
+> **Phase 1e milestone reached** with PR \#29: all 10 Tier-1 test files
+> from arch-03 §1.2–§1.11 are now in place. 9 bugs / spec corrections
+> pinned along the way (see §12). 1f (CI guard) merged in \#30. **1g
+> (Tier 2) complete** — all 7 modules covered: `mod_calc_pti2` (#31),
+> `mod_DT_inputs` (#33), `mod_drop_inval_adm` (#34),
+> `mod_get_admin_levels_srv` (#36), `mod_fltr_sel_var2_srv` (#37),
+> `mod_wt_save_newsrv` (#38), `mod_export_pti_data_server` (this
+> branch). **Phase 1 closes when this lands.** Next up: Phase 2 cleanup
+> batches (arch-01 § “Removal Batches”).
+
+------------------------------------------------------------------------
+
+## 12. Discovered bugs (pinned in tests)
+
+> Bugs surfaced *while* writing Tier-1 tests. Pinned with `expect_*`
+> assertions on the current (broken) behaviour so the tests fail when a
+> future fix lands — at which point the assertion is updated to the new
+> contract. Cleanup-phase candidates.
+
+| Loc | Bug | Pin (test) |
+|----|----|----|
+| [`R/plot_pti_helpers.R::complete_pti_labels`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R#L113-L133) | The function maps over `dta` but never assigns the result; returns the original `dta` unchanged. Intent is to append `<strong>{priority_label}</strong>` to each `pti_label`. The deployed app silently misses the priority-rank suffix. One-line fix. | [test-plot-helpers.R:complete_pti_labels: returns input unchanged (PINNED BUG)](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
+| [`R/plot_pti_helpers.R::check_existing_groups`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R#L286) | Errors with a vctrs size error when `old_grps` is `character(0)` — `str_detect(string, character(0))` is invalid. arch-03 §1.6 expects “first of current shown” in this case. | [test-plot-helpers.R:check_existing_groups: empty old errors (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
+| [`R/plot_pti_helpers.R::filter_admin_levels`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R#L60) | Asymmetry: the if-branch enters when `to_fltr` matches *names* of admin levels (e.g. `"admin1"`), but the inner `keep()` predicate compares values (e.g. `"Oblast"`). Passing a name returns 0 entries. Pinned, not a bug per se but worth normalising in the cleanup phase. | [test-plot-helpers.R:filter_admin_levels: name-only filter returns 0 entries (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
+| [`R/validators.R::validate_read_shp`](https://worldbank.github.io/devPTIpack/R/validators.R) | Empty-pattern `str_detect` when no admin codes are extra (i.e. the shape file is “perfect”) — error caught by the function’s internal `test_that`. Refactor target under issue \#7. | [test-validators.R:validate_read_shp: round-trips through an .rds path (PINNED BUG)](https://worldbank.github.io/devPTIpack/tests/testthat/test-validators.R) |
+| [`R/calc_pti_helpers.R::get_adm_levels`](https://worldbank.github.io/devPTIpack/R/calc_pti_helpers.R#L34) | Lexicographic sort produces `admin1 < admin10 < admin2`. Internally consistent with downstream code (which compares first digit only) but wrong for any deployment with ≥10 admin levels. | [test-calc-pipeline.R:get_adm_levels: sort is lexicographic, not numeric (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
+| [`R/calc_pti_helpers.R::get_scores_data`](https://worldbank.github.io/devPTIpack/R/calc_pti_helpers.R) | 1-row `year × var_code` group produces `NA` (not `0`) because [`sd()`](https://rdrr.io/r/stats/sd.html) of length-1 returns `NA` (not `NaN`), so the `is.nan` filter misses. | [test-calc-pipeline.R:get_scores_data: 1-row groups produce NA, not 0 (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
+| [`R/calc_pti_expander.R::expand_adm_levels`](https://worldbank.github.io/devPTIpack/R/calc_pti_expander.R) | When \>1 list element name matches an admin level (`length(...) == 1` guard fails), the entire source-loop iteration returns nested `NULL`s. Silent data loss. | [test-calc-pipeline.R:expand_adm_levels: \>1 element matches (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
+| [`R/fct_inp_for_exp.R::fct_internal_wt_to_exp`](https://worldbank.github.io/devPTIpack/R/fct_inp_for_exp.R#L51) | Errors with “Join columns in `x` must be present” when called with an empty `weights_clean = list()`. Cause: `imap_dfr(list())` yields a 0×0 tibble that has no `var_code` column for the downstream `left_join`. Should early-return on length-0 input. | [test-export.R:fct_internal_wt_to_exp: empty list errors at left_join (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-export.R) |
+| [`R/mod_dta_explorer2.R::get_var_choices`](https://worldbank.github.io/devPTIpack/R/mod_dta_explorer2.R#L302) | Errors with “attempt to set an attribute on NULL” when called with an empty `indicators_list`. The fallback branch `names(out) <- "Indicators"` runs even when `out` is `NULL`. A length-0 list output would be more useful. | [test-explorer-helpers.R:get_var_choices: empty indicators tibble errors (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-explorer-helpers.R) |
+| [`R/mod_drop_inval_adm.R::get_vars_un_avbil`](https://worldbank.github.io/devPTIpack/R/mod_drop_inval_adm.R#L72-L101) | Asymmetric availability check. The fill logic uses `lag(value)` (after `arrange(admin_level)`), so an indicator that exists only at an earlier-sorted level (e.g. admin1 only) is treated as “available” at later-sorted levels (admin2) — admin2 is never surfaced as unavailable. Reverse direction (admin2-only → admin1 unavailable) works because admin1 is first-sorted and has no `lag`. Also: the `is.na(value & !any_larger)` expression looks like missing parens — likely meant `(is.na(value) & !any_larger)`. Caught while writing Tier-2 tests for `mod_drop_inval_adm`. | [test-mod-drop-inval-adm.R: comment block above “Notification side effect” (DOCUMENTED, not pinned — Tier-2 test avoids the bug per the skill rule)](https://worldbank.github.io/devPTIpack/tests/testthat/test-mod-drop-inval-adm.R) |
+| [`R/mod_dta_explorer2.R::mod_fltr_sel_var2_srv`](https://worldbank.github.io/devPTIpack/R/mod_dta_explorer2.R#L216-L235) | The `add_selected()` observer’s predicate `purrr::map_lgl(choices(), ~ { .x %in% c(selected_add, selected_now) | .x %in% names(c(selected_add, selected_now)) })` errors with “Result must be length 1, not N” whenever any pillar holds \>1 variable, because `.x` is the length-N character vector for that pillar and `%in%` returns length-N. Should be `map(...) %>% map_lgl(any)`, or use `any(.x %in% ...)` inside the predicate. The Tier-2 test avoids the bug for happy-path coverage by using single-var-per-pillar choices, and pins the underlying predicate failure separately. | [test-mod-var-selector.R: add_selected() with multi-var pillar fails the inner predicate (PINNED BUG)](https://worldbank.github.io/devPTIpack/tests/testthat/test-mod-var-selector.R) |
+
+------------------------------------------------------------------------
+
+*This plan is a thin tracker. For depth, follow the links in §1.*

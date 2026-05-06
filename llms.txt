@@ -1,0 +1,499 @@
+# devPTIpack
+
+The goal of the `devPTIpack` is to be a platform that contains key
+instruments for creating PTI dashboards as well as embedding PTI modules
+in to the existing shiny apps.
+
+## Installation:
+
+``` R
+# Install development version from GitHub
+remotes::install_github("wbPTI/devPTIpack")
+
+# Install specific version from GitHub
+remotes::install_github("wbPTI/devPTIpack@v0.0.9")
+```
+
+We add `@v0.0.9` to be able to refer to a specific tag. Check the [tags’
+tree](https://github.com/wbPTI/devPTIpack/tags) on github for existing
+tags.
+
+## Usage
+
+There are several ways how this package can be used:
+
+1.  to deploy a stand-along PTI apps to the server;
+
+2.  to embed PTI modules into existing apps;
+
+### Run a stand-along PTI app
+
+PTI apps are pre-packaged in a form of two functions.
+
+``` R
+devPTIpack::launch_pti()
+devPTIpack::launch_pti_onepage()
+```
+
+Minimum data preparation requirements must be met in order to launch a
+PTI using functions from above. We need to have `shp_dta`, `inp_dta` and
+the app’s name. In more details, data preparation is explained in
+[`vignette("dataprep")`](https://worldbank.github.io/devPTIpack/articles/dataprep.md).
+Some exemplary data sets are included in the package: geometries
+[`devPTIpack::ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)
+and metadata
+[`devPTIpack::ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md).
+
+``` R
+# Running PTI app with sample data
+library(devPTIpack)
+launch_pti_onepage(
+  shp_dta = ukr_shp,
+  inp_dta = ukr_mtdt_full,
+  app_name = "Sample PTI"
+)
+```
+
+Many other parameters could be specified in
+[`devPTIpack::launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md).
+The most notable are:
+
+- `app_name` - title of the app. Appears across multiple places in the
+  app.
+- `show_waiter` - `TRUE/FALSE` indicates weather a “waiter” screen has
+  to show, when the app launches.
+- `show_adm_levels` - vector `c("admin1", "admin4")` or `NULL`,
+  indicates at what admin levels the map must be displayed If `NULL` all
+  available administrative levels are used.
+- `shapes_path` and `mtdtpdf_path` are relative or absolute path to a
+  zip archive with shape files used for mapping and metadata pdf
+  respectively.
+- `wt_dwnld_options` and `map_dwnld_options` specify what data and
+  metadata download options are available in different places of the
+  app’s interface.
+
+#### Deploying a stand-along PTI app
+
+When data is prepare properly and
+[`devPTIpack::launch_pti_onepage()`](https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.md)
+works, we can create a dedicated folder, where app’s data and code can
+be stored. This is needed if we want to deploy the PTI app to a Shiny
+server or an RStudio Connect server.
+
+To create a new PTI project use
+[`devPTIpack::create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md):
+
+``` R
+devPTIpack::create_new_pti("PATH-TO-NEW-PROJECT-LOCATION/PROJECT-NAME")
+```
+
+- `PATH-TO-NEW-PROJECT-LOCATION` is a relative or an absolute path to
+  the folder, where the app should be created.
+
+- a new sub-folder with the app itself will be created with the named
+  `PROJECT-NAME`.
+
+This is how a typical PTI folder looks like.
+
+``` R
++-- app-data
+|   \-- metadata.Rmd
++-- app.R
++-- app-name.Rproj
++-- landing-page.md
+\-- R
+|   \-- _disable_autoload.R
+```
+
+After the basic app folder was created, users need to populate it with
+data and make some minor edits.
+
+- Step 1. Prepare proper `metadata.xlsx` and `shapes.rds` files; Files
+  names can be anything. One will have to specify correct paths to the
+  files in `app.R`.
+
+- Step 2. Place shapes and metadata into the `app-data` folder. Use the
+  `app-data` folder to store also other data such as archive with the
+  geometrical boundaries or metadata pdf documentation.
+
+- Step 3. Knit `metadata.Rmd` in order to generate `metadata.pdf`
+  documentation of the data used in the app. This documentation is based
+  on the `metadata.xlsx` and `shapes.rds`. Remember to re-render
+  metadata PDF whenever the metadata changes.
+
+- Step 4. Modify the `app.R` file specifying paths to `metadata.xlsx`,
+  `shapes.rds`, pdf documentation and archive with the geometrical
+  boundaries. Change the app’s name and tune
+  [`devPTIpack::launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+  function according to your needs.
+
+  Note, that `inp_dta` parameter in
+  [`devPTIpack::launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+  shell be specified as a pre-loaded r object. As it is usually
+  generated based on the `metadata.xlsx`, use
+  [`devPTIpack::fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
+  (see
+  [`?devPTIpack::fct_template_reader`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)).
+
+- Step 5. Run the app and troubleshoot its functioning. Remember, if the
+  app does not start, it is likely that there are some discrepancies in
+  the data preparation. Always use the built-in data to check if the app
+  launches from its own folder. You may try using
+  [`devPTIpack::validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md)
+  or
+  [`devPTIpack::validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md)
+  to check if geometries or metadata are prepared properly. These
+  validation functions, however, are not exhaustive, thus, consult
+  [`vignette("dataprep")`](https://worldbank.github.io/devPTIpack/articles/dataprep.md)
+  or ask for help.
+
+- Step 6. Develop additional functionality in folder `R`.
+
+- Step 7. `landing-page.md` is an optional parameter and may be used for
+  customizing the info modal that pops-up when the app launches.
+
+Fully, completed app folder may look like this:
+
+``` R
++-- app-data
+|   +-- admin_bounds.rds
+|   +-- metadata.pdf
+|   +-- metadata.Rmd
+|   +-- mtdt.xlsx
+|   \-- shapefiles.zip
++-- app.R
++-- examplePTIapp.Rproj
++-- landing-page.md
+\-- R
+    \-- _disable_autoload.R
+```
+
+The `app.R` script, which launches the app and could be used to deploy
+such app to an external server is:
+
+``` R
+# Launch the ShinyApp (Do not remove this comment)
+# To deploy, run: rsconnect::deployApp()
+# Or use the blue button on top of this file
+
+library(shiny)
+library(devPTIpack)
+
+launch_pti(
+  shp_dta = readRDS("app-data/admin_bounds.rds"),
+  inp_dta = devPTIpack::fct_template_reader("app-data/mtdt.xlsx"),
+  app_name = "Example country", 
+  show_waiter = TRUE, 
+  show_adm_levels = c("admin1", "admin2"),
+  shapes_path = "app-data/shapefiles.zip", 
+  mtdtpdf_path = "app-data/metadata.pdf",
+  pti_landing_page = "./landing-page.md"
+)
+```
+
+### Embedding PTI modules into existing apps;
+
+Essentially, PTI is a set of modules, which are used in different
+combinations.
+[`devPTIpack::launch_pti_onepage()`](https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.md)
+offers simple glance at one key meta-module that could be used to embed
+PTI into any Shiny app.
+
+``` R
+# Server side
+?devPTIpack::mod_ptipage_newsrv
+
+# UI side
+?devPTIpack::mod_ptipage_box_ui
+?devPTIpack::mod_ptipage_twocol_ui
+```
+
+[`devPTIpack::mod_ptipage_newsrv()`](https://worldbank.github.io/devPTIpack/reference/mod_ptipage_newsrv.md)
+could be paid with any of two available UI and launched as an app in the
+command line. Note that in order for the module to function with its UI,
+they have to be identified in the same namespace provided with `id`
+parameter. For more information on modules, see [19 Shiny
+modules](https://mastering-shiny.org/scaling-modules.html) in [Mastering
+Shiny](https://mastering-shiny.org/index.html) or [Modularizing Shiny
+app code](https://shiny.rstudio.com/articles/modules.html) or [10
+Building the App with
+{golem}](https://engineering-shiny.org/build-app-golem.html#build-app-golem).
+
+``` R
+library(shiny)
+library(devPTIpack)
+
+# user interface
+ui <- mod_ptipage_twocol_ui(id = "pti_mod")
+
+# server
+server <- function(input, output, session) {
+  mod_ptipage_newsrv(id = "pti_mod",
+                     inp_dta = reactive(ukr_mtdt_full),
+                     shp_dta = reactive(ukr_shp), 
+                     show_waiter = TRUE)
+  }
+
+# Shiny app.
+shinyApp(ui, server)
+```
+
+Here is another example of embedding the PTI into an existing dashboard.
+It should be runnable in the console if all necessary packages are
+installed.
+
+- Note that most of the code below describe the dashboard layout and
+  structure and only a few lines are dedicated to the PTI.
+- Remember to disable waiter when embedding module in a multitab
+  dashboard.
+- More elaborate example of multitab dashboard is in the source code of
+  the function
+  [`devPTIpack::launch_pti`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md).
+
+``` R
+## app.R ##
+library(shiny)
+library(shinydashboard)
+library(devPTIpack)
+
+ui <- dashboardPage(
+  dashboardHeader(title = "Basic dashboard"),
+  ## Sidebar content
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem("PTI", tabName = "pti", icon = icon("th"))
+    )
+  ),
+  ## Body content
+  dashboardBody(
+    tabItems(
+      # First tab content
+      tabItem(tabName = "dashboard",
+        fluidRow(
+          box(plotOutput("plot1", height = 250)),
+
+          box(
+            title = "Controls",
+            sliderInput("slider", "Number of observations:", 1, 100, 50)
+          )
+        )
+      ),
+
+      # Second tab content
+      tabItem(tabName = "pti",
+        fluidRow(
+          box(
+            
+            ### ### ### ### ### ### ## ### ### ### ### ###
+            ### ### ### ### ### PTI UI ### ### ### ### ###
+            ### ### ### ### ### ### ## ### ### ### ### ###
+            devPTIpack::mod_ptipage_box_ui(
+              id = "pti_mod", 
+              map_height = "575px", 
+              side_width = "325px",
+              wt_style = "zoom:0.8;"
+              ),
+            width = 10,
+            height = "600px"
+            )
+        )
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  set.seed(122)
+  histdata <- rnorm(500)
+
+  output$plot1 <- renderPlot({
+    data <- histdata[seq_len(input$slider)]
+    hist(data)
+  })
+  
+  
+  ### ### ### ### ### ### ## ### ### ### ### ###
+  ### ### ### ### ### PTI SERVER ### ### ### ###
+  ### ### ### ### ### ### ## ### ### ### ### ###
+  mod_ptipage_newsrv(
+    id = "pti_mod",
+    inp_dta = reactive(ukr_mtdt_full),
+    shp_dta = reactive(ukr_shp), 
+    show_waiter = TRUE
+    )
+  }
+
+shinyApp(ui, server)
+```
+
+# Package index
+
+## Launch PTI Applications
+
+Top-level functions for starting a PTI Shiny app or scaffolding a new
+PTI project directory.
+
+- [`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+  : Launch a multi-tab PTI Shiny app
+- [`launch_pti_onepage()`](https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.md)
+  : Launch a single-page PTI Shiny app
+- [`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
+  : Scaffold a new PTI app project
+
+## PTI Calculation Pipeline
+
+Functions that implement or support the core PTI score calculation
+pipeline.
+[`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
+is the primary entry point for headless (non-Shiny) pipeline execution.
+
+- [`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
+  : Run the full PTI calculation pipeline
+- [`label_generic_pti()`](https://worldbank.github.io/devPTIpack/reference/label_generic_pti.md)
+  : Apply a glue-template \`pti_label\` column to per-admin PTI tibbles
+- [`generic_pti_glue()`](https://worldbank.github.io/devPTIpack/reference/generic_pti_glue.md)
+  : Default glue template for PTI map popups
+
+## Data Input & Preparation
+
+Read and parse the PTI metadata Excel template and retrieve processed
+geometry objects.
+
+- [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
+  : Read a PTI metadata Excel template into the package's
+  list-of-tibbles format
+- [`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md)
+  : Load admin-level shape data for a PTI app
+
+## Weights
+
+Generate and manipulate indicator weight schemes used in the PTI
+calculation.
+
+- [`get_rand_weights()`](https://worldbank.github.io/devPTIpack/reference/get_rand_weights.md)
+  : Generate a random list of weighting schemes
+- [`get_all_weights_combs()`](https://worldbank.github.io/devPTIpack/reference/get_all_weights_combs.md)
+  : Enumerate all weighting-scheme combinations of a given size
+- [`get_min_admin_wght()`](https://worldbank.github.io/devPTIpack/reference/get_min_admin_wght.md)
+  : Reduce per-scheme weights to the admin levels that must be hidden
+
+## Data Export
+
+Extract PTI scores, weight tables, and unavailable-admin summaries for
+downstream reporting or download.
+
+- [`get_pti_scores_export()`](https://worldbank.github.io/devPTIpack/reference/get_pti_scores_export.md)
+  : Reshape PTI scores into per-admin-level export tibbles
+- [`get_pti_weights_export()`](https://worldbank.github.io/devPTIpack/reference/get_pti_weights_export.md)
+  : Reshape weight schemes into a single export tibble
+- [`get_vars_un_avbil()`](https://worldbank.github.io/devPTIpack/reference/get_vars_un_avbil.md)
+  : Identify (variable, admin-level) pairs with no data and no upstream
+  coverage
+
+## Validation
+
+Pre-flight validators for geometry layers, metadata templates, and data
+file paths. Run these before deploying a PTI app to catch input problems
+early.
+
+- [`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md)
+  : Validate every geometry layer in a shapes list
+- [`validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md)
+  : Verify that a shapes file and metadata file together produce valid
+  PTI scores
+- [`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md)
+  : Validate a metadata \`.xlsx\` file in isolation
+- [`validate_read_shp()`](https://worldbank.github.io/devPTIpack/reference/validate_read_shp.md)
+  : Validate a shapes \`.rds\` file in isolation
+- [`drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/drop_inval_adm.md)
+  : Strip unplottable admin levels out of a pre-plot data structure
+- [`mod_drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/mod_drop_inval_adm.md)
+  : Drop-invalid-admin module server
+
+## Visualisation Helpers
+
+Utility functions for plotting and labelling PTI outputs.
+
+- [`gg_admin_list()`](https://worldbank.github.io/devPTIpack/reference/gg_admin_list.md)
+  : Build a list of ggplot maps from PTI admin data
+
+## Shiny Modules
+
+Reusable Shiny UI and server module pairs that compose the PTI
+application interface. Advanced users can embed individual modules into
+custom Shiny apps.
+
+- [`mod_ptipage_twocol_ui()`](https://worldbank.github.io/devPTIpack/reference/mod_ptipage_twocol_ui.md)
+  [`mod_ptipage_box_ui()`](https://worldbank.github.io/devPTIpack/reference/mod_ptipage_twocol_ui.md)
+  : Two-column UI for a PTI page
+- [`mod_ptipage_newsrv()`](https://worldbank.github.io/devPTIpack/reference/mod_ptipage_newsrv.md)
+  : Page-level PTI server module
+- [`mod_pti_comparepage_ui()`](https://worldbank.github.io/devPTIpack/reference/mod_pti_comparepage_ui.md)
+  : Comparison-page UI for two side-by-side PTI maps
+- [`mod_pti_comparepage_newsrv()`](https://worldbank.github.io/devPTIpack/reference/mod_pti_comparepage_newsrv.md)
+  : Comparison-page server module
+- [`mod_dta_explorer2_ui()`](https://worldbank.github.io/devPTIpack/reference/mod_dta_explorer2_ui.md)
+  : Data-explorer page UI
+- [`mod_dta_explorer2_server()`](https://worldbank.github.io/devPTIpack/reference/mod_dta_explorer2_server.md)
+  : Data-explorer page server module
+- [`mod_map_pti_leaf_ui()`](https://worldbank.github.io/devPTIpack/reference/mod_map_pti_leaf_ui.md)
+  : Map container UI for PTI page modules
+- [`mod_leaf_side_panel_ui()`](https://worldbank.github.io/devPTIpack/reference/mod_leaf_side_panel_ui.md)
+  : Map side-panel UI for a PTI page
+- [`mod_plot_pti2_srv()`](https://worldbank.github.io/devPTIpack/reference/mod_plot_pti2_srv.md)
+  : Main PTI map orchestration module
+- [`mod_tab_open_first_newserv()`](https://worldbank.github.io/devPTIpack/reference/mod_tab_open_first_newserv.md)
+  : Tab-opening invalidator for custom PTI page layouts
+
+## Package Utilities
+
+Low-level golem infrastructure helpers. These are exported primarily to
+support the auto-generated `app.R` in scaffolded projects.
+
+- [`app_sys()`](https://worldbank.github.io/devPTIpack/reference/app_sys.md)
+  : Resolve a path inside the installed devPTIpack package
+- [`golem_add_external_resources()`](https://worldbank.github.io/devPTIpack/reference/golem_add_external_resources.md)
+  : Bundle external resources for a PTI Shiny app
+
+## Sample Data
+
+Bundled sample datasets used in examples and the test suite. `ukr_shp`
+provides Ukraine administrative boundaries; `ukr_mtdt_full` provides
+matching synthetic indicator metadata.
+
+- [`ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)
+  : Ukraine sample administrative boundaries
+- [`ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md)
+  : Ukraine sample PTI metadata input
+
+# Articles
+
+### PTI Methodology
+
+- [PTI
+  Methodology](https://worldbank.github.io/devPTIpack/articles/methodology.md):
+
+  What Project Targeting Index (PTI) is and how the PTI process looks
+  like?
+
+### Build a PTI
+
+- [Build a
+  PTI](https://worldbank.github.io/devPTIpack/articles/build-pti.md):
+
+### Past Projects
+
+- [Past
+  Projects](https://worldbank.github.io/devPTIpack/articles/past-projects.md):
+
+  A catalogue of PTI dashboards built for World Bank projects across
+  regions. Each entry links to the live application and the GitHub
+  repositories used to prepare data and launch the app.
+
+### Additional Resources
+
+Supporting technical articles.
+
+- [Data preparation for the PTI
+  app](https://worldbank.github.io/devPTIpack/articles/dataprep.md):

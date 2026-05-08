@@ -712,18 +712,37 @@ Per arch-04. Concrete cuts:
 
 Delete `dev/` (git history preserves it).
 
-Replace `vignettes/dataprep.Rmd` stub with the grouped articles in
-arch-04 §“Vignette Groups”. **Highest-value first:**
-`calculation-pipeline.Rmd`, `data-preparation.Rmd`.
+Replace `vignettes/dataprep.qmd` stub with the data-prep reference (PR-B
+`docs/build-pti-content`, per arch-06 §4 — column-by-column reference
+for boundary shapes + metadata template, common pitfalls, worked example
+using bundled `ukr_shp` / `ukr_mtdt_full`).
 
-Source for `pti-overview.Rmd` / `project-history.Rmd`: the [WB
+Fill `vignettes/articles/build-pti.qmd` with the task-oriented
+walkthrough (PR-B, per arch-06 §3 — scaffold → prep shapes → prep
+metadata → validate → launch → deploy → troubleshoot).
+
+Slim `vignettes/articles/methodology.qmd` to conceptual content
+([\#73](https://github.com/worldbank/devPTIpack/issues/73), follow-up to
+PR-B per arch-06 §5).
+
+Fill `vignettes/articles/past-projects.qmd` (deferred — out of arch-06
+scope per §9).
+
+Source for additional methodology / project-history pages: the [WB
 OpenKnowledge PTI
 article](https://openknowledge.worldbank.org/server/api/core/bitstreams/1fa677a7-7c1c-5a39-8705-511a7038e3a2/content).
 
 Update `_pkgdown.yml` to add grouped article navigation per arch-04
-§“\_pkgdown.yml Updates”.
+§“\_pkgdown.yml Updates” (landed via PR \#63).
 
-Add a GitHub Action for pkgdown build & GitHub Pages deploy.
+Add a GitHub Action for pkgdown build & GitHub Pages deploy (landed via
+PR \#63).
+
+Validator UX pass: cli output + structured return
+(`list(status, summary, issues)`) + `error_on_fail` parameter (PR-B, per
+arch-06 §6 — minimal subset of issue
+[\#7](https://github.com/worldbank/devPTIpack/issues/7); CSV /
+auto-metadata / Shiny upload module deferred).
 
 Confirm `R CMD check` builds vignettes cleanly.
 

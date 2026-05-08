@@ -4,16 +4,18 @@
 then runs the full calculation pipeline ([pivot_pti_dta()] -&amp;gt;
 [get_weighted_data()] -&amp;gt; [get_scores_data()] -&amp;gt; [expand_adm_levels()] -&amp;gt;
 [agg_pti_scores()]) under an all-equal weighting and asserts that the
-number of scored pillars matches `nrow(indicators_list)`. Side effects
-only: emits `testthat` reporter output for each check; does not
-return a structured result."><meta property="og:description" content="End-to-end pre-flight validator for a PTI deployment. Calls
+number of scored pillars matches `nrow(indicators_list)`. Emits one
+cli alert per check; returns the structured `list(status, summary,
+issues)` result invisibly. With `error_on_fail = TRUE` (default),
+throws if any `fail`-level issue is recorded."><meta property="og:description" content="End-to-end pre-flight validator for a PTI deployment. Calls
 [validate_read_shp()] and [validate_read_metadata()] on the inputs,
 then runs the full calculation pipeline ([pivot_pti_dta()] -&amp;gt;
 [get_weighted_data()] -&amp;gt; [get_scores_data()] -&amp;gt; [expand_adm_levels()] -&amp;gt;
 [agg_pti_scores()]) under an all-equal weighting and asserts that the
-number of scored pillars matches `nrow(indicators_list)`. Side effects
-only: emits `testthat` reporter output for each check; does not
-return a structured result."></head><body>
+number of scored pillars matches `nrow(indicators_list)`. Emits one
+cli alert per check; returns the structured `list(status, summary,
+issues)` result invisibly. With `error_on_fail = TRUE` (default),
+throws if any `fail`-level issue is recorded."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -64,14 +66,15 @@ return a structured result."></head><body>
 then runs the full calculation pipeline ([pivot_pti_dta()] -&gt;
 [get_weighted_data()] -&gt; [get_scores_data()] -&gt; [expand_adm_levels()] -&gt;
 [agg_pti_scores()]) under an all-equal weighting and asserts that the
-number of scored pillars matches `nrow(indicators_list)`. Side effects
-only: emits `testthat` reporter output for each check; does not
-return a structured result.</p>
+number of scored pillars matches `nrow(indicators_list)`. Emits one
+cli alert per check; returns the structured `list(status, summary,
+issues)` result invisibly. With `error_on_fail = TRUE` (default),
+throws if any `fail`-level issue is recorded.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validate_metadata</span><span class="op">(</span><span class="va">shp_path</span>, <span class="va">mtdt_path</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validate_metadata</span><span class="op">(</span><span class="va">shp_path</span>, <span class="va">mtdt_path</span>, error_on_fail <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -87,18 +90,25 @@ shapes list (the on-disk form of objects shaped like [ukr_shp]).</p></dd>
 <dd><p>Character. Path to the metadata `.xlsx` template
 (the on-disk form of [ukr_mtdt_full]).</p></dd>
 
+
+<dt id="arg-error-on-fail">error_on_fail<a class="anchor" aria-label="anchor" href="#arg-error-on-fail"></a></dt>
+<dd><p>Logical. If `TRUE` (default), throws on any
+`fail`-level issue. Pass `FALSE` to inspect the structured result
+instead.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly `NULL`. Called for side effects – emits validation
-  results via `testthat`.</p>
+    <p>Invisibly, a list with components `status` (`"pass"`,
+  `"warn"`, or `"fail"`), `summary` (one-line string), and `issues`
+  (list of issue records).</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">validate_metadata</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  shp_path <span class="op">=</span> <span class="st">"path/to/shapes.rds"</span>,</span></span>
+<span class="r-in"><span>  shp_path  <span class="op">=</span> <span class="st">"path/to/shapes.rds"</span>,</span></span>
 <span class="r-in"><span>  mtdt_path <span class="op">=</span> <span class="st">"path/to/metadata.xlsx"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>

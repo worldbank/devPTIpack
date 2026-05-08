@@ -226,10 +226,14 @@ Phase 5  Hex ingestion pipeline                    (#13)  ← independent; can s
 <h2 id="id_7-phase-4--workspace-vignettes--pkgdown-12">7. Phase 4 — Workspace, vignettes &amp; pkgdown (#12)<a class="anchor" aria-label="anchor" href="#id_7-phase-4--workspace-vignettes--pkgdown-12"></a></h2>
 <p>Per arch-04. Concrete cuts:</p>
 <ul class="task-list"><li><label><input type="checkbox">Delete <code>dev/</code> (git history preserves it).</label></li>
-<li><label><input type="checkbox">Replace <code>vignettes/dataprep.Rmd</code> stub with the grouped articles in arch-04 §“Vignette Groups”. <strong>Highest-value first:</strong> <code>calculation-pipeline.Rmd</code>, <code>data-preparation.Rmd</code>.</label></li>
-<li><label><input type="checkbox">Source for <code>pti-overview.Rmd</code> / <code>project-history.Rmd</code>: the <a href="https://openknowledge.worldbank.org/server/api/core/bitstreams/1fa677a7-7c1c-5a39-8705-511a7038e3a2/content" class="external-link">WB OpenKnowledge PTI article</a>.</label></li>
-<li><label><input type="checkbox">Update <code>_pkgdown.yml</code> to add grouped article navigation per arch-04 §“_pkgdown.yml Updates”.</label></li>
-<li><label><input type="checkbox">Add a GitHub Action for pkgdown build &amp; GitHub Pages deploy.</label></li>
+<li><label><input type="checkbox" checked>Replace <code>vignettes/dataprep.qmd</code> stub with the data-prep reference (PR-B <code>docs/build-pti-content</code>, per arch-06 §4 — column-by-column reference for boundary shapes + metadata template, common pitfalls, worked example using bundled <code>ukr_shp</code> / <code>ukr_mtdt_full</code>).</label></li>
+<li><label><input type="checkbox" checked>Fill <code>vignettes/articles/build-pti.qmd</code> with the task-oriented walkthrough (PR-B, per arch-06 §3 — scaffold → prep shapes → prep metadata → validate → launch → deploy → troubleshoot).</label></li>
+<li><label><input type="checkbox">Slim <code>vignettes/articles/methodology.qmd</code> to conceptual content (<a href="https://github.com/worldbank/devPTIpack/issues/73" class="external-link">#73</a>, follow-up to PR-B per arch-06 §5).</label></li>
+<li><label><input type="checkbox">Fill <code>vignettes/articles/past-projects.qmd</code> (deferred — out of arch-06 scope per §9).</label></li>
+<li><label><input type="checkbox">Source for additional methodology / project-history pages: the <a href="https://openknowledge.worldbank.org/server/api/core/bitstreams/1fa677a7-7c1c-5a39-8705-511a7038e3a2/content" class="external-link">WB OpenKnowledge PTI article</a>.</label></li>
+<li><label><input type="checkbox" checked>Update <code>_pkgdown.yml</code> to add grouped article navigation per arch-04 §“_pkgdown.yml Updates” (landed via PR #63).</label></li>
+<li><label><input type="checkbox" checked>Add a GitHub Action for pkgdown build &amp; GitHub Pages deploy (landed via PR #63).</label></li>
+<li><label><input type="checkbox" checked>Validator UX pass: cli output + structured return (<code>list(status, summary, issues)</code>) + <code>error_on_fail</code> parameter (PR-B, per arch-06 §6 — minimal subset of issue <a href="https://github.com/worldbank/devPTIpack/issues/7" class="external-link">#7</a>; CSV / auto-metadata / Shiny upload module deferred).</label></li>
 <li><label><input type="checkbox">Confirm <code>R CMD check</code> builds vignettes cleanly.</label></li>
 <li><label><input type="checkbox"><strong>After this phase:</strong> add <code>shinytest2</code> automation for Tier 3.</label></li>
 </ul><hr></div>

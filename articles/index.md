@@ -13,6 +13,10 @@
 - [Build a
   PTI](https://worldbank.github.io/devPTIpack/articles/build-pti.md):
 
+  A step-by-step walkthrough of taking raw country data through to a
+  deployed Project Targeting Index (PTI) Shiny dashboard with
+  `devPTIpack`.
+
 ### Past Projects
 
 - [Past
@@ -26,5 +30,9 @@
 
 Supporting technical articles.
 
-- [Data preparation for the PTI
-  app](https://worldbank.github.io/devPTIpack/articles/dataprep.md):
+- [Data preparation
+  reference](https://worldbank.github.io/devPTIpack/articles/dataprep.md):
+
+  Canonical column-by-column reference for the two data inputs that feed
+  every PTI app — administrative-boundary shapes (`admin_bounds.rds`)
+  and the metadata Excel template (`mtdt.xlsx`).

@@ -1,16 +1,17 @@
 # Validate every geometry layer in a shapes list
 
-Iterates over \`existing_shapes\` and runs \[validate_single_geom()\] on
-each layer, then performs a top-level mapping-table consistency check:
-the row count of \[get_mt()\] applied to the full shapes list must equal
-the row count of the most-disaggregated layer (admin levels are required
-to form a strict hierarchy). Side effects only – validator messages and
-a final \`testthat\` summary block.
+Iterates over \`existing_shapes\` and runs the per-layer checks on each,
+then performs a top-level mapping-table consistency check: the row count
+of \[get_mt()\] applied to the full shapes list must equal the row count
+of the most-disaggregated layer (admin levels are required to form a
+strict hierarchy). Per-layer findings are emitted as cli alerts as they
+are discovered; on completion, prints a single summary and returns the
+structured \`list(status, summary, issues)\` result.
 
 ## Usage
 
 ``` r
-validate_geometries(existing_shapes)
+validate_geometries(existing_shapes, error_on_fail = TRUE)
 ```
 
 ## Arguments
@@ -21,21 +22,49 @@ validate_geometries(existing_shapes)
   follow \`admin\<N\>\_\<Name\>\` (e.g. \`admin1_Oblast\`); see
   \[ukr_shp\] for the canonical shape.
 
+- error_on_fail:
+
+  Logical. If \`TRUE\` (default), throws on any \`fail\`-level issue at
+  the end of the run. Pass \`FALSE\` to inspect the structured result
+  instead.
+
 ## Value
 
-Invisibly \`NULL\`. Called for side effects.
+Invisibly, a list with components \`status\` (\`"pass"\`, \`"warn"\`, or
+\`"fail"\`), \`summary\` (one-line string), and \`issues\` (list of
+issue records). Each issue carries \`level\`, \`check\`, \`message\`,
+and optional \`details\`. The \`check\` field is a stable short
+identifier (e.g. \`"pcod-unique"\`, \`"parent-pcod-cascade"\`,
+\`"hierarchy-row-count"\`); programmatic callers should branch on it
+rather than on \`message\` text.
 
 ## Examples
 
 ``` r
-validate_geometries(ukr_shp)
-#> ℹ Checking admin0_Country
-#> Test passed with 2 successes 🎊.
-#> ℹ Checking admin1_Oblast
-#> Test passed with 2 successes 🎊.
-#> ℹ Checking admin2_Rayon
-#> Test passed with 2 successes 🌈.
-#> ℹ Checking admin4_Hexagon
-#> Test passed with 2 successes 🎉.
-#> test_that("`get_mt()` works", {...}) - Test passed with 1 success 🎊.
+result <- validate_geometries(ukr_shp)
+#> 
+#> ── Layer: admin0_Country ──
+#> 
+#> ✔ validate_single_geom: all checks passed.
+#> 
+#> ── Layer: admin1_Oblast ──
+#> 
+#> ✔ validate_single_geom: all checks passed.
+#> 
+#> ── Layer: admin2_Rayon ──
+#> 
+#> ✔ validate_single_geom: all checks passed.
+#> 
+#> ── Layer: admin4_Hexagon ──
+#> 
+#> ✔ validate_single_geom: all checks passed.
+#> 
+#> ── Cross-layer hierarchy ──
+#> 
+#> ✔ Hierarchy row count matches most-disaggregated layer.
+#> ✔ validate_geometries: all checks passed.
+result$status
+#> [1] "pass"
+length(result$issues)
+#> [1] 0
 ```

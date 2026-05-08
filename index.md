@@ -38,8 +38,8 @@ devPTIpack::launch_pti_onepage()
 Minimum data preparation requirements must be met in order to launch a
 PTI using functions from above. We need to have `shp_dta`, `inp_dta` and
 the app’s name. In more details, data preparation is explained in
-[`vignette("dataprep")`](https://worldbank.github.io/devPTIpack/articles/dataprep.md).
-Some exemplary data sets are included in the package: geometries
+`vignette("dataprep")`. Some exemplary data sets are included in the
+package: geometries
 [`devPTIpack::ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)
 and metadata
 [`devPTIpack::ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md).
@@ -144,8 +144,7 @@ data and make some minor edits.
   [`devPTIpack::validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md)
   to check if geometries or metadata are prepared properly. These
   validation functions, however, are not exhaustive, thus, consult
-  [`vignette("dataprep")`](https://worldbank.github.io/devPTIpack/articles/dataprep.md)
-  or ask for help.
+  `vignette("dataprep")` or ask for help.
 
 - Step 6. Develop additional functionality in folder `R`.
 

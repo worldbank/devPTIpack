@@ -3,10 +3,10 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   articles/build-pti: build-pti.html
-  dataprep: dataprep.html
+  articles/dataprep: dataprep.html
   articles/methodology: methodology.html
   articles/past-projects: past-projects.html
-last_built: 2026-05-08T08:00Z
+last_built: 2026-05-08T08:46Z
 urls:
   reference: https://worldbank.github.io/devPTIpack/reference
   article: https://worldbank.github.io/devPTIpack/articles

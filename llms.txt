@@ -38,8 +38,8 @@ devPTIpack::launch_pti_onepage()
 Minimum data preparation requirements must be met in order to launch a
 PTI using functions from above. We need to have `shp_dta`, `inp_dta` and
 the app’s name. In more details, data preparation is explained in
-[`vignette("dataprep")`](https://worldbank.github.io/devPTIpack/articles/dataprep.md).
-Some exemplary data sets are included in the package: geometries
+`vignette("dataprep")`. Some exemplary data sets are included in the
+package: geometries
 [`devPTIpack::ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)
 and metadata
 [`devPTIpack::ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md).
@@ -144,8 +144,7 @@ data and make some minor edits.
   [`devPTIpack::validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md)
   to check if geometries or metadata are prepared properly. These
   validation functions, however, are not exhaustive, thus, consult
-  [`vignette("dataprep")`](https://worldbank.github.io/devPTIpack/articles/dataprep.md)
-  or ask for help.
+  `vignette("dataprep")` or ask for help.
 
 - Step 6. Develop additional functionality in folder `R`.
 
@@ -481,6 +480,10 @@ matching synthetic indicator metadata.
 - [Build a
   PTI](https://worldbank.github.io/devPTIpack/articles/build-pti.md):
 
+  A step-by-step walkthrough of taking raw country data through to a
+  deployed Project Targeting Index (PTI) Shiny dashboard with
+  `devPTIpack`.
+
 ### Past Projects
 
 - [Past
@@ -494,5 +497,9 @@ matching synthetic indicator metadata.
 
 Supporting technical articles.
 
-- [Data preparation for the PTI
-  app](https://worldbank.github.io/devPTIpack/articles/dataprep.md):
+- [Data preparation
+  reference](https://worldbank.github.io/devPTIpack/articles/dataprep.md):
+
+  Canonical column-by-column reference for the two data inputs that feed
+  every PTI app — administrative-boundary shapes (`admin_bounds.rds`)
+  and the metadata Excel template (`mtdt.xlsx`).

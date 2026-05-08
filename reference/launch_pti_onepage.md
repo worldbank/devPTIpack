@@ -18,8 +18,8 @@ launch_pti_onepage(
   show_adm_levels = NULL,
   wt_dwnld_options = c("data", "weights", "shapes", "metadata"),
   map_dwnld_options = c("shapes", "metadata"),
-  shapes_path = ".",
-  mtdtpdf_path = ".",
+  shapes_path = NULL,
+  mtdtpdf_path = NULL,
   map_height = "calc(100vh)",
   dt_style = "zoom:1; height: calc(95vh - 250px);",
   ...
@@ -73,9 +73,13 @@ launch_pti_onepage(
 
 - shapes_path, mtdtpdf_path:
 
-  Character paths used by the download handlers to locate the source
-  shapefiles and the metadata PDF. Default \`"."\` resolves to the
-  working directory at launch.
+  Character or \`NULL\`. Filesystem paths served by the download
+  handlers. When \`shapes_path\` is \`NULL\` (the default), \`shp_dta\`
+  is auto-written to a tempfile so the "Download shapes" button serves
+  the in-memory data as an \`.rds\`. When \`mtdtpdf_path\` is \`NULL\`
+  (the default), the metadata PDF link is disabled (no in-memory
+  equivalent to materialize). To serve a specific source file, pass the
+  path explicitly.
 
 - map_height, dt_style:
 

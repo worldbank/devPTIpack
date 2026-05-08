@@ -23,14 +23,6 @@ validate_read_shp(shp_path)
 
 Invisibly \`NULL\`. Called for side effects.
 
-## Note
-
-Issue \[#7\](https://github.com/worldbank/devPTIpack/issues/7) is
-pinned: when the shapes file is "perfect" (no extra admin codes), the
-internal \`str_c(extra_level, collapse = "\|")\` produces an
-empty-pattern \`str_detect\` call that errors. Fix is part of the
-broader runtime-\`test_that\` refactor.
-
 ## Examples
 
 ``` r

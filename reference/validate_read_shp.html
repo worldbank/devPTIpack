@@ -75,14 +75,6 @@ shapes list (the on-disk form of objects shaped like [ukr_shp]).</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly `NULL`. Called for side effects.</p>
     </div>
-    <div class="section level2">
-    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
-    <p>Issue [#7](https://github.com/worldbank/devPTIpack/issues/7) is
-  pinned: when the shapes file is "perfect" (no extra admin codes),
-  the internal `str_c(extra_level, collapse = "|")` produces an
-  empty-pattern `str_detect` call that errors. Fix is part of the
-  broader runtime-`test_that` refactor.</p>
-    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

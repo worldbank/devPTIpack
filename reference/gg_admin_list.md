@@ -9,7 +9,7 @@ indicator alongside its description.
 ## Usage
 
 ``` r
-gg_admin_list(dta, multiply = 1, mt = zam_bounds_simple, metadata = NULL)
+gg_admin_list(dta, multiply = 1, mt = NULL, metadata = NULL)
 ```
 
 ## Arguments
@@ -29,7 +29,8 @@ gg_admin_list(dta, multiply = 1, mt = zam_bounds_simple, metadata = NULL)
 
   Named list of admin geometry tibbles (e.g. \`ukr_shp\`). The element
   whose name matches the \`adminN\` column in \`dta\` is joined onto the
-  long-pivoted data via \`dplyr::right_join\`.
+  long-pivoted data via \`dplyr::right_join\`. Required (the function
+  errors if \`NULL\`).
 
 - metadata:
 

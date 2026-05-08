@@ -388,8 +388,7 @@ downstream reporting or download.
 - [`get_pti_weights_export()`](https://worldbank.github.io/devPTIpack/reference/get_pti_weights_export.md)
   : Reshape weight schemes into a single export tibble
 - [`get_vars_un_avbil()`](https://worldbank.github.io/devPTIpack/reference/get_vars_un_avbil.md)
-  : Identify (variable, admin-level) pairs with no data and no upstream
-  coverage
+  : Identify (variable, admin-level) pairs with no native data
 
 ## Validation
 

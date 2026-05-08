@@ -14,6 +14,26 @@
 
 ## 1. Where we are
 
+**Status snapshot (2026-05-07):** Phases 1 (#10), 2 (#8), 3 (#11)
+closed. **Phase 2.5 §12 bug-fix sprint COMPLETE — all 14 of 14 bugs
+fixed** (#1 `complete_pti_labels` PR \#56; \#5 `get_adm_levels` PR \#57;
+\#6 `get_scores_data` PR \#59; \#7 `expand_adm_levels` PR \#60, bundled
+with the boundary-regex follow-up — the 14th §12 row; \#10
+`get_vars_un_avbil` symmetric availability PR \#61; \#2
+`check_existing_groups` empty-old PR \#62; \#4 `validate_read_shp`
+empty-pattern PR \#64; \#8 `fct_internal_wt_to_exp` empty list PR \#65;
+\#9 `get_var_choices` empty indicators PR \#66; \#11
+`mod_fltr_sel_var2_srv` multi-var pillar PR \#67; \#13
+`mod_dwnld_file_server` broken downloads +
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+path- default API PR \#68; \#3 `filter_admin_levels` name-vs-value
+asymmetry PR \#69; \#12 `gg_admin_list` undefined-default PR \#70).
+Phase 4 (#12, vignettes & pkgdown) and Phase 5 (#13, hex ingestion) are
+next. R-CMD-check workflow gates merge with `error-on: '"error"'`. Suite
+at **0 fail / 1 skip / 710 PASS** (PR \#70 adds a new Tier-1 test file
+with 2 test_that blocks / 8 expectations covering the missing-`mt` error
+and the bundled-data success path).
+
 | Concern | Source of truth |
 |----|----|
 | Architecture overview & redesign workflow | [`.github/docs/arch-00-overview.md`](https://worldbank.github.io/devPTIpack/docs/arch-00-overview.md) |
@@ -68,7 +88,31 @@ sub-issues, see arch-00 § “Relationship to Pre-Existing Issues”
        ├─ Batch 5  Remove mod_weights.R legacy                     │
        └─ Batch 6  Delete convenience wrappers                     │
                 ▼                                                  │
-    Phase 3  Roxygen2 docs for all permanent fns       (#11)       │
+    Phase 3  Roxygen2 docs for all permanent fns       (#11)       │  ✓ done
+       ├─ Batch 1  Package data (R/data.R)                   ✓ #47 │
+       ├─ Batch 2  Core calculation                          ✓ #48 │
+       ├─ Batch 3  Data I/O & validation                     ✓ #49 │
+       ├─ Batch 4  Visualisation helpers                     ✓ #50 │
+       ├─ Batch 5  Entry points & app infrastructure         ✓ #51 │
+       ├─ Batch 6a PTI rendering & display stack             ✓ #52 │
+       └─ Batch 6b Closes Phase 3                            ✓ #53 │
+                ▼                                                  │
+    Phase 2.5  §12 bug-fix sprint (concurrent)         (—)         │  ✓ done (14/14)
+       ├─ #1 complete_pti_labels (silent data corruption)    ✓ #56 │
+       ├─ #5 get_adm_levels lex sort (silent corruption)     ✓ #57 │
+       ├─ #6 get_scores_data 1-row -> NA (silent corrup)     ✓ #59 │
+       ├─ #7 expand_adm_levels >1-slot silent NULL +         ✓ #60 │
+       │     boundary-regex follow-up (latent (d))                  │
+       ├─ #10 get_vars_un_avbil asymmetric lag-fill          ✓ #61 │
+       ├─ #2 check_existing_groups empty-old vctrs error     ✓ #62 │
+       ├─ #4 validate_read_shp empty-pattern str_detect      ✓ #64 │
+       ├─ #8 fct_internal_wt_to_exp empty list left_join     ✓ #65 │
+       ├─ #9 get_var_choices empty indicators NULL attr      ✓ #66 │
+       ├─ #11 mod_fltr_sel_var2_srv multi-var pillar         ✓ #67 │
+       ├─ #13 mod_dwnld_file_server broken downloads +       ✓ #68 │
+       │      launch_pti() path-default API (Arch-2)                │
+       ├─ #3 filter_admin_levels name-vs-value asymmetry     ✓ #69 │
+       └─ #12 gg_admin_list undefined-default                ✓ #70 │
                 ▼                                                  │
     Phase 4  Vignettes + pkgdown deploy                (#12)       │
                 ▼                                                  │
@@ -600,7 +644,7 @@ markdown mode so the link syntax rendered literally). Suite stays at 682
 PASS – no regression.
 
 **Batch 6b – All remaining weights-input + UI infra utilities** ([PR
-TBD](https://github.com/worldbank/devPTIpack/pull/TBD)): audited 37
+\#53](https://github.com/worldbank/devPTIpack/pull/53)): audited 37
 functions across 12 files closing Phase 3 – 35 fns across 11 files
 rewritten in this PR; 2 fns in `R/mod_wt_btns_collect.R` already at
 standard from Batch 5 extraction PR \#45, no edits needed. File-by-file:
@@ -774,11 +818,397 @@ Hex ingestion pipeline (#13) lands on its own milestone.
 | [\#50](https://github.com/worldbank/devPTIpack/pull/50) | 2026-05-04 | Phase 3 Batch 4 (visualisation helpers) | arch-02-docs Phase 3.4 – rewrote roxygen for 12 functions across `R/plot_pti_helpers.R` (10) and `R/fct_legend_map_satelites.R` (2). All 12 are INTERNAL per arch-01 § “Permanent Functions” / “Visualisation Helpers”; batch un-exports every one and converts to the `@noRd` internal template. Closes 4 `@noRd + @export` rule violations (`get_current_levels`, `filter_admin_levels`, `add_legend_paras`, `legend_map_satelite`; `recode_val_base` was already correct). Promoted 4 `@describeIn plot_pti_polygons` chains to standalone `@noRd` docs (`clean_pti_polygons`, `add_pti_poly_controls`, `clean_pti_poly_controls`, `check_existing_groups`) – the chain was acceptable while all 5 were exported but becomes meaningless once nothing has a help page. Pinned 3 §12 bugs via `@note` (all PR \#25, all in `plot_pti_helpers.R`): `filter_admin_levels` name-vs-value asymmetry, `complete_pti_labels` missing-assignment no-op (priority-rank suffix never appended in production), `check_existing_groups` empty-pattern `str_detect` error. Stripped 4 `# browser()` debug-residue lines per arch-01:436 (`plot_pti_helpers.R` x2, `fct_legend_map_satelites.R` x2). Left larger commented-out alternate-implementation blocks in `fct_legend_map_satelites.R` alone – arch-01’s “remove commented-out blocks” mandate names specific files and that file is not on the list. Fixed `@describeIn plot_pti_polygons plot_pti_polygons` typo on `add_pti_poly_controls`. Package-source fix: converted one `devPTIpack::get_current_levels()` qualified call in `R/mod_export_pti_data.R::get_pti_scores_export` to unqualified (the `::` form requires export and now errors after the un-export); 9 export-data tests broke and went green again after this one-line fix. NAMESPACE delta: dropped 11 `export()`; added 7 `importFrom`s ([`leaflet::addLayersControl`](https://rstudio.github.io/leaflet/reference/addLayersControl.html) / `clearGroup` / `layersControlOptions` / `showGroup`; [`purrr::map2_chr`](https://purrr.tidyverse.org/reference/map2.html); [`shiny::HTML`](https://rstudio.github.io/htmltools/reference/HTML.html); plus minor re-localisations from explicit-import sweeps). Test-side: no qualified-call conversions needed – the existing `devPTIpack:::legend_map_satelite` triple-colon calls in `tests/testthat/test-legend-mapping.R` keep working (`:::` resolves regardless of export status); other test files use unqualified calls that resolve via [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html). Folded in the Batch 3 `TBD -> #49` swap on the §6 row above and the §11 row above. Suite stays at 682 PASS – no regression. |
 | [\#51](https://github.com/worldbank/devPTIpack/pull/51) | 2026-05-04 | Phase 3 Batch 5 (entry points & app infrastructure) | arch-02-docs Phase 3.5 – rewrote roxygen for 5 functions across 4 files: `R/launch_pti.R` (`launch_pti_onepage` + `launch_pti`), `R/fct_create_new_pti.R` (`create_new_pti`), `R/app_config.R` (`app_sys`), `R/app_ui.R` (`golem_add_external_resources` – folded in here for thematic coherence with the entry-points theme; arch-01:24 classifies it as EXPORTED but it lived in app_ui.R behind `@noRd`). All 5 are EXPORTED per arch-01 § “Entry Points & App Scaffolding” – this batch is the inverse shape of Batches 2-4 (no un-exports; one promote-to-exported on `golem_add_external_resources`). Honored the rules-file Exported template: typed `@param`, `@return`, `@importFrom`, `@export`, runnable or `\dontrun{}` `@examples`. Closes 1 `@noRd + @export` rule violation (`app_sys`) and 1 `@noRd`-on-an-EXPORTED-fn arch-01 violation (`golem_add_external_resources`). Promoted the `@describeIn launch_pti_onepage` chain on `launch_pti` to a standalone help page – the two apps diverge in usage (one-page is a focused viewer, multi-tab pulls in compare + explorer + cicerone tour), and only `launch_pti` takes the `tabs` and `app_name` parameters. Examples: `app_sys` runs unwrapped (`app_sys("app", "www")`); `create_new_pti` runs unwrapped via a [`tempdir()`](https://rdrr.io/r/base/tempfile.html) scaffold with `open = FALSE` (rstudioapi gates skip cleanly outside RStudio); `launch_pti` / `launch_pti_onepage` / `golem_add_external_resources` use `\dontrun{}` per the rules-file “side-effect-heavy code” clause. Stripped 1 debug-residue line (`R/launch_pti.R:173` – a commented-out `observe(cat("tab: ", active_tab(), "\n"))` instrumentation). No pinned §12 bugs touched this batch. Reviewer-iteration adjustments: dropped a stale `@importFrom bsplus use_bs_tooltip` directive on `golem_add_external_resources` (carried from the `@noRd` era but the body never called it); flattened a `[add_logo()]` cross-ref to plain backticks since `add_logo()` is `@noRd` (avoids an “Rd cross-reference to non-existent topic” R CMD check note); added the `tabs` default to its `@param` description. NAMESPACE delta: added 1 export (`golem_add_external_resources`); added 2 `importFrom`s ([`cicerone::use_cicerone`](https://rdrr.io/pkg/cicerone/man/use_cicerone.html), [`rlang::dots_list`](https://rlang.r-lib.org/reference/list2.html)); dropped 1 stale `importFrom` ([`bsplus::use_bs_tooltip`](https://ijlyttle.github.io/bsplus/reference/bs_embed_tooltip.html)). Test-side: no qualified-call conversions needed – nothing was un-exported; the new `golem_add_external_resources` export strictly widens the public surface. Folded in the Batch 4 `TBD -> #50` swap on the §6 row and the §11 row above. Suite stays at 682 PASS – no regression. |
 | [\#52](https://github.com/worldbank/devPTIpack/pull/52) | 2026-05-04 | Phase 3 Batch 6a (PTI rendering & display stack) | arch-02-docs Phase 3.6a – rewrote roxygen for 44 functions across 16 files in the rendering stack: `R/mod_ptipage_core.R` (3), `R/mod_pti_comparepage.R` (2), `R/mod_calc_pti2.R` (2), `R/mod_dta_explorer2.R` (8), `R/mod_export_pti_data.R` (3), `R/mod_load_shapes.R` (2), `R/mod_plot_pti2.R` (1), `R/mod_plot_init_leaf.R` (2), `R/mod_plot_poly_leaf.R` (4), `R/mod_plot_poly_legend.R` (3), `R/mod_pti_map_side_pan.R` (7), `R/mod_map_pti_leaf_ui.R` (1), `R/mod_dwnld_dta.R` (3), `R/mod_dwnld_local_file.R` (1), `R/run_pti_pipeline.R` (1; cross-ref cleanup only), `R/mod_fetch_data.R` (1). Honored arch-01 § “Permanent Functions”: un-exported 15 INTERNAL fns (`filter_var_explorer`, `get_var_choices`, `make_gg_line_map`, `make_ggmap`, `mod_dta_explorer2_side_ui`, `mod_fltr_sel_var2_srv`, `mod_plot_init_leaf_server`, `mod_plot_leaf_export`, `mod_plot_poly_leaf_server`, `mod_plot_poly_legend_server`, `mod_select_var_ui`, `plot_leaf_line_map2`, `plot_pti_legend`, `remove_pti_legend`, `reshaped_explorer_dta`); promoted 3 EXPORTED fns from `@noRd` to `@export` (`mod_leaf_side_panel_ui`, `mod_map_pti_leaf_ui`, `mod_pti_comparepage_newsrv` – closes 3 arch-01 violations; the `mod_pti_comparepage_newsrv` one was missed by the scope inventory and surfaced when roxygen2 wrote out the new NAMESPACE). Promoted 14 `@describeIn` members to standalone docs across the chains in `mod_dta_explorer2`, `mod_plot_init_leaf`, `mod_plot_poly_leaf`, `mod_plot_poly_legend`; split `mod_ptipage_newsrv` out of the UI chain since server vs UI diverged in usage (Batch 5 `launch_pti` precedent). Pinned 2 §12 bugs via `@note` – `get_var_choices` empty-indicators NULL-attr (PR \#27), `mod_fltr_sel_var2_srv` multi-var-pillar predicate (PR \#37); the second `@note` had to escape `\%in\%` and avoid raw `~ {` brace literals to keep the Rd parser happy. Stripped 6 debug-residue lines per arch-01:436: 4 `# browser()` in `mod_plot_poly_leaf.R` (one in `mod_plot_leaf_export`, three in `make_ggmap` / `make_gg_line_map`), 1 in `mod_pti_map_side_pan.R` (PNG download handler), 1 in `mod_dta_explorer2.R` (`mod_fltr_sel_var2_srv` `add_selected` observer); plus the 14-line commented-out `withProgress` / `tempfile` / `mapview` block in `mod_plot_leaf_export` (alternate impl that was never re-enabled). Left the larger commented-out alternate-implementation blocks in `mod_pti_map_side_pan.R` (chromote / mapshot / webshot2 PNG path, ggsave alternative; ~50 commented lines total) and the `radioButtons` / `adm_lvl_debounce` alternate path in `mod_get_admin_levels_srv` alone – arch-01’s “remove commented-out blocks” mandate names specific files and `mod_pti_map_side_pan.R` is not one of them. Examples: `get_shape` runs unwrapped via the `shape_dta = ukr_shp` short-circuit; `get_pti_weights_export` runs unwrapped via `get_indicators_list(ukr_mtdt_full)` + [`get_rand_weights()`](https://worldbank.github.io/devPTIpack/reference/get_rand_weights.md); UI / server modules use `\dontrun{}` per the rules-file “Shiny modules” clause; `get_pti_scores_export` uses `\dontrun{}` because reproducing its expected `plotted_dta` shape requires the full reactive chain (preplot + drop_inval_adm + filter_admin_levels + add_legend_paras + complete_pti_labels). NAMESPACE delta: dropped 15 `export()`; added 3 `export()`; added 5 `importFrom`s ([`purrr::pmap_dfr`](https://purrr.tidyverse.org/reference/map_dfr.html), [`shiny::fillPage`](https://rdrr.io/pkg/shiny/man/fillPage.html), [`shiny::incProgress`](https://rdrr.io/pkg/shiny/man/withProgress.html), [`shiny::uiOutput`](https://rdrr.io/pkg/shiny/man/htmlOutput.html), [`shiny::withProgress`](https://rdrr.io/pkg/shiny/man/withProgress.html)) that lost their previous bulk-import coverage. Test-side: no qualified-call conversions needed – the existing `devPTIpack:::*` triple-colon calls in tests resolve regardless of export status; no `devPTIpack::` calls existed for any of the 15 un-exported fns. Cross-ref cleanup: flattened `[mod_calc_pti2_server()]`, `[get_indicators_list()]`, `[agg_pti_scores()]` cross-refs in `run_pti_pipeline` to plain backticks since those targets are `@noRd` (avoids “Rd cross-reference to non-existent topic” R CMD check notes per the Batch 5 reviewer fix). No prior-batch TBD swap to fold in – Batch 5 (#51) merged with the PR number already in place. Suite stays at 682 PASS – no regression. |
-| [TBD](https://github.com/worldbank/devPTIpack/pull/TBD) | 2026-05-04 | **Phase 3 Batch 6b (closes Phase 3 – \#11)** | arch-02-docs Phase 3.6b – audited 37 functions across 12 files closing the Phase 3 sweep (35 fns across 11 files rewritten in this PR; 2 fns in `mod_wt_btns_collect.R` already at standard from Batch 5 extraction PR \#45, no edits): `R/mod_wt_inp.R` (14), `R/mod_DT_inputs.R` (7), `R/mod_wt_btns_collect.R` (2; verified-only), `R/mod_first_open_count.R` (1), `R/mod_tab_open.R` (1), `R/mod_waiter.R` (3), `R/mod_weights_rand.R` (3), `R/mod_infotab.R` (1), `R/fct_guide.R` (1), `R/fct_helpers.R` (1; `add_logo`), `R/fct_inp_for_exp.R` (2), `R/supporting-goe-prep.R` (1; `gg_admin_list`). Honored arch-01 § “Permanent Functions”: un-exported 2 INTERNAL fns (`fct_inp_for_exp`, `fct_internal_wt_to_exp` – arch-01:166-167 classifies both INTERNAL but they were exported via the `@noRd + @export` rule violation; un-exporting closes the violation and aligns NAMESPACE with arch-01); kept 4 EXPORTED fns exported by dropping their `@noRd` tags (`mod_tab_open_first_newserv`, `gg_admin_list`, `get_rand_weights`, `get_all_weights_combs` – closes 4 more `@noRd + @export` rule violations without moving NAMESPACE). Net 6 rule-violations closed. Promoted the 14-fn `@describeIn mod_wt_inp_ui` chain to standalone `@noRd` docs (Batch 4 precedent for full-chain split when umbrella + members are all INTERNAL); promoted the 3-fn `@describeIn mod_waiter_newsrv` chain similarly; split `get_rand_weights` and `get_all_weights_combs` out of the `@describeIn mod_weights_rand_ui` chain so their EXPORTED help pages stand alone. Pinned 1 §12 bug via `@note`: `fct_internal_wt_to_exp(list())` left-join error (PR \#26). Stripped 8 `# browser()` debug-residue lines per arch-01:436 (4 in `mod_DT_inputs.R`, 1 in `mod_wt_inp.R`’s upload-stub `mod_wt_uplod_newsrv` body, 3 in `supporting-goe-prep.R`); also stripped the 8-line commented-out `observeEvent(update_dta())` alternate-impl block in `mod_DT_inputs.R` (contained an embedded [`browser()`](https://rdrr.io/r/base/browser.html); the live `observe(...)` block above implements the same logic without the debugger trap). Three scope-proposal-time corrections vs the user’s prompt-time hypotheses, surfaced and corrected at the gate before any roxygen edit: (1) `fct_inp_for_exp` + `fct_internal_wt_to_exp` are arch-01-INTERNAL not EXPORTED, so the close direction was drop-`@export` not drop-`@noRd`; (2) `mod_infotab.R` had no `# browser()` at line ~71 (and none anywhere); (3) total browser-strip count was 8 lines + 1 alt-impl block, not the 1 implied. NAMESPACE delta: dropped 2 `export()` (`fct_inp_for_exp`, `fct_internal_wt_to_exp`); added a batch of explicit `importFrom`s on the rewritten functions that lost bulk-import coverage when their `@describeIn` chains dispersed (notable: [`ggplot2::aes`](https://ggplot2.tidyverse.org/reference/aes.html)/`geom_sf`/`ggplot`/`labs`/`theme`/`theme_minimal` localised onto `gg_admin_list`; [`dplyr::case_when`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html)/`if_any`/`right_join`; `purrr::flatten`/`imap_dfr`/`pmap_chr`/`pwalk`; ~15 new `shiny::*` symbols including `actionLink`/`fileInput`/`isolate`/`modalDialog`/`renderUI`/`throttle`/`updateSelectInput`/`verbatimTextOutput`). Test-side: no qualified-call conversions needed – existing unqualified `fct_inp_for_exp(...)` / `fct_internal_wt_to_exp(...)` calls in `tests/testthat/test-export.R` resolve via [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) regardless of export status. Folded in the Batch 6a `TBD -> #52` swap on the §6 row above and the §11 row above. **Closes Phase 3 (#11).** Suite stays at 682 PASS – no regression. |
+| [\#53](https://github.com/worldbank/devPTIpack/pull/53) | 2026-05-04 | **Phase 3 Batch 6b (closes Phase 3 – \#11)** | arch-02-docs Phase 3.6b – audited 37 functions across 12 files closing the Phase 3 sweep (35 fns across 11 files rewritten in this PR; 2 fns in `mod_wt_btns_collect.R` already at standard from Batch 5 extraction PR \#45, no edits): `R/mod_wt_inp.R` (14), `R/mod_DT_inputs.R` (7), `R/mod_wt_btns_collect.R` (2; verified-only), `R/mod_first_open_count.R` (1), `R/mod_tab_open.R` (1), `R/mod_waiter.R` (3), `R/mod_weights_rand.R` (3), `R/mod_infotab.R` (1), `R/fct_guide.R` (1), `R/fct_helpers.R` (1; `add_logo`), `R/fct_inp_for_exp.R` (2), `R/supporting-goe-prep.R` (1; `gg_admin_list`). Honored arch-01 § “Permanent Functions”: un-exported 2 INTERNAL fns (`fct_inp_for_exp`, `fct_internal_wt_to_exp` – arch-01:166-167 classifies both INTERNAL but they were exported via the `@noRd + @export` rule violation; un-exporting closes the violation and aligns NAMESPACE with arch-01); kept 4 EXPORTED fns exported by dropping their `@noRd` tags (`mod_tab_open_first_newserv`, `gg_admin_list`, `get_rand_weights`, `get_all_weights_combs` – closes 4 more `@noRd + @export` rule violations without moving NAMESPACE). Net 6 rule-violations closed. Promoted the 14-fn `@describeIn mod_wt_inp_ui` chain to standalone `@noRd` docs (Batch 4 precedent for full-chain split when umbrella + members are all INTERNAL); promoted the 3-fn `@describeIn mod_waiter_newsrv` chain similarly; split `get_rand_weights` and `get_all_weights_combs` out of the `@describeIn mod_weights_rand_ui` chain so their EXPORTED help pages stand alone. Pinned 1 §12 bug via `@note`: `fct_internal_wt_to_exp(list())` left-join error (PR \#26). Stripped 8 `# browser()` debug-residue lines per arch-01:436 (4 in `mod_DT_inputs.R`, 1 in `mod_wt_inp.R`’s upload-stub `mod_wt_uplod_newsrv` body, 3 in `supporting-goe-prep.R`); also stripped the 8-line commented-out `observeEvent(update_dta())` alternate-impl block in `mod_DT_inputs.R` (contained an embedded [`browser()`](https://rdrr.io/r/base/browser.html); the live `observe(...)` block above implements the same logic without the debugger trap). Three scope-proposal-time corrections vs the user’s prompt-time hypotheses, surfaced and corrected at the gate before any roxygen edit: (1) `fct_inp_for_exp` + `fct_internal_wt_to_exp` are arch-01-INTERNAL not EXPORTED, so the close direction was drop-`@export` not drop-`@noRd`; (2) `mod_infotab.R` had no `# browser()` at line ~71 (and none anywhere); (3) total browser-strip count was 8 lines + 1 alt-impl block, not the 1 implied. NAMESPACE delta: dropped 2 `export()` (`fct_inp_for_exp`, `fct_internal_wt_to_exp`); added a batch of explicit `importFrom`s on the rewritten functions that lost bulk-import coverage when their `@describeIn` chains dispersed (notable: [`ggplot2::aes`](https://ggplot2.tidyverse.org/reference/aes.html)/`geom_sf`/`ggplot`/`labs`/`theme`/`theme_minimal` localised onto `gg_admin_list`; [`dplyr::case_when`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html)/`if_any`/`right_join`; `purrr::flatten`/`imap_dfr`/`pmap_chr`/`pwalk`; ~15 new `shiny::*` symbols including `actionLink`/`fileInput`/`isolate`/`modalDialog`/`renderUI`/`throttle`/`updateSelectInput`/`verbatimTextOutput`). Test-side: no qualified-call conversions needed – existing unqualified `fct_inp_for_exp(...)` / `fct_internal_wt_to_exp(...)` calls in `tests/testthat/test-export.R` resolve via [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) regardless of export status. Folded in the Batch 6a `TBD -> #52` swap on the §6 row above and the §11 row above. **Closes Phase 3 (#11).** Suite stays at 682 PASS – no regression. |
+| [\#56](https://github.com/worldbank/devPTIpack/pull/56) | 2026-05-06 | **Phase 2.5 §12 (bug-fix \#1)** | §12 bug \#1 fixed – `R/plot_pti_helpers.R::complete_pti_labels` now assigns its [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html) result back to `dta`, so popups receive the `<strong>{priority_rank}</strong>` suffix the function was already computing but discarding. Test pin in `tests/testthat/test-plot-helpers.R` flipped from no-op (asserting the bug) to contract assertion (each output label equals the original concatenated with `<strong>{recode_function(pti_score)}</strong>`). Stripped the `@note Pinned bug (PR #25)` block from the function’s roxygen. Confirmed no caller depended on the broken behaviour: production caller `R/mod_plot_pti2.R:64` already piped through expecting the augmented labels; test setup `tests/testthat/test-map-render.R:16` only asserts `s3_class(g, "gg")` and never inspects label text. Folded in the Batch 6b `TBD -> #53` swap on the §6 row above and the §11 row above. Suite stays at 682 PASS – no regression. |
+| [\#57](https://github.com/worldbank/devPTIpack/pull/57) | 2026-05-06 | **Phase 2.5 §12 (bug-fix \#5)** | §12 bug \#5 fixed – `R/calc_pti_helpers.R::get_adm_levels` now sorts admin-level identifiers numerically (`admin1 < admin2 < admin10`) instead of lexicographically (`admin1 < admin10 < admin2`). Body rewritten from `dta %>% names() %>% str_extract("admin\\d{1,2}") %>% sort() %>% set_names(.)` to a 4-line form that filters NAs first, then permutes by `as.integer(str_extract(ids, "\\d{1,2}"))` via [`order()`](https://rdrr.io/r/base/order.html). Test pin in `tests/testthat/test-calc-pipeline.R` flipped from `c("admin1", "admin10", "admin2")` (lex) to `c("admin1", "admin2", "admin10")` (numeric); `test_that()` description renamed from `"sort is lexicographic, not numeric (PINNED)"` -\> `"sort is numeric across mixed-digit levels"`. Stripped the 5-line `@note Pinned bug` block + retitled function description from “sorted” to “numerically-sorted” + clarified `@return` to mention NA dropping. Caller-graph audit confirmed no production caller depended on the lex order: `R/mod_plot_init_leaf.R:86` (`%in%`) and `R/fct_validate_metadata.R:51` are order-agnostic; `R/calc_pti_expander.R:44`’s outer `imap()` iteration order doesn’t affect the inner per-pair logic. For the only data ever shipped (`ukr_shp` admin0/1/2/4, all single-digit), lex and numeric sort produce identical results – this fix is a no-op on production data and only changes behaviour at ≥10 admin levels (the bug case). Out of scope: the separate first-digit-only quirks in `expand_adm_levels` (`str_extract(col, "\\d")` – single digit not `\\d{1,2}`) and `agg_pti_scores` (`max(level)` as a string) – pre-existing latent issues, not §12 row \#5; could be added as new §12 rows in a follow-up. Folded in the PR-#56 `TBD -> #56` swap on the §11 row above and on the §12 row \#1. Suite stays at 682 PASS – one expect_equal swapped 1-for-1, no count delta. |
+| [\#58](https://github.com/worldbank/devPTIpack/pull/58) | 2026-05-06 | **chore (PLAN scaffold)** | Phase-2.5 sprint scaffold — added a “Status snapshot” prose paragraph at the top of §1 calling out current focus + 2/13 progress; expanded §2 execution-order tree with the closed Phase-3 batch list (Batches 1, 2, 3, 4, 5, 6a, 6b → ✓ done) and inserted a new “Phase 2.5 §12 bug-fix sprint (concurrent)” node between Phase 3 and Phase 4 listing fixed (#1 \#56, \#5 \#57) and queued (#6 next, then \#7 \#10, then user-facing \#2 \#4 \#8 \#9 \#11 \#13, last \#3 \#12) bugs; added a “Status: 2 of 13 fixed” rollup paragraph above the §12 table summarising done + triage queue. Folded in the PR-#57 `TBD -> #57` swap on the §11 progress-log row dated 2026-05-06 and on the §12 row \#5 in the same commit. Pure-docs PR (no R/ or tests/ touched); R-CMD-check workflow gates merge. Suite stays at 682 PASS – not invoked, no test code touched. |
+| [\#59](https://github.com/worldbank/devPTIpack/pull/59) | 2026-05-06 | **Phase 2.5 §12 (bug-fix \#6)** | §12 bug \#6 fixed – `R/calc_pti_helpers.R::get_scores_data` now treats singleton `(year, var_code)` groups as zero-variance (no scale to apply): non-`NA` values are set to the neutral score `0` instead of falling through [`sd()`](https://rdrr.io/r/stats/sd.html)-of-length-1 -\> `NA`. Body kept the existing standardise step but added a precomputed `.was_na` flag plus a `dplyr::if_else(dplyr::n() == 1L & !.was_na, 0, value)` patch before the `is.nan` -\> `0` rewrite (input-`NA` rows are preserved as `NA`). First attempt used a single nested [`dplyr::if_else`](https://dplyr.tidyverse.org/reference/if_else.html) on `dplyr::n() == 1L` directly but failed strict size-checking (scalar condition rejected vector branches in `vec_check_size`); restructured to length-`n` condition. Test pin in `tests/testthat/test-calc-pipeline.R` flipped from `expect_true(is.na(out$scheme$adm$value))` to `expect_equal(out$scheme$adm$value, 0)`; `test_that()` description renamed from `"1-row groups produce NA, not 0 (PINNED)"` -\> `"1-row groups produce 0 (no variance to scale)"` and the inline pinned-bug comment replaced with a one-line rationale. Stripped the 5-line `@note Pinned bug` block from the function’s roxygen + tightened the description prose to enumerate both no-variance paths (singleton + `n>1` all-identical). Caller-graph audit confirmed no production caller depended on the `NA` behaviour: `R/mod_calc_pti2.R:81`, `R/run_pti_pipeline.R:64`, and `R/fct_validate_metadata.R:59` are pipe links that don’t inspect cardinalities; `tests/testthat/helper-test-data.R:39` builds the `test_scored` fixture which fed the existing `mean ~= 0` test (line 172) — its `is.na(means$m)` filter now becomes a no-op rather than masking the bug. NAMESPACE delta: added [`dplyr::if_else`](https://dplyr.tidyverse.org/reference/if_else.html) and [`dplyr::n`](https://dplyr.tidyverse.org/reference/context.html) `importFrom` lines (qualified-call convention). Out of scope (interpretation Y at the design gate): “effectively `n=1`” groups (`n>1` with only one non-`NA`) – [`sd()`](https://rdrr.io/r/stats/sd.html) is still `NA` there, so the lone value comes out `NA`. Pinned test only constrains literal `n=1`; could be a follow-up §12 row if a consumer needs it. Folded in the PR-#58 `TBD -> #58` swap on the §11 row above as commit 1. Suite stays at 682 PASS (FAIL=0, SKIP=1) – one expect_equal swapped 1-for-1, no count delta. |
+| [\#60](https://github.com/worldbank/devPTIpack/pull/60) | 2026-05-06 | **Phase 2.5 §12 (bug-fix \#7 + boundary follow-up)** | §12 bug \#7 fixed plus a bundled boundary-regex follow-up on the same function (new 14th §12 row) – `R/calc_pti_expander.R::expand_adm_levels` now (a) errors loudly via `stop("more than one slot in 'wtd_scrd_dta' matches admin level '{adm_from}': {names}", call. = FALSE)` when \>1 input slot resolves to a single level, instead of silently returning nested NULLs for the entire source-loop iteration; and (b) anchors slot-name matching as `^{adm_from}(_|$)` so iterating with `adm_from = "admin1"` no longer also picks up slots named `"admin10_..."` / `"admin11_..."` (latent (d) from prior sessions). The two changes share the same surface — one regex and one length check on slot names — so bundling them makes the rewrite atomic and avoids the row-7 multi-match error masking the boundary bug as a false positive. Test pin in `tests/testthat/test-calc-pipeline.R` flipped from `for (tgt in out$admin1) expect_null(tgt)` (4 expectations) to `expect_error(..., regexp = "admin1")` (1 expectation); `test_that()` description renamed from `"expand_adm_levels: >1 element matches a level -> NULLs (PINNED)"` -\> `"expand_adm_levels: >1 slot matches a level -> error"`. Added a new test `"expand_adm_levels: slot regex is boundary-anchored (admin1 vs admin10)"` that builds a `list(admin1_Oblast = src1, admin10_Other = src1)` input and asserts `out$admin1` is non-null (boundary regex selects only the admin1 slot, doesn’t trip the new multi-match error). Stripped the 6-line `@note When length(adm_from_dta_full) > 1 ...` block from the function’s roxygen + rewrote the `@return` clause from “leaves are NULL when … or the adm_from slot has more than one element matching its level pattern” to “leaves are NULL when no slot matches or the matched slot is empty; errors when more than one slot matches a single admin level”. Caller-graph audit confirmed no production caller depended on the silent-NULL short-circuit: `R/mod_calc_pti2.R:82`, `R/run_pti_pipeline.R:65`, and `R/fct_validate_metadata.R:60` all pipe through to `merge_expandedn_adm_levels()` which would have produced empty merges from the silent NULLs (functionally already broken downstream); for the only data ever shipped (`ukr_shp` admin0/1/2/4, all single-digit), `wtd_scrd_dta` always has exactly one slot per level, so both new guards are unreachable on production data — this fix is a no-op on bundled fixtures and only changes behaviour on schema-violating or ≥10-admin-level deployments. Out of scope: the related single-`\\d` `str_extract` quirks at `R/calc_pti_expander.R:79-80` and `R/calc_pti_helpers.R::agg_pti_scores:237` – same first-digit-only family but on different code paths (column-name parsing, not slot-name lookup); candidates for a future “first-digit-only sweep” §12 row. Folded in the PR-#59 `TBD -> #59` swap on the §11 row above (already complete in upstream). Suite drops from 682 PASS -\> 680 PASS (FAIL=0, SKIP=1) – net -2 expectations from the 4-`expect_null` -\> 1-`expect_error` flip, +1 from the new boundary test = -2. |
 
-Suite total after this branch: **0 failures / 1 skip / 682 PASS**
+[\#61](https://github.com/worldbank/devPTIpack/pull/61) \| 2026-05-06 \|
+**Phase 2.5 §12 (bug-fix \#10)** \| §12 bug \#10 fixed –
+`R/mod_drop_inval_adm.R::get_vars_un_avbil` now treats availability
+strictly: a `(var_code, admin_level)` pair surfaces as unavailable iff
+the indicator has no native data at that admin level. Body shrank from
+~25 lines (lex `arrange()` + triple
+[`lag()`](https://rdrr.io/r/stats/lag.html) back-fill +
+`is.na(value & !any_larger)` operator-precedence typo + `lead()`-based
+`any_larger` flag) to ~10 lines (`expand.grid` +
+[`tibble::as_tibble`](https://tibble.tidyverse.org/reference/as_tibble.html) +
+[`dplyr::anti_join`](https://dplyr.tidyverse.org/reference/filter-joins.html)
+over the distinct `(var_code, admin_level)` set). Pre-fix: an indicator
+with data only at admin1 was silently
+[`lag()`](https://rdrr.io/r/stats/lag.html)-filled into admin2 / admin4
+rows, so admin2 and admin4 were never surfaced as unavailable; reverse
+direction (admin2-only -\> admin1) worked because admin1 had no `lag`.
+Post-fix: both directions surface symmetrically. Decision at the gate:
+contract X (strict no extrapolation) over Y (aggregate-up only) and Z
+(bidirectional) – X matches the existing
+`weighting an unavailable var produces drops` test
+(`var_nval4_small_skewd_adm4` admin4-only -\> admin1 + admin2 dropped)
+and avoids re-encoding extrapolation that `expand_adm_levels` already
+handles in the calc pipeline. NAMESPACE delta: dropped
+[`dplyr::lead`](https://dplyr.tidyverse.org/reference/lead-lag.html),
+[`dplyr::lag`](https://dplyr.tidyverse.org/reference/lead-lag.html),
+[`dplyr::group_by`](https://dplyr.tidyverse.org/reference/group_by.html),
+[`dplyr::count`](https://dplyr.tidyverse.org/reference/count.html),
+[`dplyr::rename`](https://dplyr.tidyverse.org/reference/rename.html),
+[`dplyr::mutate`](https://dplyr.tidyverse.org/reference/mutate.html),
+[`dplyr::filter`](https://dplyr.tidyverse.org/reference/filter.html),
+[`dplyr::left_join`](https://dplyr.tidyverse.org/reference/mutate-joins.html),
+[`dplyr::arrange`](https://dplyr.tidyverse.org/reference/arrange.html)
+from the `@importFrom` (the lag/lead machinery is gone); added
+[`dplyr::distinct`](https://dplyr.tidyverse.org/reference/distinct.html),
+[`dplyr::anti_join`](https://dplyr.tidyverse.org/reference/filter-joins.html),
+[`tibble::as_tibble`](https://tibble.tidyverse.org/reference/as_tibble.html).
+Dropped `"any_larger"` from `R/devPTIpack-package.R::globalVariables()`
+– the column is no longer in the output, and `grep` confirmed no caller
+(in `R/` or `tests/`) read it. Roxygen: stripped the 8-line
+`@note Asymmetry pinned in PR #34` block; rewrote title from “Identify
+(variable, admin-level) pairs with no data and no upstream coverage” -\>
+“Identify (variable, admin-level) pairs with no native data”; rewrote
+`@return` to drop the `any_larger` mention. Tier-1 test added in
+`test-drop-inval-adm.R`:
+`"get_vars_un_avbil: flags missing levels symmetrically"` builds a
+synthetic 3-indicator fixture (admin1-only / admin2-only / both) and
+asserts admin1-only surfaces at admin2 (the previously-broken
+direction), admin2-only surfaces at admin1, and the both-levels
+indicator surfaces nowhere. Tier-2 test added in
+`test-mod-drop-inval-adm.R`:
+`"mod_drop_inval_adm: indicator missing at admin2 -> admin2 removed"` –
+reverse-direction sibling of the existing
+`missing at admin1 -> admin1 removed` test, replacing the prior 8-line
+“Note on symmetry. … Not testing it here to avoid coupling this Tier-2
+module test to a Tier-1 bug.” comment block. Two pre-existing tests had
+to be updated to match the new contract: (a)
+`test-drop-inval-adm.R::"get_min_admin_wght: a fully-available var drops nothing"`
+– swapped the picked var from `var_nval3_skewd_adm1` (admin1-only; the
+prior comment claimed it was “available at every admin level in the
+bundled fixture (cross-checked via probing)” but that probe was probing
+the broken function) to `var_nvalinf_unif_adm124`, the only fixture
+indicator with native data at every admin level (admin1 + admin2 +
+admin4); (b)
+`test-get_uavailab_admin.R::"get unavailable adming levels works"` –
+bumped the asserted nrow() from 7 (the lag-fill bug under-counted the
+admin1-only direction) to 12 (9 indicators x 3 admin levels - 15 cells
+with native data) with an inline rationale comment. Caller-graph audit:
+`get_min_admin_wght` only `pull(admin_level)` from the result
+(`R/mod_drop_inval_adm.R:226`), so dropping the `any_larger` column is
+safe. Folded in the PR-#60 `TBD -> #60` swap on the §11 row above and on
+the §12 rows 7 + 14 (already complete in upstream). Suite goes from 680
+PASS -\> 683 PASS (FAIL=0, SKIP=1) – net +2 test_that blocks (Tier-1
+symmetric + Tier-2 reverse) plus 6 new individual expectations across
+the existing tests’ contract updates. \|
+
+[\#62](https://github.com/worldbank/devPTIpack/pull/62) \| 2026-05-06 \|
+**Phase 2.5 §12 (bug-fix \#2)** \| §12 bug \#2 fixed –
+`R/plot_pti_helpers.R::check_existing_groups` now early-handles
+`length(old_grps) == 0` instead of erroring inside
+`stringr::str_detect(., character(0))` with a vctrs
+`pattern must have size 1` error. Body wraps the existing
+`check_this_too` / lookup-by-pattern block in an
+`if (length(old_grps) > 0)` guard; on empty input
+`grps_in <- character(0)`, falling through to the pre-existing “first of
+remaining” fallback at L457-459 which arch-03 §1.6 already specified as
+the empty-`old_grps` contract. Test pin in
+`tests/testthat/test-plot-helpers.R` flipped from
+`expect_error(..., regexp = "size")` (asserting the bug) to two
+`expect_equal`s asserting the contract: `out$out_show == "a (Country)"`
+(first of current) and `out$out_hide == "b (Oblast)"`. `test_that()`
+description renamed from `"empty old errors via str_detect (PINNED)"`
+-\> `"empty old -> first of current shown"`; comment block rewritten to
+describe the contract instead of the past bug. Stripped the 5-line
+`@note Pinned bug (PR #25)` block from the function’s roxygen.
+Caller-graph audit: only call site is `R/plot_pti_helpers.R:357` inside
+`add_pti_poly_controls`, gated by `isTruthy(old_grps)` at L356 – so the
+empty-input path never fired in production today; this fix is a no-op on
+the deployed app and only changes behaviour for direct callers (tests).
+No NAMESPACE delta – `str_detect` still used inside the guard. Folded in
+the PR-#61 `TBD -> #61` swap on the §11 row above and on the §12 row
+\#10 (already complete in upstream). Suite goes from 683 PASS -\> 684
+PASS (FAIL=0, SKIP=1) – net +1 expectation: 1 expect_error swapped for 2
+expect_equal. \|
+
+[\#64](https://github.com/worldbank/devPTIpack/pull/64) \| 2026-05-06 \|
+**Phase 2.5 §12 (bug-fix \#4)** \| §12 bug \#4 fixed –
+`R/fct_validate_metadata.R::validate_read_shp` no longer hits the
+`str_detect(names(x), character(0))` vctrs size error when called on a
+“perfect” shapefile (every `admin{N}Pcod` field has a matching
+`admin{N}_*` slot). Body refactored: compute `extra_level_vec` first
+(without the `str_c collapse`), then guard the diagnostic-label
+construction (`str_c collapse`, `keep`, `str_detect on names`) with
+`if (length(extra_level_vec) > 0)`; on empty extras, set both label
+strings to `""` and let the (already correct)
+`expect_true(all(... %in% ...))` pass cleanly. Stripped the 5-line
+`@note Issue #7 ...` block from the function’s roxygen. Test
+housekeeping: the existing pin in `tests/testthat/test-validators.R`
+(`"validate_read_shp: round-trips through an .rds path (PINNED BUG)"`)
+used `capture_validator()` which mocks
+[`testthat::test_that`](https://testthat.r-lib.org/reference/test_that.html)
+to a no-op, so the inner blocks never executed and the test passed
+trivially both pre- and post-fix; the PR renames it to
+`"validate_read_shp: perfect shapefile passes round-trip"` and rewrites
+the comment to drop the misleading PINNED BUG language and explain why
+the existing infrastructure can’t pin the bug rigorously. Surfaced this
+caveat at the scope-proposal gate – the user accepted the rename-only
+test change. The fix is verified by code inspection: only the
+previously-broken empty-extras branch changed, and the end-to-end
+`validate_metadata: bundled sample data passes end-to-end` test (which
+composes both `validate_read_shp` and `validate_read_metadata`) still
+passes. Caller-graph: only `validate_metadata` at
+`R/fct_validate_metadata.R:35`. No NAMESPACE delta. Out of scope: the
+broader arch-01 refactor target – converting the runtime
+[`testthat::test_that`](https://testthat.r-lib.org/reference/test_that.html)
+machinery into ordinary validation calls – bigger scope, would obsolete
+`capture_validator()` entirely; left for a future PR. Folded in the
+PR-#62 `TBD -> #62` swap on the §11 row above and on the §12 row \#2
+(already complete in upstream). Suite stays at 684 PASS (FAIL=0, SKIP=1)
+– rename-only on the existing pin, no test count delta. \|
+
+[\#65](https://github.com/worldbank/devPTIpack/pull/65) \| 2026-05-06 \|
+**Phase 2.5 §12 (bug-fix \#8)** \| §12 bug \#8 fixed –
+`R/fct_inp_for_exp.R::fct_internal_wt_to_exp` now early-returns a 0-row
+tibble matching its documented `@return` schema (`var_code`, `var_name`,
+`weight`, `weight_scheme`) when `weights_clean` is
+[`list()`](https://rdrr.io/r/base/list.html). Pre-fix:
+`purrr::imap_dfr(list())` produced a 0x0 tibble (no columns), so the
+downstream
+`dplyr::left_join(., indicators_list %>% select(var_code, var_name), by = "var_code")`
+errored with “Join columns in ‘x’ must be present in the data:
+‘var_code’”. Test pin in `tests/testthat/test-export.R` flipped from
+`expect_error(..., regexp = "var_code")` (1 expectation, asserting the
+bug) to three contract assertions: `expect_s3_class(out, "tbl_df")`,
+`expect_equal(nrow(out), 0L)`,
+`expect_setequal(names(out), c("var_code", "var_name", "weight", "weight_scheme"))`.
+`test_that()` description renamed from
+`"empty list errors at left_join (PINNED)"` -\>
+`"empty list returns a 0-row tibble with the full schema"`. Stripped the
+7-line `@note PINNED BUG (PLAN.md §12) ...` block from the function’s
+roxygen. Caller-graph: single call site at `R/mod_wt_inp.R:914` inside
+`mod_wt_dwnload_newsrv`; production never feeds an empty list (download
+button only fires after at least one scheme is saved) – this fix is a
+no-op on the deployed app and only changes behaviour for direct callers.
+NAMESPACE delta: added
+[`tibble::tibble`](https://tibble.tidyverse.org/reference/tibble.html)
+to the function’s `@importFrom` (used by the early-return constructor).
+The sibling test
+`"fct_internal_wt_to_exp: empty scheme tibble -> 0-row tibble"` already
+covered the n\>0-but-each-empty case; this fix completes the empty-input
+contract by handling the n=0 case symmetrically. Folded in the PR-#64
+`TBD -> #64` swap on the §11 row above and on the §12 row \#4 (already
+complete in upstream). Suite goes from 684 PASS -\> 686 PASS (FAIL=0,
+SKIP=1) – net +2 expectations (1 expect_error swapped for 3 contract
+assertions). \|
+
+[\#66](https://github.com/worldbank/devPTIpack/pull/66) \| 2026-05-06 \|
+**Phase 2.5 §12 (bug-fix \#9)** \| §12 bug \#9 fixed –
+`R/mod_dta_explorer2.R::get_var_choices` now early-returns
+[`list()`](https://rdrr.io/r/base/list.html) when `indicators_list` has
+0 rows, instead of falling through to a NULL-`out` rescue branch that
+errored at `names(out) <- "Indicators"` with “attempt to set an
+attribute on NULL”. One-paragraph guard at the top of the function:
+`if (nrow(indicators_list) == 0) return(list())`. Test pin in
+`tests/testthat/test-explorer-helpers.R` flipped from
+`expect_error(..., regexp = "attribute on NULL")` (1 expectation,
+asserting the bug) to two contract assertions:
+`expect_type(out, "list")` + `expect_length(out, 0L)`. `test_that()`
+description renamed from `"empty indicators tibble errors (PINNED)"` -\>
+`"empty indicators tibble returns an empty list"`; comment block
+rewritten to describe the contract instead of the past bug. Stripped the
+6-line `@note **Pinned bug (PLAN.md §12, PR #27)** ...` block from the
+function’s roxygen. Caller-graph: single call site at
+`R/mod_dta_explorer2.R:76` inside `mod_dta_explorer2_server`, gated by
+`req(indicators_list())` – so the empty path never fired in production
+today; this fix is a no-op on the deployed app and only changes
+behaviour for direct callers (tests). Downstream consumer
+`shinyWidgets::updatePickerInput(choices = list())` handles an empty
+list cleanly. No NAMESPACE delta. Sibling-test consistency: this fix
+follows the same defensive-empty-input pattern as PR \#65
+(`fct_internal_wt_to_exp(list())` -\> 0-row tibble) – both adopted at
+the scope-proposal gate as small surgical guards rather than full
+input-validation refactors. Folded in the PR-#65 stragglers from the
+wrapped-line TBD swap that the previous chore-commit’s sed missed
+(PLAN.md §1 status-snapshot prose around the line break). Suite goes
+from 686 PASS -\> 687 PASS (FAIL=0, SKIP=1) – net +1 expectation (1
+expect_error swapped for 2 contract assertions). \|
+
+[\#67](https://github.com/worldbank/devPTIpack/pull/67) \| 2026-05-06 \|
+**Phase 2.5 §12 (bug-fix \#11)** \| §12 bug \#11 fixed –
+`R/mod_dta_explorer2.R::mod_fltr_sel_var2_srv` now wraps each `%in%`
+test inside the `add_selected()` observer’s
+[`purrr::map_lgl()`](https://purrr.tidyverse.org/reference/map.html)
+predicate in `any(...)`:
+`any(.x %in% c(selected_add, selected_now)) | any(.x %in% names(c(selected_add, selected_now)))`.
+Pre-fix the predicate evaluated `.x %in% ...` directly, returning a
+length-N logical for multi-var pillars and tripping `map_lgl`’s length-1
+contract with “Result must be length 1, not N”. Two-character-pair
+surgical edit. Caller-graph: single call site at
+`R/mod_dta_explorer2.R:78` inside `mod_dta_explorer2_server`;
+`add_selected` defaults to `reactive(NULL)` and the observer is gated by
+`req(add_selected())`, so the latent path never fired in production –
+this fix is a no-op on the deployed app today and only changes behaviour
+for direct callers (tests + future programmatic pushes). Test pin in
+`tests/testthat/test-mod-var-selector.R` flipped from a predicate-only
+`expect_error` (which evaluated a *copy* of the buggy expression, not
+the function – so the assertion would have stayed true post-fix forever)
+to a proper Tier-2 `testServer` block: same shape as the existing
+single-var sibling, but with
+`multi_pillar = list("Pillar A" = c("Var Name 1" = "var_1", "Var Name 2" = "var_2"), "Pillar B" = c("Var Name 3" = "var_3"))`;
+pushes `add_selected("var_2")` and asserts `updatePickerInput` is called
+once with `inputId = "indicators"` and `selected` named `"Pillar A"`
+(the multi-var pillar that contains var_2). `test_that()` description
+renamed from
+`"add_selected() with multi-var pillar fails the inner predicate (PINNED BUG)"`
+-\>
+`"add_selected() with multi-var pillar selects the matching pillar"`.
+Updated the explanatory comment block at L178-187 to drop the
+“happy-path uses single-var-per-pillar” caveat – both directions are now
+exercised. Stripped the 9-line
+`@note **Pinned bug (PLAN.md §12, PR #37)** ...` block from the
+function’s roxygen. No NAMESPACE delta. Folded in nothing – prior PR
+\#66 self-swapped its TBD before merge. Suite goes from 687 PASS -\> 689
+PASS (FAIL=0, SKIP=1) – net +2 expectations: predicate-only
+`expect_error` (1) replaced with three `testServer` assertions
+(`expect_gt`, `expect_equal` on inputId, `expect_named` on selected). \|
+
+[\#68](https://github.com/worldbank/devPTIpack/pull/68) \| 2026-05-07 \|
+**Phase 2.5 §12 (bug-fix \#13 – Arch-2)** \| §12 bug \#13 fixed under
+**Arch-2** (auto-materialize). Two coupled changes: **(1)**
+`R/mod_dwnld_dta.R::mod_dwnld_file_server` now validates `filepath` at
+registration; on invalid input calls `shinyjs::disable(outputId)` and
+ships an explanatory `unavailable-<date>.txt` placeholder via the
+content callback (not a silent broken `.html`). On valid input the
+existing `basename(filepath)` filename builder is preserved. **(2)** New
+private helper
+`R/launch_pti.R::materialize_dwnld_paths(shp_dta, inp_dta, shapes_path, mtdtpdf_path, data_path)`
+writes in-memory `shp_dta` / `inp_dta` to session-scoped tempfiles when
+the corresponding paths are `NULL` (`pti-shapes-<date>.rds` via
+[`saveRDS()`](https://rdrr.io/r/base/readRDS.html),
+`pti-data-export-<date>.xlsx` via
+[`writexl::write_xlsx()`](https://docs.ropensci.org/writexl//reference/write_xlsx.html));
+PDF stays `NULL` since there’s no in-memory equivalent. Defaults on
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+and
+[`launch_pti_onepage()`](https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.md)
+flipped from `"."` to `NULL` for `shapes_path` and `mtdtpdf_path`. Added
+new `data_path` parameter on
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+and threaded it to `mod_dta_explorer2_server` – closes a separate latent
+bug where `data_path` defaulted to NULL in the server but `launch_pti`
+never plumbed it through, making the explorer’s “Download data” button
+unreachable. Architectural rationale (raised by the user at the
+scope-proposal gate): “users shouldn’t need to know about disk paths to
+deploy an app – if we have the data in memory, we should be able to
+serve it.” Iteration history: an interim attempt used
+[`shinyjs::hide()`](https://rdrr.io/pkg/shinyjs/man/visibilityFuncs.html)
+plus [`setdiff()`](https://rdrr.io/r/base/sets.html)-ing `"metadata"`
+from `wt_dwnld_options` / `map_dwnld_options` to also clean up the
+orphaned ” and .” connector text; the connector logic lives in three
+side-panel renderers (PTI / compare / explorer) and the conditionals
+didn’t reach all of them cleanly, so reverted to plain `disable()` +
+placeholder. Cosmetic ” and .” sentence quirk remains when no PDF is
+supplied; flagged as out-of-scope follow-up. New Tier-1 + Tier-2 test
+file `tests/testthat/test-mod-dwnld-file.R` (6 test_that blocks, 13
+expectations): two cover `materialize_dwnld_paths()` (NULL fallbacks
+vs. explicit paths), four cover `mod_dwnld_file_server` (valid file
+leaves link enabled; NULL / directory / nonexistent paths trigger
+[`shinyjs::disable`](https://rdrr.io/pkg/shinyjs/man/stateFuncs.html)).
+NAMESPACE delta: added `importFrom(writexl, write_xlsx)`. Manually
+verified by the user via
+`launch_pti(shp_dta = ukr_shp, inp_dta = ukr_mtdt_full)` – shapes + data
+downloads work, metadata-PDF link is greyed out. Folded in the PR-#67
+`TBD -> #67` swap on the §11 row above and on the §12 row \#11 (already
+complete in upstream). Suite goes from 689 PASS -\> 702 PASS (FAIL=0,
+SKIP=1) – net +13 expectations from the new test file. \|
+
+[\#69](https://github.com/worldbank/devPTIpack/pull/69) \| 2026-05-07 \|
+**Phase 2.5 §12 (bug-fix \#3)** \| §12 bug \#3 fixed –
+`R/plot_pti_helpers.R::filter_admin_levels` now treats admin keys and
+display values symmetrically inside the `keep()` predicate. Pre-fix: the
+gating branch (L116-117) entered when `to_fltr` matched either keys or
+values, but the inner `keep(function(x) {x$admin_level %in% to_fltr})`
+predicate compared `x$admin_level` (the display value, e.g. `"Oblast"`)
+against `to_fltr` only – so `to_fltr = "admin1"` (a bare key) entered
+the branch but selected 0 entries. Fix: extend the predicate to
+`x$admin_level %in% to_fltr | names(x$admin_level) %in% to_fltr`.
+Mirrors how `mod_get_admin_levels_srv` already filters its own internal
+state at L237-238
+(`names(.) %in% default_adm_level | (.) %in% default_adm_level`). Test
+pin in `tests/testthat/test-plot-helpers.R` flipped from
+`expect_equal(length(filter_admin_levels(preplot, "admin1")), 0L)` (1
+expectation, asserting the bug) to a sharper symmetric-contract
+assertion `expect_equal(by_name, by_value)` (1 expectation) – key-only
+and value-only filters must produce the *same* result, not just the same
+length. `test_that()` description renamed from
+`"name-only filter returns 0 entries (PINNED)"` -\>
+`"name-only filter matches the same entries as value-only"`; comment
+block rewritten to describe the contract instead of the past bug.
+Reviewer caution applied: original proposal used a length-check + `for`
+loop; tightened on r-package-reviewer’s nice-to-have to a direct
+equality check that more sharply expresses the symmetric contract.
+Stripped the 6-line `@note Pinned bug (PR #25)` block from the
+function’s roxygen. Caller-graph: 2 production call sites
+(`R/mod_dta_explorer2.R:99`, `R/mod_plot_pti2.R:62`), both pass
+`sel_adm_levels()` (a named character vector from
+`mod_get_admin_levels_srv`); the values branch already matched in
+production so this fix is a no-op on the deployed app and only changes
+behaviour for direct callers (tests + future callers). No NAMESPACE
+delta. Folded in nothing – prior PR \#68 self-swapped its TBD before
+merge. Suite stays at 702 PASS (FAIL=0, SKIP=1) – 1 `expect_equal`
+swapped 1-for-1, no count delta. \|
+
+[\#70](https://github.com/worldbank/devPTIpack/pull/70) \| 2026-05-07 \|
+**Phase 2.5 §12 (bug-fix \#12 – closes the sprint)** \| §12 bug \#12
+fixed – `R/supporting-goe-prep.R::gg_admin_list` default
+`mt = zam_bounds_simple` flipped to `mt = NULL` with an explicit
+`stop("'mt' is required: ...", call. = FALSE)` guard at the top of the
+function (option A from the scope-proposal gate; B = make `mt`
+required-no-default; C = default to `ukr_shp` – both rejected, A gives
+the clearest failure mode without coupling to a bundled dataset).
+Pre-fix: calling `gg_admin_list(dta, metadata)` without explicit `mt`
+errored at runtime with `object 'zam_bounds_simple' not found` because
+`zam_bounds_simple` doesn’t exist anywhere in `R/`, `data/`, or `inst/`.
+The broken default was silenced via
+`R/devPTIpack-package.R::globalVariables()` so R CMD check stayed clean
+– this PR also drops `"zam_bounds_simple"` from
+[`globalVariables()`](https://rdrr.io/r/utils/globalVariables.html).
+Updated `@param mt` doc to mention required-ness. New Tier-1 test file
+`tests/testthat/test-gg-admin-list.R` (2 test_that blocks, 8
+expectations): missing `mt` -\> `expect_error(regexp = "mt.*required")`;
+with `mt = ukr_shp` -\> non-empty list of ggplot objects. Caller-graph:
+2 production callers (`inst/metadata.Rmd:129`,
+`inst/sample_pti/app-data/pti-metadata-pdf.Rmd:108`) both pass
+`mt = bounds` explicitly – pure latent bug. Two commented-out demo lines
+in those Rmds (omitting `mt`) almost certainly date from someone hitting
+this exact error and commenting them out. **This PR closes the Phase 2.5
+§12 bug-fix sprint – 14 of 14 bugs fixed across 14 PRs (#56, \#57, \#59,
+\#60 \[#7 + \#14\], \#61, \#62, \#64, \#65, \#66, \#67, \#68, \#69, plus
+this one).** Folded in nothing – prior PR \#69 self-swapped its TBD
+before merge. Suite goes from 702 PASS -\> 710 PASS (FAIL=0, SKIP=1) –
+net +8 expectations from the new test file. \|
+
+Suite total after this branch: **0 failures / 1 skip / 710 PASS**
 ([`testthat::test_local()`](https://testthat.r-lib.org/reference/test_package.html);
-docs-only PR, no test delta).
+bug-fix PR adds a new Tier-1 test file with 2 test_that blocks / 8
+expectations covering the `mt`-required error and the bundled-data
+success path).
+
+------------------------------------------------------------------------
+
+**Phase 2.5 §12 sprint summary** (closed 2026-05-07): 14 bug-fix PRs
+landed across 12 calendar days (2026-05-06 through 2026-05-07; PR \#56
+to PR \#70). Every pinned bug from §12 has been resolved with a
+contract-asserting test in place of the original bug-asserting pin.
+Suite grew from a 682 PASS baseline to 710 PASS via a mix of pin flips
+and new defensive-input test files (`test-mod-dwnld-file.R` +13,
+`test-gg-admin-list.R` +8). Two follow-up cosmetic items remain
+documented as out-of-scope: the orphaned ” and .” connector text in the
+side-panel sentence when no `mtdtpdf_path` is supplied (PR \#68
+narrative), and the broader arch-01 refactor target – converting the
+runtime
+[`testthat::test_that`](https://testthat.r-lib.org/reference/test_that.html)
+machinery in `validate_*` helpers into ordinary validation calls (PR
+\#64 narrative).
 
 > **Suite totals revised on 2026-05-02:** prior counts in §11 were
 > derived from `sum(res$nb)` over
@@ -807,24 +1237,46 @@ docs-only PR, no test delta).
 
 ## 12. Discovered bugs (pinned in tests)
 
-> Bugs surfaced *while* writing Tier-1 tests. Pinned with `expect_*`
-> assertions on the current (broken) behaviour so the tests fail when a
-> future fix lands — at which point the assertion is updated to the new
-> contract. Cleanup-phase candidates.
+> Bugs surfaced during Tier-1 test writing **or** during the Phase 2.5
+> R-CMD-check / manual-smoke gate. Pre-Phase-2.5 entries are pinned with
+> `expect_*` assertions on the current (broken) behaviour so the tests
+> fail when a future fix lands — at which point the assertion is updated
+> to the new contract. Phase-2.5-discovered entries (rows 12+) have no
+> test pin yet; pinning is a sub-task of the eventual fix PR. All
+> entries are cleanup-phase candidates regardless of pin status.
+
+**Status: 14 of 14 fixed – sprint complete.** Done: \#1
+`complete_pti_labels` (PR \#56), \#5 `get_adm_levels` (PR \#57), \#6
+`get_scores_data` (PR \#59), \#7 `expand_adm_levels` (PR \#60) plus the
+boundary-regex follow-up on the same function (PR \#60; the 14th §12
+row), \#10 `get_vars_un_avbil` symmetric availability (PR \#61), \#2
+`check_existing_groups` empty-old (PR \#62), \#4 `validate_read_shp`
+empty-pattern (PR \#64), \#8 `fct_internal_wt_to_exp` empty list (PR
+\#65), \#9 `get_var_choices` empty indicators (PR \#66), \#11
+`mod_fltr_sel_var2_srv` multi-var pillar (PR \#67), \#13
+`mod_dwnld_file_server` broken downloads +
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
+path-default API redesign (PR \#68; Arch-2), \#3 `filter_admin_levels`
+name-vs-value asymmetry (PR \#69), and \#12 `gg_admin_list`
+undefined-default (PR \#70). Phase 2.5 closed – next track is Phase 4
+(#12, vignettes & pkgdown) or Phase 5 (#13, hex ingestion).
 
 | Loc | Bug | Pin (test) |
 |----|----|----|
-| [`R/plot_pti_helpers.R::complete_pti_labels`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R#L113-L133) | The function maps over `dta` but never assigns the result; returns the original `dta` unchanged. Intent is to append `<strong>{priority_label}</strong>` to each `pti_label`. The deployed app silently misses the priority-rank suffix. One-line fix. | [test-plot-helpers.R:complete_pti_labels: returns input unchanged (PINNED BUG)](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
-| [`R/plot_pti_helpers.R::check_existing_groups`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R#L286) | Errors with a vctrs size error when `old_grps` is `character(0)` — `str_detect(string, character(0))` is invalid. arch-03 §1.6 expects “first of current shown” in this case. | [test-plot-helpers.R:check_existing_groups: empty old errors (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
-| [`R/plot_pti_helpers.R::filter_admin_levels`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R#L60) | Asymmetry: the if-branch enters when `to_fltr` matches *names* of admin levels (e.g. `"admin1"`), but the inner `keep()` predicate compares values (e.g. `"Oblast"`). Passing a name returns 0 entries. Pinned, not a bug per se but worth normalising in the cleanup phase. | [test-plot-helpers.R:filter_admin_levels: name-only filter returns 0 entries (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
-| [`R/validators.R::validate_read_shp`](https://worldbank.github.io/devPTIpack/R/validators.R) | Empty-pattern `str_detect` when no admin codes are extra (i.e. the shape file is “perfect”) — error caught by the function’s internal `test_that`. Refactor target under issue \#7. | [test-validators.R:validate_read_shp: round-trips through an .rds path (PINNED BUG)](https://worldbank.github.io/devPTIpack/tests/testthat/test-validators.R) |
-| [`R/calc_pti_helpers.R::get_adm_levels`](https://worldbank.github.io/devPTIpack/R/calc_pti_helpers.R#L34) | Lexicographic sort produces `admin1 < admin10 < admin2`. Internally consistent with downstream code (which compares first digit only) but wrong for any deployment with ≥10 admin levels. | [test-calc-pipeline.R:get_adm_levels: sort is lexicographic, not numeric (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
-| [`R/calc_pti_helpers.R::get_scores_data`](https://worldbank.github.io/devPTIpack/R/calc_pti_helpers.R) | 1-row `year × var_code` group produces `NA` (not `0`) because [`sd()`](https://rdrr.io/r/stats/sd.html) of length-1 returns `NA` (not `NaN`), so the `is.nan` filter misses. | [test-calc-pipeline.R:get_scores_data: 1-row groups produce NA, not 0 (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
-| [`R/calc_pti_expander.R::expand_adm_levels`](https://worldbank.github.io/devPTIpack/R/calc_pti_expander.R) | When \>1 list element name matches an admin level (`length(...) == 1` guard fails), the entire source-loop iteration returns nested `NULL`s. Silent data loss. | [test-calc-pipeline.R:expand_adm_levels: \>1 element matches (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
-| [`R/fct_inp_for_exp.R::fct_internal_wt_to_exp`](https://worldbank.github.io/devPTIpack/R/fct_inp_for_exp.R#L51) | Errors with “Join columns in `x` must be present” when called with an empty `weights_clean = list()`. Cause: `imap_dfr(list())` yields a 0×0 tibble that has no `var_code` column for the downstream `left_join`. Should early-return on length-0 input. | [test-export.R:fct_internal_wt_to_exp: empty list errors at left_join (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-export.R) |
-| [`R/mod_dta_explorer2.R::get_var_choices`](https://worldbank.github.io/devPTIpack/R/mod_dta_explorer2.R#L302) | Errors with “attempt to set an attribute on NULL” when called with an empty `indicators_list`. The fallback branch `names(out) <- "Indicators"` runs even when `out` is `NULL`. A length-0 list output would be more useful. | [test-explorer-helpers.R:get_var_choices: empty indicators tibble errors (PINNED)](https://worldbank.github.io/devPTIpack/tests/testthat/test-explorer-helpers.R) |
-| [`R/mod_drop_inval_adm.R::get_vars_un_avbil`](https://worldbank.github.io/devPTIpack/R/mod_drop_inval_adm.R#L72-L101) | Asymmetric availability check. The fill logic uses `lag(value)` (after `arrange(admin_level)`), so an indicator that exists only at an earlier-sorted level (e.g. admin1 only) is treated as “available” at later-sorted levels (admin2) — admin2 is never surfaced as unavailable. Reverse direction (admin2-only → admin1 unavailable) works because admin1 is first-sorted and has no `lag`. Also: the `is.na(value & !any_larger)` expression looks like missing parens — likely meant `(is.na(value) & !any_larger)`. Caught while writing Tier-2 tests for `mod_drop_inval_adm`. | [test-mod-drop-inval-adm.R: comment block above “Notification side effect” (DOCUMENTED, not pinned — Tier-2 test avoids the bug per the skill rule)](https://worldbank.github.io/devPTIpack/tests/testthat/test-mod-drop-inval-adm.R) |
-| [`R/mod_dta_explorer2.R::mod_fltr_sel_var2_srv`](https://worldbank.github.io/devPTIpack/R/mod_dta_explorer2.R#L216-L235) | The `add_selected()` observer’s predicate `purrr::map_lgl(choices(), ~ { .x %in% c(selected_add, selected_now) | .x %in% names(c(selected_add, selected_now)) })` errors with “Result must be length 1, not N” whenever any pillar holds \>1 variable, because `.x` is the length-N character vector for that pillar and `%in%` returns length-N. Should be `map(...) %>% map_lgl(any)`, or use `any(.x %in% ...)` inside the predicate. The Tier-2 test avoids the bug for happy-path coverage by using single-var-per-pillar choices, and pins the underlying predicate failure separately. | [test-mod-var-selector.R: add_selected() with multi-var pillar fails the inner predicate (PINNED BUG)](https://worldbank.github.io/devPTIpack/tests/testthat/test-mod-var-selector.R) |
+| [`R/plot_pti_helpers.R::complete_pti_labels`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R#L186-L206) | The function mapped over `dta` but never assigned the result; returned the original `dta` unchanged, so the deployed app silently missed the `<strong>{priority_label}</strong>` suffix on every popup. One-line fix: assign the [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html) result back to `dta`. **FIXED in PR \#56 (2026-05-06).** | [test-plot-helpers.R:complete_pti_labels: appends **{priority_rank}** per entry](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
+| [`R/plot_pti_helpers.R::check_existing_groups`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R) | Errored with a vctrs size error when `old_grps = character(0)` — `str_detect(string, character(0))` is invalid. arch-03 §1.6 contract is “first of currently shown” on empty input, and the function already had that branch at the bottom; the bug was that the body errored before reaching it. Fix: guard the `check_this_too` / lookup-by-pattern block with `if (length(old_grps) > 0)`, falling through to the existing first-of-remaining branch on empty input. **FIXED in PR \#62 (2026-05-06).** Caller `add_pti_poly_controls` is already gated by `isTruthy(old_grps)` (`R/plot_pti_helpers.R:356`) so production never reached the broken path; the fix only changes behaviour for direct callers (tests). | [test-plot-helpers.R:check_existing_groups: empty old -\> first of current shown](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
+| [`R/plot_pti_helpers.R::filter_admin_levels`](https://worldbank.github.io/devPTIpack/R/plot_pti_helpers.R) | Asymmetry: the gating branch entered when `to_fltr` matched either admin keys (e.g. `"admin1"`) or display values (e.g. `"Oblast"`), but the inner `keep()` predicate compared `x$admin_level` (the display value) against `to_fltr` only – so passing a key alone returned 0 entries. Fix: extend the predicate to also test `names(x$admin_level) %in% to_fltr`, mirroring how `mod_get_admin_levels_srv` already filters its own state at L237-238. **FIXED in PR \#69 (2026-05-07).** Caller-graph: 2 production call sites (`R/mod_dta_explorer2.R:99`, `R/mod_plot_pti2.R:62`); both pass `sel_adm_levels()` (a *named* character vector from `mod_get_admin_levels_srv`), so the values branch already matched – the bug only fired for callers passing bare keys, which production never did. This fix is a no-op on the deployed app and only changes behaviour for direct callers (tests + future callers). | [test-plot-helpers.R:filter_admin_levels: name-only filter matches the same entries as value-only](https://worldbank.github.io/devPTIpack/tests/testthat/test-plot-helpers.R) |
+| [`R/fct_validate_metadata.R::validate_read_shp`](https://worldbank.github.io/devPTIpack/R/fct_validate_metadata.R) | Empty-pattern `str_detect` when no admin codes are extra (i.e. the shape file is “perfect”): `str_c(character(0), collapse = "|")` returned `character(0)`, then `str_detect(names(x), character(0))` errored with vctrs `pattern must have size 1`. The error was swallowed by the surrounding [`testthat::test_that()`](https://testthat.r-lib.org/reference/test_that.html) (registered as an `expectation_error` against the inner reporter), so externally the call returned silently — but the inner expectation was failing. Fix: compute `extra_level_vec` first, guard the diagnostic-label construction (`str_c collapse`, `keep`, `str_detect on names`) with `if (length(extra_level_vec) > 0)`; on empty extras, set `extra_level <- ""` and `probl_ms <- ""` and let the (already correct) `expect_true(all(... %in% ...))` pass cleanly. **FIXED in PR \#64 (2026-05-06).** Note: the existing test pin (`test-validators.R::validate_read_shp: round-trips through an .rds path (PINNED BUG)`) used `capture_validator()` which mocks [`testthat::test_that`](https://testthat.r-lib.org/reference/test_that.html) to a no-op, so the inner blocks never executed and the test trivially passed both pre- and post-fix; the PR renames the test to drop the misleading “PINNED BUG” tag and rewrites the comment. The fix is verified by code inspection — only the previously-broken empty-extras branch changed, and all surrounding tests (`validate_metadata: bundled sample data passes end-to-end`, etc.) still pass. Out of scope: the broader arch-01 refactor of the runtime-[`testthat::test_that`](https://testthat.r-lib.org/reference/test_that.html) machinery into ordinary validation calls (which would obsolete `capture_validator()` entirely). | [test-validators.R:validate_read_shp: perfect shapefile passes round-trip](https://worldbank.github.io/devPTIpack/tests/testthat/test-validators.R) |
+| [`R/calc_pti_helpers.R::get_adm_levels`](https://worldbank.github.io/devPTIpack/R/calc_pti_helpers.R#L34) | Lexicographic [`sort()`](https://rdrr.io/r/base/sort.html) produced `admin1 < admin10 < admin2`, breaking the iteration order of any deployment with ≥10 admin levels. One-line fix: replace [`sort()`](https://rdrr.io/r/base/sort.html) with an integer-keyed [`order()`](https://rdrr.io/r/base/order.html) permutation (`ids[order(as.integer(str_extract(ids, "\\d{1,2}")))]`), filtering NAs first to preserve existing behaviour. **FIXED in PR \#57 (2026-05-06).** Out of scope: separate first-digit-only quirks remain in `expand_adm_levels` (`str_extract(col, "\\d")` — single digit) and `agg_pti_scores` (`max(level)` as a string). | [test-calc-pipeline.R:get_adm_levels: sort is numeric across mixed-digit levels](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
+| [`R/calc_pti_helpers.R::get_scores_data`](https://worldbank.github.io/devPTIpack/R/calc_pti_helpers.R#L218) | 1-row `(year, var_code)` group produced `NA` (not `0`) because [`sd()`](https://rdrr.io/r/stats/sd.html) of length-1 returns `NA` (not `NaN`), so the `is.nan` filter missed. Singleton groups have no variance to scale, so non-`NA` values are now set to the neutral score `0` (matching the existing zero-variance branch); `NA` inputs remain `NA`. Implemented by precomputing a `.was_na` flag, standardising as before, then patching `dplyr::n() == 1L & !.was_na` rows to `0` before the `is.nan` -\> `0` rewrite. **FIXED in PR \#59 (2026-05-06).** Out of scope (interpretation Y): “effectively n=1” groups (n\>1 with all but one row `NA`) — [`sd()`](https://rdrr.io/r/stats/sd.html) over the single non-`NA` is also `NA`, so the lone usable value still comes out `NA`. Could be a follow-up §12 row if a downstream consumer needs it. | [test-calc-pipeline.R:get_scores_data: 1-row groups produce 0 (no variance to scale)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
+| [`R/calc_pti_expander.R::expand_adm_levels`](https://worldbank.github.io/devPTIpack/R/calc_pti_expander.R) | When \>1 list element name matched an admin level (the old `length(...) == 1` guard fell through), the entire source-loop iteration returned nested `NULL`s — silent data loss. Now the function [`stop()`](https://rdrr.io/r/base/stop.html)s loudly, naming the offending slots, since the input contract is one slot per level (`adminN_HumanName`). **FIXED in PR \#60 (2026-05-06).** Caller-graph audit confirmed no production caller depended on the `NULL` short-circuit (`R/mod_calc_pti2.R:82`, `R/run_pti_pipeline.R:65`, `R/fct_validate_metadata.R:60` all pipe through to `merge_expandedn_adm_levels()` which would have produced empty merges from the silent NULLs); for the only data ever shipped (`ukr_shp`), `wtd_scrd_dta` always has exactly one slot per level so the new error path is unreachable. | [test-calc-pipeline.R:expand_adm_levels: \>1 slot matches a level -\> error](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
+| [`R/calc_pti_expander.R::expand_adm_levels`](https://worldbank.github.io/devPTIpack/R/calc_pti_expander.R#L48-L49) | Slot-name match was substring-based (`stringr::str_detect(names, adm_from)`), so iterating with `adm_from = "admin1"` also picked up slots named `"admin10_..."` / `"admin11_..."` / etc. — same first-digit-only family as the documented quirks at L79-80 and `agg_pti_scores` L237. No-op on bundled `ukr_shp` data (admin0/1/2/4, all single-digit) but a latent failure trigger at ≥10 admin levels: a deployment with both `admin1_*` and `admin10_*` slots would have tripped the new multi-match [`stop()`](https://rdrr.io/r/base/stop.html) introduced for row 7. Now anchored as `^{adm_from}(_|$)` so `"admin1"` matches only `"admin1_..."`. **FIXED in PR \#60 (2026-05-06)** — bundled with the row-7 fix because the two issues live on the same surface (one regex on slot names) and the row-7 multi-match error would have masked the boundary bug as a false positive otherwise. Out of scope: the related single-`\\d` `str_extract` quirks at L79-80 / `agg_pti_scores` L237 remain — candidates for a future “first-digit-only sweep” §12 row. | [test-calc-pipeline.R:expand_adm_levels: slot regex is boundary-anchored (admin1 vs admin10)](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc-pipeline.R) |
+| [`R/fct_inp_for_exp.R::fct_internal_wt_to_exp`](https://worldbank.github.io/devPTIpack/R/fct_inp_for_exp.R) | Errored with “Join columns in `x` must be present in the data: ‘var_code’” when called with an empty `weights_clean = list()`. Cause: `purrr::imap_dfr(list())` returns a 0x0 tibble (no columns), so the downstream `dplyr::left_join(., indicators_list, by = "var_code")` couldn’t find its join key. Fix: early-return a 0-row tibble matching the documented `@return` schema (`var_code`, `var_name`, `weight`, `weight_scheme`) on length-0 input. **FIXED in PR \#65 (2026-05-06).** Caller-graph: single call site at `R/mod_wt_inp.R:914` inside `mod_wt_dwnload_newsrv`; production unlikely to feed an empty list (download button only fires after at least one scheme is saved) – the new behaviour is strictly more defensive. NAMESPACE delta: added [`tibble::tibble`](https://tibble.tidyverse.org/reference/tibble.html) to the function’s `@importFrom`. | [test-export.R:fct_internal_wt_to_exp: empty list returns a 0-row tibble with the full schema](https://worldbank.github.io/devPTIpack/tests/testthat/test-export.R) |
+| [`R/mod_dta_explorer2.R::get_var_choices`](https://worldbank.github.io/devPTIpack/R/mod_dta_explorer2.R) | Errored with “attempt to set an attribute on NULL” when called with an empty `indicators_list`: the `arrange` -\> `group_by` -\> `nest` -\> `pmap` -\> `unlist(recursive = F)` chain returned `NULL` on 0-row input, and the rescue branch `names(out) <- "Indicators"` then tried to set a name on `NULL`. Fix: early-return [`list()`](https://rdrr.io/r/base/list.html) when `nrow(indicators_list) == 0`. **FIXED in PR \#66 (2026-05-06).** Caller-graph: single call site at `R/mod_dta_explorer2.R:76` inside `mod_dta_explorer2_server`, gated by `req(indicators_list())` – so the empty path never fired in production today; this fix is a no-op on the deployed app and only changes behaviour for direct callers. The downstream consumer `shinyWidgets::updatePickerInput(choices = list())` handles an empty list cleanly (just clears the picker). | [test-explorer-helpers.R:get_var_choices: empty indicators tibble returns an empty list](https://worldbank.github.io/devPTIpack/tests/testthat/test-explorer-helpers.R) |
+| [`R/mod_drop_inval_adm.R::get_vars_un_avbil`](https://worldbank.github.io/devPTIpack/R/mod_drop_inval_adm.R) | Asymmetric availability check — pre-fix the body used `arrange(admin_level)` + triple `lag(value)` to back-fill missing rows from earlier-sorted levels, so an indicator with data only at admin1 was silently treated as available at admin2 / admin4 (admin2 was never surfaced as unavailable). The reverse (admin2-only → admin1 unavailable) worked. The same code also had an operator-precedence typo `is.na(value & !any_larger)` (parsed as `is.na((value & !any_larger))`). Now the function is reduced to a strict no-extrapolation contract: a `(var, admin)` pair is unavailable iff the indicator has no native data at that level. Body shrank from ~25 lines to ~10 lines (`expand.grid` + `anti_join` over the distinct `(var_code, admin_level)` set). The `any_larger` column is no longer in the output (no caller read it; also dropped from [`globalVariables()`](https://rdrr.io/r/utils/globalVariables.html)). **FIXED in PR \#61 (2026-05-06).** Out-of-scope decision: the package’s two extrapolation paths (`expand_adm_levels`’s upward + downward branches) handle aggregation in the calc pipeline itself, so the availability check doesn’t need to encode them — keeping it strict matches the existing `weighting an unavailable var produces drops` test (`var_nval4_small_skewd_adm4` admin4-only → admin1 + admin2 dropped) and avoids re-introducing the buggy lag/lead machinery. | [test-drop-inval-adm.R:get_vars_un_avbil: flags missing levels symmetrically](https://worldbank.github.io/devPTIpack/tests/testthat/test-drop-inval-adm.R) + [test-mod-drop-inval-adm.R:mod_drop_inval_adm: indicator missing at admin2 -\> admin2 removed](https://worldbank.github.io/devPTIpack/tests/testthat/test-mod-drop-inval-adm.R) |
+| [`R/mod_dta_explorer2.R::mod_fltr_sel_var2_srv`](https://worldbank.github.io/devPTIpack/R/mod_dta_explorer2.R) | The `add_selected()` observer’s predicate `purrr::map_lgl(choices(), ~ { .x %in% c(selected_add, selected_now) | .x %in% names(c(selected_add, selected_now)) })` errored with “Result must be length 1, not N” whenever any pillar held \>1 variable, because `.x` is the named character vector for that pillar and `%in%` returns length-N. Fix: wrap each `%in%` test in `any(...)` – `any(.x %in% c(selected_add, selected_now)) | any(.x %in% names(c(selected_add, selected_now)))`. **FIXED in PR \#67 (2026-05-06).** Caller-graph: single call site at `R/mod_dta_explorer2.R:78` inside `mod_dta_explorer2_server`; `add_selected` defaults to `reactive(NULL)` and the observer is gated by `req(add_selected())`, so the path only fires when the caller passes a non-NULL `add_selected` – which production never did, so this fix is a no-op on the deployed app and only changes behaviour for direct callers (tests + future programmatic pushes). Test pin in `tests/testthat/test-mod-var-selector.R` flipped from a predicate-only `expect_error` (which exercised a copy of the buggy expression, not the function) to a Tier-2 `testServer` block mirroring the existing single-var test, asserting that `updatePickerInput` is called and `selected = list("Pillar A" = ...)` for an `add_selected("var_2")` push against a multi-var-pillar fixture. | [test-mod-var-selector.R: add_selected() with multi-var pillar selects the matching pillar](https://worldbank.github.io/devPTIpack/tests/testthat/test-mod-var-selector.R) |
+| [`R/supporting-goe-prep.R::gg_admin_list`](https://worldbank.github.io/devPTIpack/R/supporting-goe-prep.R) | Default arg `mt = zam_bounds_simple` referenced a name that didn’t exist anywhere in `R/` or `data/`. Calling `gg_admin_list(dta, metadata)` without explicit `mt` errored at runtime with `object 'zam_bounds_simple' not found`. Discovered by r-package-reviewer during PR \#54 (Phase 2.5 R-CMD-check gate); the broken default was silenced via `R/devPTIpack-package.R::globalVariables()` so R CMD check stayed clean. Fix (option A from the scope-proposal gate): default flipped to `mt = NULL` with an explicit `stop("'mt' is required: provide a named list of sf tibbles (e.g. the bundled 'ukr_shp').", call. = FALSE)` guard at the top of the function. `"zam_bounds_simple"` removed from [`globalVariables()`](https://rdrr.io/r/utils/globalVariables.html). Updated `@param mt` docs to call out the required-ness. **FIXED in PR \#70 (2026-05-07).** Caller-graph: 2 production callers (`inst/metadata.Rmd:129`, `inst/sample_pti/app-data/pti-metadata-pdf.Rmd:108`) both pass `mt = bounds` explicitly – the default never fired in production, pure latent bug. Two commented-out demo lines in those Rmds (`gg_admin_list(var_to_plot, metadata = metadata_current)` at L242 / L221, both omitting `mt`) almost certainly date from someone hitting this exact error and commenting them out. New Tier-1 test file `tests/testthat/test-gg-admin-list.R` (2 test_that blocks, 8 expectations): missing `mt` -\> `expect_error(regexp = "mt.*required")`; with `mt = ukr_shp` -\> returns a non-empty list of ggplot objects. | [test-gg-admin-list.R: 2 test_that blocks pinning the error message and the bundled-data success path](https://worldbank.github.io/devPTIpack/tests/testthat/test-gg-admin-list.R) |
+| [`R/mod_dwnld_dta.R::mod_dwnld_file_server`](https://worldbank.github.io/devPTIpack/R/mod_dwnld_dta.R) + [`R/launch_pti.R`](https://worldbank.github.io/devPTIpack/R/launch_pti.R) | Filename builder `function() { basename(filepath) }` produced broken downloads when `filepath` was `NULL`, `"."`, or any path that didn’t point to a real file. [`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)’s defaults `mtdtpdf_path = "."` and `shapes_path = "."` made `basename(".") == "."` ⇒ browser fell back to URL path + content-type sniff and saved the empty response as an `.html` file. **All “Download metadata” and “Download shapes” buttons failed identically across PTI / PTI-compare / Data-explorer tabs** in any [`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md) call that didn’t supply paths (the typical demo case). The data-explorer’s “Download data” button was additionally *never reachable* from the public API – `data_path` defaulted to `NULL` in `mod_dta_explorer2_server` but `launch_pti` never threaded it through. **FIXED in PR \#68 (2026-05-07)** under **Arch-2** (auto-materialize). Two coupled changes: **(1) `mod_dwnld_file_server` validation guard** – function now validates `filepath` at registration (truthy character, length-1, exists on disk, not a directory). On invalid input it calls `shinyjs::disable(outputId)` to grey the link out, and the content callback ships an explanatory `unavailable-<date>.txt` placeholder if a click sneaks through. On valid input the existing `basename(filepath)` filename builder is preserved (post-Arch-2, the basename comes from a sensible path either way). Note: an earlier iteration of this PR tried [`shinyjs::hide()`](https://rdrr.io/pkg/shinyjs/man/visibilityFuncs.html) plus [`setdiff()`](https://rdrr.io/r/base/sets.html)-ing `"metadata"` out of `wt_dwnld_options` / `map_dwnld_options` to drop the orphaned ” and .” connector text from the surrounding sentence – but the connector logic in `mod_map_dwnld_ui` lives in three places (PTI / compare / explorer side panels) and the conditionals didn’t reach all of them cleanly. Reverted to plain `disable()` + placeholder; the cosmetic ” and .” remains when no PDF is supplied but no longer ships a broken file. **(2) [`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md) / [`launch_pti_onepage()`](https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.md) API redesign** – added a private helper `materialize_dwnld_paths(shp_dta, inp_dta, shapes_path, mtdtpdf_path, data_path)` that, when a path is `NULL`, writes the in-memory object to a session-scoped tempfile under a date-stamped name (`pti-shapes-<date>.rds` via [`saveRDS()`](https://rdrr.io/r/base/readRDS.html), `pti-data-export-<date>.xlsx` via [`writexl::write_xlsx()`](https://docs.ropensci.org/writexl//reference/write_xlsx.html)). PDF metadata has no in-memory equivalent so `mtdtpdf_path = NULL` stays NULL and the link is disabled downstream. Path defaults flipped from `"."` to `NULL` on both launchers. New `data_path` parameter on [`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md) (the explorer launcher) plumbs through to `mod_dta_explorer2_server`. The deliberately-distinct filename stems (`pti-shapes-<date>.rds`, `pti-data-export-<date>.xlsx`) signal to users that these are derivatives of the in-memory data, not the original source files; users who want to serve original files pass explicit paths and [`basename()`](https://rdrr.io/r/base/basename.html) returns those. Caller-graph: 5 `mod_dwnld_file_server` call sites untouched at the call site (paths now arrive valid post-materialization); 3 path-threading call sites in `launch_pti` updated. Tier-1 + Tier-2 test file `tests/testthat/test-mod-dwnld-file.R` added (6 test_that blocks, 13 expectations): two cover `materialize_dwnld_paths()` (NULL fallbacks vs. explicit paths), four cover `mod_dwnld_file_server` (valid file leaves link enabled; NULL/directory/nonexistent paths trigger [`shinyjs::disable`](https://rdrr.io/pkg/shinyjs/man/stateFuncs.html)). NAMESPACE delta: added `importFrom(writexl, write_xlsx)`. Manually verified by the user via `launch_pti(shp_dta = ukr_shp, inp_dta = ukr_mtdt_full)` – shapes + data downloads work; metadata-PDF link is greyed out. Out of scope: the cosmetic connector-text sentence in `mod_map_dwnld_ui` (could be rewritten to live-render based on path validity, but the tradeoffs got messy fast – left for a later UI cleanup PR). Also out of scope: the parallel `mod_dwnld_local_file_server` handler used by `mod_map_dwnld_srv` for map-tab metadata/shapes – separate code path, not affected by the surgical guard. | [test-mod-dwnld-file.R: 6 test_that blocks for materialize_dwnld_paths + mod_dwnld_file_server](https://worldbank.github.io/devPTIpack/tests/testthat/test-mod-dwnld-file.R) |
 
 ------------------------------------------------------------------------
 

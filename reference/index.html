@@ -15,11 +15,32 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/methodology.html">PTI Methodology</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/build-pti.html">Build a PTI</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/past-projects.html">Past Projects</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../index.html">About</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-pti-methodology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">PTI Methodology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-pti-methodology"><li><a class="dropdown-item" href="../articles/methodology.html">Detailed methodology</a></li>
+    <li><a class="dropdown-item" href="../articles/overview-paper.html">Overview paper</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/past-projects.html">Past Projects</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-build-a-pti" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Build a PTI</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-build-a-pti"><li><a class="dropdown-item" href="../articles/build-pti.html">Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/build-pti-0-setup.html">Step 0 — Setup new project</a></li>
+    <li><a class="dropdown-item" href="../articles/build-pti-1-shapefiles.html">Step 1 — Shapefiles</a></li>
+    <li><a class="dropdown-item" href="../articles/build-pti-2-zonal-stats.html">Step 2 — Zonal stats (optional)</a></li>
+    <li><a class="dropdown-item" href="../articles/build-pti-3-metadata.html">Step 3 — Metadata Excel</a></li>
+    <li><a class="dropdown-item" href="../articles/build-pti-4-hex.html">Step 4 — HEX data</a></li>
+    <li><a class="dropdown-item" href="../articles/build-pti-5-compile.html">Step 5 — Compile &amp; finalise</a></li>
+    <li><a class="dropdown-item" href="../articles/build-pti-6-deploy.html">Step 6 — Deploy</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/dataprep.html">Data preparation reference</a></li>
+  </ul></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-resources" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Resources</button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-resources"><li><a class="external-link dropdown-item" href="https://github.com/wbPTI">PTI Apps (GitHub — wbPTI org)</a></li>
     <li><a class="external-link dropdown-item" href="https://worldbankgroup.sharepoint.com/:u:/r/sites/FPG/SitePages/PublishingPages/GeoPov-1770874931043.aspx?csf=1&amp;web=1&amp;e=g2uDT0">GeoPov — World Bank Internal</a></li>
@@ -28,8 +49,6 @@
     <li><a class="dropdown-item" href="../LICENSE-text.html">License (MIT)</a></li>
     <li><a class="dropdown-item" href="../WB-IGO-RIDER.html">World Bank IGO License Rider</a></li>
   </ul></li>
-<li class="nav-item"><form class="form-inline" role="search">
- <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/worldbank/devPTIpack" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
@@ -43,9 +62,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="launch-pti-applications">Launch PTI Applications<a class="anchor" aria-label="anchor" href="#launch-pti-applications"></a></h2>
+      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
 
-      <div class="section-desc"><p>Top-level functions for starting a PTI Shiny app or scaffolding a new PTI project directory.</p></div>
+
 
       <dl></dl></div><div class="section level2">
 
@@ -54,17 +73,10 @@
 
       <dl><dt>
 
-          <code><a href="launch_pti.html">launch_pti()</a></code>
+          <code><a href="app_sys.html">app_sys()</a></code>
 
         </dt>
-        <dd>Launch a multi-tab PTI Shiny app</dd>
-
-        <dt>
-
-          <code><a href="launch_pti_onepage.html">launch_pti_onepage()</a></code>
-
-        </dt>
-        <dd>Launch a single-page PTI Shiny app</dd>
+        <dd>Resolve a path inside the installed devPTIpack package</dd>
 
         <dt>
 
@@ -72,47 +84,15 @@
 
         </dt>
         <dd>Scaffold a new PTI app project</dd>
-      </dl></div><div class="section level2">
-      <h2 id="pti-calculation-pipeline">PTI Calculation Pipeline<a class="anchor" aria-label="anchor" href="#pti-calculation-pipeline"></a></h2>
-
-      <div class="section-desc"><p>Functions that implement or support the core PTI score calculation pipeline. <code><a href="../reference/run_pti_pipeline.html">run_pti_pipeline()</a></code> is the primary entry point for headless (non-Shiny) pipeline execution.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="run_pti_pipeline.html">run_pti_pipeline()</a></code>
-
-        </dt>
-        <dd>Run the full PTI calculation pipeline</dd>
 
         <dt>
 
-          <code><a href="label_generic_pti.html">label_generic_pti()</a></code>
+          <code><a href="drop_inval_adm.html">drop_inval_adm()</a></code>
 
         </dt>
-        <dd>Apply a glue-template `pti_label` column to per-admin PTI tibbles</dd>
+        <dd>Strip unplottable admin levels out of a pre-plot data structure</dd>
 
         <dt>
-
-          <code><a href="generic_pti_glue.html">generic_pti_glue()</a></code>
-
-        </dt>
-        <dd>Default glue template for PTI map popups</dd>
-      </dl></div><div class="section level2">
-      <h2 id="data-input-preparation">Data Input &amp; Preparation<a class="anchor" aria-label="anchor" href="#data-input-preparation"></a></h2>
-
-      <div class="section-desc"><p>Read and parse the PTI metadata Excel template and retrieve processed geometry objects.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
 
           <code><a href="fct_template_reader.html">fct_template_reader()</a></code>
 
@@ -121,26 +101,10 @@
 
         <dt>
 
-          <code><a href="get_shape.html">get_shape()</a></code>
+          <code><a href="generic_pti_glue.html">generic_pti_glue()</a></code>
 
         </dt>
-        <dd>Load admin-level shape data for a PTI app</dd>
-      </dl></div><div class="section level2">
-      <h2 id="weights">Weights<a class="anchor" aria-label="anchor" href="#weights"></a></h2>
-
-      <div class="section-desc"><p>Generate and manipulate indicator weight schemes used in the PTI calculation.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="get_rand_weights.html">get_rand_weights()</a></code>
-
-        </dt>
-        <dd>Generate a random list of weighting schemes</dd>
+        <dd>Default glue template for PTI map popups</dd>
 
         <dt>
 
@@ -155,17 +119,8 @@
 
         </dt>
         <dd>Reduce per-scheme weights to the admin levels that must be hidden</dd>
-      </dl></div><div class="section level2">
-      <h2 id="data-export">Data Export<a class="anchor" aria-label="anchor" href="#data-export"></a></h2>
 
-      <div class="section-desc"><p>Extract PTI scores, weight tables, and unavailable-admin summaries for downstream reporting or download.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
+        <dt>
 
           <code><a href="get_pti_scores_export.html">get_pti_scores_export()</a></code>
 
@@ -181,21 +136,159 @@
 
         <dt>
 
+          <code><a href="get_rand_weights.html">get_rand_weights()</a></code>
+
+        </dt>
+        <dd>Generate a random list of weighting schemes</dd>
+
+        <dt>
+
+          <code><a href="get_shape.html">get_shape()</a></code>
+
+        </dt>
+        <dd>Load admin-level shape data for a PTI app</dd>
+
+        <dt>
+
           <code><a href="get_vars_un_avbil.html">get_vars_un_avbil()</a></code>
 
         </dt>
         <dd>Identify (variable, admin-level) pairs with no native data</dd>
-      </dl></div><div class="section level2">
-      <h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a></h2>
 
-      <div class="section-desc"><p>Pre-flight validators for geometry layers, metadata templates, and data file paths. Run these before deploying a PTI app to catch input problems early.</p></div>
+        <dt>
 
-      <dl></dl></div><div class="section level2">
+          <code><a href="gg_admin_list.html">gg_admin_list()</a></code>
 
+        </dt>
+        <dd>Build a list of ggplot maps from PTI admin data</dd>
 
+        <dt>
 
+          <code><a href="golem_add_external_resources.html">golem_add_external_resources()</a></code>
 
-      <dl><dt>
+        </dt>
+        <dd>Bundle external resources for a PTI Shiny app</dd>
+
+        <dt>
+
+          <code><a href="label_generic_pti.html">label_generic_pti()</a></code>
+
+        </dt>
+        <dd>Apply a glue-template `pti_label` column to per-admin PTI tibbles</dd>
+
+        <dt>
+
+          <code><a href="launch_pti.html">launch_pti()</a></code>
+
+        </dt>
+        <dd>Launch a multi-tab PTI Shiny app</dd>
+
+        <dt>
+
+          <code><a href="launch_pti_onepage.html">launch_pti_onepage()</a></code>
+
+        </dt>
+        <dd>Launch a single-page PTI Shiny app</dd>
+
+        <dt>
+
+          <code><a href="mod_drop_inval_adm.html">mod_drop_inval_adm()</a></code>
+
+        </dt>
+        <dd>Drop-invalid-admin module server</dd>
+
+        <dt>
+
+          <code><a href="mod_dta_explorer2_server.html">mod_dta_explorer2_server()</a></code>
+
+        </dt>
+        <dd>Data-explorer page server module</dd>
+
+        <dt>
+
+          <code><a href="mod_dta_explorer2_ui.html">mod_dta_explorer2_ui()</a></code>
+
+        </dt>
+        <dd>Data-explorer page UI</dd>
+
+        <dt>
+
+          <code><a href="mod_leaf_side_panel_ui.html">mod_leaf_side_panel_ui()</a></code>
+
+        </dt>
+        <dd>Map side-panel UI for a PTI page</dd>
+
+        <dt>
+
+          <code><a href="mod_map_pti_leaf_ui.html">mod_map_pti_leaf_ui()</a></code>
+
+        </dt>
+        <dd>Map container UI for PTI page modules</dd>
+
+        <dt>
+
+          <code><a href="mod_plot_pti2_srv.html">mod_plot_pti2_srv()</a></code>
+
+        </dt>
+        <dd>Main PTI map orchestration module</dd>
+
+        <dt>
+
+          <code><a href="mod_pti_comparepage_newsrv.html">mod_pti_comparepage_newsrv()</a></code>
+
+        </dt>
+        <dd>Comparison-page server module</dd>
+
+        <dt>
+
+          <code><a href="mod_pti_comparepage_ui.html">mod_pti_comparepage_ui()</a></code>
+
+        </dt>
+        <dd>Comparison-page UI for two side-by-side PTI maps</dd>
+
+        <dt>
+
+          <code><a href="mod_ptipage_newsrv.html">mod_ptipage_newsrv()</a></code>
+
+        </dt>
+        <dd>Page-level PTI server module</dd>
+
+        <dt>
+
+          <code><a href="mod_ptipage_twocol_ui.html">mod_ptipage_twocol_ui()</a></code> <code><a href="mod_ptipage_twocol_ui.html">mod_ptipage_box_ui()</a></code>
+
+        </dt>
+        <dd>Two-column UI for a PTI page</dd>
+
+        <dt>
+
+          <code><a href="mod_tab_open_first_newserv.html">mod_tab_open_first_newserv()</a></code>
+
+        </dt>
+        <dd>Tab-opening invalidator for custom PTI page layouts</dd>
+
+        <dt>
+
+          <code><a href="run_pti_pipeline.html">run_pti_pipeline()</a></code>
+
+        </dt>
+        <dd>Run the full PTI calculation pipeline</dd>
+
+        <dt>
+
+          <code><a href="ukr_mtdt_full.html">ukr_mtdt_full</a></code>
+
+        </dt>
+        <dd>Ukraine sample PTI metadata input</dd>
+
+        <dt>
+
+          <code><a href="ukr_shp.html">ukr_shp</a></code>
+
+        </dt>
+        <dd>Ukraine sample administrative boundaries</dd>
+
+        <dt>
 
           <code><a href="validate_geometries.html">validate_geometries()</a></code>
 
@@ -222,164 +315,8 @@
 
         </dt>
         <dd>Validate a shapes `.rds` file in isolation</dd>
-
-        <dt>
-
-          <code><a href="drop_inval_adm.html">drop_inval_adm()</a></code>
-
-        </dt>
-        <dd>Strip unplottable admin levels out of a pre-plot data structure</dd>
-
-        <dt>
-
-          <code><a href="mod_drop_inval_adm.html">mod_drop_inval_adm()</a></code>
-
-        </dt>
-        <dd>Drop-invalid-admin module server</dd>
-      </dl></div><div class="section level2">
-      <h2 id="visualisation-helpers">Visualisation Helpers<a class="anchor" aria-label="anchor" href="#visualisation-helpers"></a></h2>
-
-      <div class="section-desc"><p>Utility functions for plotting and labelling PTI outputs.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="gg_admin_list.html">gg_admin_list()</a></code>
-
-        </dt>
-        <dd>Build a list of ggplot maps from PTI admin data</dd>
-      </dl></div><div class="section level2">
-      <h2 id="shiny-modules">Shiny Modules<a class="anchor" aria-label="anchor" href="#shiny-modules"></a></h2>
-
-      <div class="section-desc"><p>Reusable Shiny UI and server module pairs that compose the PTI application interface. Advanced users can embed individual modules into custom Shiny apps.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="mod_ptipage_twocol_ui.html">mod_ptipage_twocol_ui()</a></code> <code><a href="mod_ptipage_twocol_ui.html">mod_ptipage_box_ui()</a></code>
-
-        </dt>
-        <dd>Two-column UI for a PTI page</dd>
-
-        <dt>
-
-          <code><a href="mod_ptipage_newsrv.html">mod_ptipage_newsrv()</a></code>
-
-        </dt>
-        <dd>Page-level PTI server module</dd>
-
-        <dt>
-
-          <code><a href="mod_pti_comparepage_ui.html">mod_pti_comparepage_ui()</a></code>
-
-        </dt>
-        <dd>Comparison-page UI for two side-by-side PTI maps</dd>
-
-        <dt>
-
-          <code><a href="mod_pti_comparepage_newsrv.html">mod_pti_comparepage_newsrv()</a></code>
-
-        </dt>
-        <dd>Comparison-page server module</dd>
-
-        <dt>
-
-          <code><a href="mod_dta_explorer2_ui.html">mod_dta_explorer2_ui()</a></code>
-
-        </dt>
-        <dd>Data-explorer page UI</dd>
-
-        <dt>
-
-          <code><a href="mod_dta_explorer2_server.html">mod_dta_explorer2_server()</a></code>
-
-        </dt>
-        <dd>Data-explorer page server module</dd>
-
-        <dt>
-
-          <code><a href="mod_map_pti_leaf_ui.html">mod_map_pti_leaf_ui()</a></code>
-
-        </dt>
-        <dd>Map container UI for PTI page modules</dd>
-
-        <dt>
-
-          <code><a href="mod_leaf_side_panel_ui.html">mod_leaf_side_panel_ui()</a></code>
-
-        </dt>
-        <dd>Map side-panel UI for a PTI page</dd>
-
-        <dt>
-
-          <code><a href="mod_plot_pti2_srv.html">mod_plot_pti2_srv()</a></code>
-
-        </dt>
-        <dd>Main PTI map orchestration module</dd>
-
-        <dt>
-
-          <code><a href="mod_tab_open_first_newserv.html">mod_tab_open_first_newserv()</a></code>
-
-        </dt>
-        <dd>Tab-opening invalidator for custom PTI page layouts</dd>
-      </dl></div><div class="section level2">
-      <h2 id="package-utilities">Package Utilities<a class="anchor" aria-label="anchor" href="#package-utilities"></a></h2>
-
-      <div class="section-desc"><p>Low-level golem infrastructure helpers. These are exported primarily to support the auto-generated <code>app.R</code> in scaffolded projects.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="app_sys.html">app_sys()</a></code>
-
-        </dt>
-        <dd>Resolve a path inside the installed devPTIpack package</dd>
-
-        <dt>
-
-          <code><a href="golem_add_external_resources.html">golem_add_external_resources()</a></code>
-
-        </dt>
-        <dd>Bundle external resources for a PTI Shiny app</dd>
-      </dl></div><div class="section level2">
-      <h2 id="sample-data">Sample Data<a class="anchor" aria-label="anchor" href="#sample-data"></a></h2>
-
-      <div class="section-desc"><p>Bundled sample datasets used in examples and the test suite. <code>ukr_shp</code> provides Ukraine administrative boundaries; <code>ukr_mtdt_full</code> provides matching synthetic indicator metadata.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="ukr_shp.html">ukr_shp</a></code>
-
-        </dt>
-        <dd>Ukraine sample administrative boundaries</dd>
-
-        <dt>
-
-          <code><a href="ukr_mtdt_full.html">ukr_mtdt_full</a></code>
-
-        </dt>
-        <dd>Ukraine sample PTI metadata input</dd>
       </dl></div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside></div>
+  </main></div>
 
 
     <footer><div class="pkgdown-footer-left">

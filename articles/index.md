@@ -8,6 +8,16 @@
   What Project Targeting Index (PTI) is and how the PTI process looks
   like?
 
+- [PTI overview
+  paper](https://worldbank.github.io/devPTIpack/articles/overview-paper.md):
+
+- [Past
+  Projects](https://worldbank.github.io/devPTIpack/articles/past-projects.md):
+
+  A catalogue of PTI dashboards built for World Bank projects across
+  regions. Each entry links to the live application and the GitHub
+  repositories used to prepare data and launch the app.
+
 ### Build a PTI
 
 - [Build a
@@ -17,18 +27,26 @@
   deployed Project Targeting Index (PTI) Shiny dashboard with
   `devPTIpack`.
 
-### Past Projects
+- [Step 0 — Setup new
+  project](https://worldbank.github.io/devPTIpack/articles/build-pti-0-setup.md):
 
-- [Past
-  Projects](https://worldbank.github.io/devPTIpack/articles/past-projects.md):
+- [Step 1 —
+  Shapefiles](https://worldbank.github.io/devPTIpack/articles/build-pti-1-shapefiles.md):
 
-  A catalogue of PTI dashboards built for World Bank projects across
-  regions. Each entry links to the live application and the GitHub
-  repositories used to prepare data and launch the app.
+- [Step 2 — Zonal stats
+  (optional)](https://worldbank.github.io/devPTIpack/articles/build-pti-2-zonal-stats.md):
 
-### Additional Resources
+- [Step 3 — Metadata
+  Excel](https://worldbank.github.io/devPTIpack/articles/build-pti-3-metadata.md):
 
-Supporting technical articles.
+- [Step 4 — HEX
+  data](https://worldbank.github.io/devPTIpack/articles/build-pti-4-hex.md):
+
+- [Step 5 — Compile &
+  finalise](https://worldbank.github.io/devPTIpack/articles/build-pti-5-compile.md):
+
+- [Step 6 —
+  Deploy](https://worldbank.github.io/devPTIpack/articles/build-pti-6-deploy.md):
 
 - [Data preparation
   reference](https://worldbank.github.io/devPTIpack/articles/dataprep.md):

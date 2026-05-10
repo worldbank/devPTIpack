@@ -1,0 +1,13 @@
+# Step 2 — Zonal stats (optional)
+
+> This step is optional. Use it when you need to extract zonal
+> statistics from raster data (e.g., satellite imagery, gridded
+> population data) before building your metadata Excel in Step 3.
+
+## When you need zonal stats
+
+## Common tools
+
+## Output format
+
+## How the output feeds into Step 3

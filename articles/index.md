@@ -23,9 +23,9 @@
 - [Build a
   PTI](https://worldbank.github.io/devPTIpack/articles/build-pti.md):
 
-  A step-by-step walkthrough of taking raw country data through to a
-  deployed Project Targeting Index (PTI) Shiny dashboard with
-  `devPTIpack`.
+  Overview of the seven-step pipeline that takes raw country data
+  through to a deployed Project Targeting Index (PTI) Shiny dashboard
+  with `devPTIpack`.
 
 - [Step 0 — Setup new
   project](https://worldbank.github.io/devPTIpack/articles/build-pti-0-setup.md):

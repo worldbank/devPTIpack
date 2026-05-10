@@ -99,25 +99,174 @@
 
 
     <blockquote>
-<p><strong>Note:</strong> The template ships <code>06-deploy.R</code> (a plain R script, not a <code>.qmd</code>), not rendered by <code>00-master.R</code>. The website vignette covers the same content in tutorial form.</p>
+<p><strong>Note:</strong> The template ships <a href="https://github.com/worldbank/devPTIpack/blob/main/inst/template_pti/06-deploy.R" class="external-link"><code>06-deploy.R</code></a> — a plain R script with the <code>rsconnect::deployApp()</code> boilerplate commented out, <strong>not</strong> sourced by <code>00-master.R</code>. This vignette covers the same content in tutorial form, plus deployment-target choice and post-publish setup.</p>
 </blockquote>
 <section class="level2"><h2 id="what-gets-deployed">What gets deployed<a class="anchor" aria-label="anchor" href="#what-gets-deployed"></a>
 </h2>
-</section><section class="level2"><h2 id="wb-deployment-targets">WB deployment targets<a class="anchor" aria-label="anchor" href="#wb-deployment-targets"></a>
+<p>The Posit Connect / shinyapps.io bundle is <strong><code>app.R</code> + <code>landing-page.md</code> + <code>app-data/</code></strong> — nothing else. Specifically excluded:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 78%">
+</colgroup>
+<thead><tr class="header">
+<th>Excluded</th>
+<th>Why</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>sample-data/</code></td>
+<td>Raw inputs — already baked into <code>app-data/</code> by Steps 1, 3, 5.</td>
+</tr>
+<tr class="even">
+<td><code>data-raw/</code></td>
+<td>Generators for the sample data; not needed at runtime.</td>
+</tr>
+<tr class="odd">
+<td>
+<code>01-shapes.qmd</code> … <code>05-compile.qmd</code>
+</td>
+<td>Pipeline scripts — already executed; their outputs are in <code>app-data/</code>.</td>
+</tr>
+<tr class="even">
+<td><code>06-deploy.R</code></td>
+<td>This script. Self-evidently not deployed.</td>
+</tr>
+<tr class="odd">
+<td><code>docs/</code></td>
+<td>Optional rendered Quarto trail. If you publish it at all, it goes to GitHub Pages, not Connect.</td>
+</tr>
+<tr class="even">
+<td>
+<code>00-master.R</code>, <code>R/</code>, <code>README.md</code>
+</td>
+<td>Build-time scaffolding.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>appFiles</code> argument on <code>rsconnect::deployApp()</code> enforces this — see the snippet under <a href="#cli-deployment">CLI deployment</a> below.</p>
+</section><section class="level2"><h2 id="deployment-targets">Deployment targets<a class="anchor" aria-label="anchor" href="#deployment-targets"></a>
 </h2>
+<p>Pick one — they’re not mutually exclusive but one is enough to start:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 4%">
+<col style="width: 39%">
+<col style="width: 37%">
+</colgroup>
+<thead><tr class="header">
+<th>Target</th>
+<th>Audience</th>
+<th>Pre-requisites</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>WB internal Posit Connect</strong></td>
+<td>WB staff</td>
+<td>VPN / WB network access; an account on the Connect server.</td>
+<td>The default for World Bank deployers. Talk to GeoPov or your IT contact for an account.</td>
+</tr>
+<tr class="even">
+<td><strong>WB external (public-facing) Posit Connect</strong></td>
+<td>Public</td>
+<td>Approval from the relevant WB programme; account on the public Connect server.</td>
+<td>Use when the dashboard is meant to be cited / linked from public WB material.</td>
+</tr>
+<tr class="odd">
+<td><strong>shinyapps.io</strong></td>
+<td>Public</td>
+<td>A free or paid shinyapps.io account.</td>
+<td>Fast path for prototypes, demos, and small public PTI apps. The free tier is enough to start.</td>
+</tr>
+</tbody>
+</table>
+<p>For internal Posit Connect, the canonical URL today is <code>https://w0lxopshyprdap01.worldbank.org/</code> (subject to change — confirm with GeoPov).</p>
 </section><section class="level2"><h2 id="permissions-setup">Permissions setup<a class="anchor" aria-label="anchor" href="#permissions-setup"></a>
 </h2>
-</section><section class="level2"><h2 id="cli-deployment-code">CLI deployment code<a class="anchor" aria-label="anchor" href="#cli-deployment-code"></a>
+<p>Before you can deploy you need:</p>
+<ol type="1">
+<li>
+<strong>An account on the target server.</strong> For WB Posit Connect, contact the <a href="mailto:geopov@worldbank.org">GeoPov team</a> (or equivalent for your programme) and request publisher access. shinyapps.io is self-service via <a href="https://www.shinyapps.io/" class="external-link">shinyapps.io</a>.</li>
+<li>
+<strong>VPN connectivity</strong> (WB internal Connect only). Without VPN the publish call can’t reach the server.</li>
+<li>
+<strong>An API key or auth token</strong> loaded into your IDE. RStudio prompts for this the first time you click Publish; the CLI flow uses <code>rsconnect::setAccountInfo()</code> once per server.</li>
+</ol>
+<p>In RStudio: <code>Tools → Global Options → Publishing → Connect → Add</code> and follow the prompts.</p>
+<p>In Positron: open the command palette (<code>Cmd/Ctrl + Shift + P</code>) → <code>Connect: Add Server</code> and follow the prompts.</p>
+</section><section class="level2"><h2 id="cli-deployment">CLI deployment<a class="anchor" aria-label="anchor" href="#cli-deployment"></a>
 </h2>
-</section><section class="level2"><h2 id="ui-deployment-walkthroughs">UI deployment walkthroughs<a class="anchor" aria-label="anchor" href="#ui-deployment-walkthroughs"></a>
+<p>The boilerplate from <a href="https://github.com/worldbank/devPTIpack/blob/main/inst/template_pti/06-deploy.R" class="external-link"><code>06-deploy.R</code></a>, with the comment markers removed:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="fu">rsconnect</span><span class="fu">::</span><span class="fu">deployApp</span><span class="op">(</span></span>
+<span>  appDir   <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>  appFiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"app.R"</span>, <span class="st">"landing-page.md"</span>, <span class="st">"app-data"</span><span class="op">)</span>,</span>
+<span>  appName  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  server   <span class="op">=</span> <span class="cn">NULL</span>                       <span class="co"># set to your Connect server, e.g. "w0lxopshyprdap01.worldbank.org"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Run from the project root. <code>appFiles</code> is the deploy whitelist — <code>app.R</code>, <code>landing-page.md</code>, and the entire <code>app-data/</code> directory. Anything outside that list is ignored even if it sits next to <code>app.R</code>.</p>
+<p><code>server = NULL</code> defaults to your single configured Connect server. If you have multiple servers registered (e.g. WB internal + shinyapps.io), pass the URL or short name explicitly.</p>
+</section><section class="level2"><h2 id="ui-deployment">UI deployment<a class="anchor" aria-label="anchor" href="#ui-deployment"></a>
 </h2>
-</section><section class="level2"><h2 id="post-deployment">Post-deployment<a class="anchor" aria-label="anchor" href="#post-deployment"></a>
+<p>Both major IDEs ship a one-click publish flow that wraps <code>deployApp()</code> under the hood:</p>
+<section class="level3"><h3 id="rstudio">RStudio<a class="anchor" aria-label="anchor" href="#rstudio"></a>
+</h3>
+<ol type="1">
+<li>Open <code>app.R</code> in the editor.</li>
+<li>Click the <strong>blue Publish button</strong> in the top-right of the editor pane.</li>
+<li>In the dialog: pick the destination Connect server, confirm the file list (it should auto-select <code>app.R</code>, <code>landing-page.md</code>, <code>app-data/</code> from the manifest).</li>
+<li>Click <strong>Publish</strong>.</li>
+</ol>
+<p>The first publish to a new server prompts for credentials (RStudio caches them after).</p>
+</section><section class="level3"><h3 id="positron">Positron<a class="anchor" aria-label="anchor" href="#positron"></a>
+</h3>
+<ol type="1">
+<li>Open <code>app.R</code>.</li>
+<li>Command palette (<code>Cmd/Ctrl + Shift + P</code>) → <strong>Connect: Publish</strong>.</li>
+<li>Same dialog flow as RStudio.</li>
+</ol></section></section><section class="level2"><h2 id="post-deployment">Post-deployment<a class="anchor" aria-label="anchor" href="#post-deployment"></a>
 </h2>
-</section><section class="level2"><h2 id="optional-github-pages">Optional GitHub Pages<a class="anchor" aria-label="anchor" href="#optional-github-pages"></a>
+<p>Once Posit Connect confirms the deploy, two more things to set up before sharing the URL:</p>
+<ol type="1">
+<li>
+<strong>Viewer permissions.</strong> On the Connect dashboard for your app: <strong>Access → Sharing → Add user/group</strong>. The default for new apps is “Owner only” — colleagues will hit a 403 until you grant them access. For public dashboards, set <strong>Anyone, no login required</strong>.</li>
+<li>
+<strong>Resource limits</strong> <em>(optional)</em>. The default Connect runtime settings are usually fine; only revisit if your app is unresponsive under realistic load.</li>
+<li>
+<strong>Custom URL</strong> <em>(optional)</em>. Connect lets you pick a friendlier URL slug than the default UUID. Set it under <strong>Settings → Vanity URL</strong> on your app’s Connect page.</li>
+</ol>
+<p>After the first deploy, every subsequent <code>deployApp()</code> call updates the existing app at the same URL — there’s no need to delete-and-republish.</p>
+</section><section class="level2"><h2 id="optional-publish-docs-to-github-pages">Optional: publish <code>docs/</code> to GitHub Pages<a class="anchor" aria-label="anchor" href="#optional-publish-docs-to-github-pages"></a>
 </h2>
+<p>If <code>00-master.R</code> rendered the Quarto trail under <code>docs/</code> (the orchestrator can do this for any documented repo), you can publish it as a project landing page on GitHub Pages — separately from the Connect deploy:</p>
+<ol type="1">
+<li>Push the <code>docs/</code> folder to a branch (commonly <code>main</code>).</li>
+<li>In your GitHub repo: <strong>Settings → Pages → Source = <code>main</code> / <code>/docs</code></strong>.</li>
+<li>GitHub serves the built site at <code>https://&lt;org&gt;.github.io/&lt;repo&gt;/</code>.</li>
+</ol>
+<p>This is purely optional and orthogonal to the Connect deploy — <code>docs/</code> is excluded from the Connect bundle by design.</p>
 </section><section class="level2"><h2 id="where-to-ask-for-help">Where to ask for help<a class="anchor" aria-label="anchor" href="#where-to-ask-for-help"></a>
 </h2>
-</section><script id="quarto-html-after-body" type="application/javascript">
+<ul>
+<li>
+<strong>GeoPov SharePoint</strong> — internal documentation, account requests, server URLs (search “Posit Connect” / “PTI dashboard” on the GeoPov SharePoint).</li>
+<li>
+<strong>GitHub Issues</strong> — open an issue at <a href="https://github.com/worldbank/devPTIpack/issues" class="external-link uri">https://github.com/worldbank/devPTIpack/issues</a> for package bugs, missing features, or documentation gaps.</li>
+<li>
+<strong>Posit Connect docs</strong> — <a href="https://docs.posit.co/connect/" class="external-link uri">https://docs.posit.co/connect/</a> covers everything Connect-side (auth, scaling, scheduled jobs).</li>
+<li>
+<strong>shinyapps.io docs</strong> — <a href="https://docs.posit.co/shinyapps.io/" class="external-link uri">https://docs.posit.co/shinyapps.io/</a> covers the public-cloud target.</li>
+</ul></section><section class="level2"><h2 id="done">Done<a class="anchor" aria-label="anchor" href="#done"></a>
+</h2>
+<p>Your PTI app is live. To iterate:</p>
+<ol type="1">
+<li>Edit your raw inputs under <code>sample-data/</code> (or replace them with new official data).</li>
+<li>Re-run <code>source("00-master.R")</code> — Steps 1, 3, 5 regenerate <code>app-data/</code>.</li>
+<li>Re-run <code>rsconnect::deployApp(...)</code> (or hit Publish) — the existing Connect URL updates in place.</li>
+</ol></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);

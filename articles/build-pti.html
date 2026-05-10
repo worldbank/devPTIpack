@@ -98,349 +98,121 @@
 
 
 
-    <p>This is the recipe. If you’ve never built a PTI app before, follow it top to bottom — at the end you will have a Shiny dashboard running locally that you can deploy to a server.</p>
-<p>This page complements <a href="methodology.html">PTI Methodology</a> (the <em>why</em>) and <a href="dataprep.html">Data preparation reference</a> (the canonical <em>what</em>). The walkthrough below points into the reference whenever a question of input shape comes up; you don’t need to read the reference cover-to-cover before starting.</p>
-<p><strong>Time estimate.</strong> With clean shapes and a tidy indicator dataset already in hand, a developer who has done this before launches an app in roughly an hour. Most of the time on a new country goes into preparing the data, not configuring the app.</p>
-<hr>
-<section class="level2"><h2 id="what-youll-build">0. What you’ll build<a class="anchor" aria-label="anchor" href="#what-youll-build"></a>
+    <p>A <strong>Project Targeting Index (PTI)</strong> is a composite map ranking sub-national administrative units against a set of weighted indicators — useful for guiding the spatial allocation of programmes and investments. <code>devPTIpack</code> is the toolkit that turns your country’s shapes + indicator data into a deployed Shiny dashboard.</p>
+<p>This page is the <strong>journey map</strong>. Each step is a focused tutorial; this overview tells you which one to read when, and how the pieces fit together. Pair it with <a href="methodology.html">PTI Methodology</a> (the conceptual <em>why</em>) and <a href="dataprep.html">Data preparation reference</a> (the canonical column-by-column <em>what</em>).</p>
+<section class="level2"><h2 id="what-data-does-a-pti-app-need">What data does a PTI app need?<a class="anchor" aria-label="anchor" href="#what-data-does-a-pti-app-need"></a>
 </h2>
-<p>By the end of this guide you will have a project directory shaped roughly like this:</p>
-<pre><code>myPTI/
-├── app.R                           # the launcher
-├── app-data/
-│   ├── admin_bounds.rds            # boundary shapes (this is what you build)
-│   ├── mtdt.xlsx                   # metadata template (this is what you build)
-│   ├── metadata.pdf                # auto-rendered indicator catalogue (optional)
-│   └── shapefiles.zip              # raw shapes for download (optional)
-├── R/
-│   └── _disable_autoload.R         # golem boilerplate
-├── landing-page.md                 # info-modal content (optional)
-└── myPTI.Rproj</code></pre>
-<p>Running <code>app.R</code> launches a multi-tab Shiny dashboard with an interactive map of every administrative level you ship, weighted PTI scores per polygon, a Data Explorer tab, and a Compare tab.</p>
-<hr></section><section class="level2"><h2 id="prerequisites">1. Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
-</h2>
-<p>You’ll need:</p>
-<ul>
-<li>R <code>&gt;= 4.1.0</code>.</li>
-<li>The <code>devPTIpack</code> package (and its dependencies — <code>sf</code>, <code>shiny</code>, <code>golem</code>, <code>leaflet</code>, etc., installed transitively).</li>
-<li>Administrative-boundary shapefiles for every level you want to display (typically admin0–admin2 or admin0–admin3).</li>
-<li>One or more indicator datasets, each indicator measured at one specific admin level.</li>
-</ul>
-<p>Install the package from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"worldbank/devPTIpack"</span><span class="op">)</span></span></code></pre></div>
-<p>Smoke-test the install with the bundled Ukraine sample data — if this command opens a working dashboard, your environment is ready:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/launch_pti_onepage.html">launch_pti_onepage</a></span><span class="op">(</span></span>
-<span>  shp_dta  <span class="op">=</span> <span class="va">ukr_shp</span>,</span>
-<span>  inp_dta  <span class="op">=</span> <span class="va">ukr_mtdt_full</span>,</span>
-<span>  app_name <span class="op">=</span> <span class="st">"Smoke test"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Once that works, you can move on to building your own.</p>
-<hr></section><section class="level2"><h2 id="scaffold-the-project">2. Scaffold the project<a class="anchor" aria-label="anchor" href="#scaffold-the-project"></a>
-</h2>
-<p><code><a href="../reference/create_new_pti.html">create_new_pti()</a></code> drops a minimal app skeleton into a new directory:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/create_new_pti.html">create_new_pti</a></span><span class="op">(</span><span class="st">"path/to/myPTI"</span><span class="op">)</span></span></code></pre></div>
-<p>This creates the directory, copies in <code>app.R</code>, an empty <code>R/</code> folder, a <code>landing-page.md</code> placeholder, and (if you’re in RStudio) opens the new project automatically. The skeleton’s <code>app.R</code> is wired up to the bundled Ukraine data initially — change those references to your own paths once you have your inputs.</p>
-<p>You will also want an <code>app-data/</code> sub-directory inside the project. Create it manually — the scaffolder doesn’t create it because the contents are entirely yours to provide:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"path/to/myPTI"</span>, <span class="st">"app-data"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>The scaffolded <code>app.R</code> looks like this:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"golem.app.prod"</span> <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/launch_pti.html">launch_pti</a></span><span class="op">(</span></span>
-<span>  shp_dta         <span class="op">=</span> <span class="fu">devPTIpack</span><span class="fu">::</span><span class="va"><a href="../reference/ukr_shp.html">ukr_shp</a></span>,</span>
-<span>  inp_dta         <span class="op">=</span> <span class="fu">devPTIpack</span><span class="fu">::</span><span class="va"><a href="../reference/ukr_mtdt_full.html">ukr_mtdt_full</a></span>,</span>
-<span>  app_name        <span class="op">=</span> <span class="st">"{{COUNTRY NAME}}"</span>,</span>
-<span>  show_waiter     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_adm_levels <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  shapes_path     <span class="op">=</span> <span class="st">"."</span>,</span>
-<span>  mtdtpdf_path    <span class="op">=</span> <span class="st">"."</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>You’ll edit <code>shp_dta</code>, <code>inp_dta</code>, <code>app_name</code>, and the path arguments in §6 once your data is ready.</p>
-<hr></section><section class="level2"><h2 id="prepare-boundary-shapes">3. Prepare boundary shapes<a class="anchor" aria-label="anchor" href="#prepare-boundary-shapes"></a>
-</h2>
-<p>The package expects a <strong>named list of <code>sf</code> tibbles</strong>, one per administrative level, saved as a single <code>.rds</code> file. The full shape specification (column requirements, parent-child cascade rule, geometry constraints) is in <a href="dataprep.html#boundary-shapes-admin_bounds.rds">Data preparation reference §1</a>. Read it before assembling your list — most validator failures originate in that section’s invariants.</p>
-<p>The minimal recipe, assuming you have raw shapefiles per admin level:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-quantities.github.io/units/" class="external-link">units</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Read every level. For your country, replace these paths.</span></span>
-<span><span class="va">admin1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"data-raw/admin1.shp"</span><span class="op">)</span></span>
-<span><span class="va">admin2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"data-raw/admin2.shp"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Re-project to a metric CRS for area; here we use UTM 36N (Ukraine).</span></span>
-<span><span class="co"># Pick a projection appropriate for your country.</span></span>
-<span><span class="va">to_metric</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">32636</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">admin1</span> <span class="op">&lt;-</span> <span class="va">admin1</span> <span class="op">|&gt;</span> <span class="fu">to_metric</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/valid.html" class="external-link">st_make_valid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">admin2</span> <span class="op">&lt;-</span> <span class="va">admin2</span> <span class="op">|&gt;</span> <span class="fu">to_metric</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/valid.html" class="external-link">st_make_valid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Compute area in km².</span></span>
-<span><span class="va">admin1</span><span class="op">$</span><span class="va">area</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">st_area</a></span><span class="op">(</span><span class="va">admin1</span><span class="op">)</span>, <span class="st">"km^2"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">admin2</span><span class="op">$</span><span class="va">area</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">st_area</a></span><span class="op">(</span><span class="va">admin2</span><span class="op">)</span>, <span class="st">"km^2"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Derive admin0 from admin1 by dissolving on the country code.</span></span>
-<span><span class="va">admin0</span> <span class="op">&lt;-</span> <span class="va">admin1</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>admin0Pcod <span class="op">=</span> <span class="st">"UA"</span>, admin0Name <span class="op">=</span> <span class="st">"Ukraine"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">admin0Pcod</span>, <span class="va">admin0Name</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>area <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">area</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/valid.html" class="external-link">st_make_valid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Each layer must contain its own Pcod/Name plus all parent Pcods.</span></span>
-<span><span class="co"># admin1 must carry admin0Pcod; admin2 must carry admin0Pcod and admin1Pcod.</span></span>
-<span><span class="co"># (Your raw shapefiles usually do — verify column names match the package</span></span>
-<span><span class="co"># convention exactly; rename if needed.)</span></span>
-<span></span>
-<span><span class="co"># Assemble the named list. Names follow `admin&lt;N&gt;_&lt;HumanName&gt;` exactly.</span></span>
-<span><span class="va">my_shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  admin0_Country <span class="op">=</span> <span class="va">admin0</span>,</span>
-<span>  admin1_Oblast  <span class="op">=</span> <span class="va">admin1</span>,</span>
-<span>  admin2_Rayon   <span class="op">=</span> <span class="va">admin2</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save it.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">my_shp</span>, <span class="st">"app-data/admin_bounds.rds"</span>, compress <span class="op">=</span> <span class="st">"gz"</span><span class="op">)</span></span></code></pre></div>
-<p>For the column-by-column rules (which columns each layer needs, what the cascade rule says), see <a href="dataprep.html#required-columns-per-layer">Data preparation reference §1.3–§1.4</a>.</p>
-<hr></section><section class="level2"><h2 id="prepare-the-metadata-template">4. Prepare the metadata template<a class="anchor" aria-label="anchor" href="#prepare-the-metadata-template"></a>
-</h2>
-<p>The metadata template is a single <code>.xlsx</code> file with one sheet per admin level, plus a <code>general</code> sheet, plus a <code>metadata</code> sheet describing each indicator. The full sheet-by-sheet and column-by-column reference is in <a href="dataprep.html#metadata-excel-template-mtdt.xlsx">Data preparation reference §2</a>.</p>
-<p>The high-level pattern: build each sheet as a data frame in R, collect them into a named list, write the list to <code>.xlsx</code> with <code><a href="https://docs.ropensci.org/writexl//reference/write_xlsx.html" class="external-link">writexl::write_xlsx()</a></code>. This is the same pattern documented in the <a href="https://github.com/wbPTI/zamPTIdata" class="external-link"><code>zamPTIdata</code></a> and <a href="https://github.com/wbPTI/kgzPTIdata" class="external-link"><code>kgzPTIdata</code></a> example repositories (both private — request access from <a href="https://github.com/EBukin" class="external-link">Eduard Bukin</a>).</p>
-<p>A skeletal version, joining indicator data onto the boundary list from §3:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ropensci.r-universe.dev/writexl" class="external-link">writexl</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Suppose you have indicator tibbles already aggregated to the right level —</span></span>
-<span><span class="co"># one indicator per column, plus the keys.</span></span>
-<span><span class="va">poverty_admin2</span> <span class="op">&lt;-</span> <span class="va">...</span>        <span class="co"># cols: admin2Pcod, admin2Name, year, poverty_rate</span></span>
-<span><span class="va">literacy_admin1</span> <span class="op">&lt;-</span> <span class="va">...</span>       <span class="co"># cols: admin1Pcod, admin1Name, year, literacy_rate</span></span>
-<span></span>
-<span><span class="co"># 1. Build the per-admin sheets by joining indicators onto the boundary keys.</span></span>
-<span><span class="va">admin1_sheet</span> <span class="op">&lt;-</span> <span class="va">my_shp</span><span class="op">$</span><span class="va">admin1_Oblast</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">literacy_admin1</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"admin1Pcod"</span>, <span class="st">"admin1Name"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">admin2_sheet</span> <span class="op">&lt;-</span> <span class="va">my_shp</span><span class="op">$</span><span class="va">admin2_Rayon</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">poverty_admin2</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"admin2Pcod"</span>, <span class="st">"admin2Name"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 2. Build the metadata sheet — one row per indicator. See dataprep §2.3 for</span></span>
-<span><span class="co">#    the full column reference.</span></span>
-<span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
-<span>  <span class="op">~</span><span class="va">var_code</span>,        <span class="op">~</span><span class="va">var_name</span>,             <span class="op">~</span><span class="va">var_description</span>,                       <span class="op">~</span><span class="va">var_order</span>, <span class="op">~</span><span class="va">var_units</span>, <span class="op">~</span><span class="va">spatial_level</span>,    <span class="op">~</span><span class="va">pillar_group</span>, <span class="op">~</span><span class="va">pillar_name</span>,         <span class="op">~</span><span class="va">pillar_description</span>, <span class="op">~</span><span class="va">fltr_exclude_pti</span>, <span class="op">~</span><span class="va">fltr_exclude_explorer</span>, <span class="op">~</span><span class="va">fltr_overlay_pti</span>, <span class="op">~</span><span class="va">fltr_overlay_explorer</span>, <span class="op">~</span><span class="va">legend_revert_colours</span>,</span>
-<span>  <span class="st">"literacy_rate"</span>,  <span class="st">"Literacy rate"</span>,       <span class="st">"Adult literacy rate, latest census."</span>,  <span class="fl">1L</span>,         <span class="st">"%"</span>,        <span class="st">"admin1_Oblast"</span>,    <span class="fl">1</span>,             <span class="st">"Human capital"</span>,      <span class="cn">NA</span>,                  <span class="cn">FALSE</span>,             <span class="cn">FALSE</span>,                  <span class="cn">FALSE</span>,             <span class="cn">FALSE</span>,                  <span class="cn">FALSE</span>,</span>
-<span>  <span class="st">"poverty_rate"</span>,   <span class="st">"Poverty headcount"</span>,   <span class="st">"Share of population below the line."</span>,  <span class="fl">2L</span>,         <span class="st">"%"</span>,        <span class="st">"admin2_Rayon"</span>,     <span class="fl">1</span>,             <span class="st">"Human capital"</span>,      <span class="cn">NA</span>,                  <span class="cn">FALSE</span>,             <span class="cn">FALSE</span>,                  <span class="cn">FALSE</span>,             <span class="cn">FALSE</span>,                  <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 3. The general sheet.</span></span>
-<span><span class="va">general</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"Ukraine"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 4. Collect into a named list and write.</span></span>
-<span><span class="va">sheets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  general       <span class="op">=</span> <span class="va">general</span>,</span>
-<span>  metadata      <span class="op">=</span> <span class="va">metadata</span>,</span>
-<span>  admin1_Oblast <span class="op">=</span> <span class="va">admin1_sheet</span>,</span>
-<span>  admin2_Rayon  <span class="op">=</span> <span class="va">admin2_sheet</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">writexl</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/writexl//reference/write_xlsx.html" class="external-link">write_xlsx</a></span><span class="op">(</span><span class="va">sheets</span>, <span class="st">"app-data/mtdt.xlsx"</span><span class="op">)</span></span></code></pre></div>
-<p>A few rules of thumb (the full list is in <a href="dataprep.html#common-pitfalls">dataprep §3</a>):</p>
-<ul>
-<li>The <code>var_code</code> in <code>metadata</code> must equal an indicator column name in at least one admin sheet, exactly.</li>
-<li>
-<code>spatial_level</code> must equal one of the admin sheet names in this same file (not the geometry list, though they should be identical).</li>
-<li>All <code>fltr_*</code> columns and <code>legend_revert_colours</code> are <em>booleans</em>, not strings.</li>
-<li>Don’t put <code>:</code> in <code>var_name</code> or <code>pillar_name</code>.</li>
-</ul>
-<hr></section><section class="level2"><h2 id="validate-the-inputs">5. Validate the inputs<a class="anchor" aria-label="anchor" href="#validate-the-inputs"></a>
-</h2>
-<p>Before launching the app, run the two exported validators. They emit pass/warn/fail messages and (since the validator UX pass) return an invisible structured result you can inspect.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">my_shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"app-data/admin_bounds.rds"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/validate_geometries.html">validate_geometries</a></span><span class="op">(</span><span class="va">my_shp</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/validate_metadata.html">validate_metadata</a></span><span class="op">(</span></span>
-<span>  shp_path  <span class="op">=</span> <span class="st">"app-data/admin_bounds.rds"</span>,</span>
-<span>  mtdt_path <span class="op">=</span> <span class="st">"app-data/mtdt.xlsx"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/validate_geometries.html">validate_geometries()</a></code> walks every layer and reports per-layer findings (geometry types, P-code uniqueness, name uniqueness, parent-child cascade). <code><a href="../reference/validate_metadata.html">validate_metadata()</a></code> runs both file-readability checks and a dry-run of the calculation pipeline under all-equal weights.</p>
-<p>A clean run prints a list of pass alerts. Warnings are non-blocking (the app will still launch but something is suspect). Fails are blocking (the pipeline will not run). Each issue includes the offending layer / column / value so you can fix it surgically.</p>
-<p>If you’re scripting validation programmatically (for example inside CI), capture the structured return:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/validate_geometries.html">validate_geometries</a></span><span class="op">(</span><span class="va">my_shp</span>, error_on_fail <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">res</span><span class="op">$</span><span class="va">status</span>     <span class="co"># "pass", "warn", or "fail"</span></span>
-<span><span class="va">res</span><span class="op">$</span><span class="va">issues</span>     <span class="co"># list of issue records — level, check, message, details</span></span></code></pre></div>
-<p>The <code>error_on_fail = FALSE</code> argument lets the function return cleanly on a failure instead of throwing; default is <code>TRUE</code> so existing pipeline scripts that depended on the validator aborting still work.</p>
-<p>For the full list of what the validators do and don’t check, see <a href="dataprep.html#what-validate_geometries-catches">dataprep §1.7–§1.8</a> and <a href="dataprep.html#what-validate_metadata-catches">dataprep §2.6–§2.7</a>.</p>
-<hr></section><section class="level2"><h2 id="launch-locally">6. Launch locally<a class="anchor" aria-label="anchor" href="#launch-locally"></a>
-</h2>
-<p>Edit <code>app.R</code> to point at your inputs:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"golem.app.prod"</span> <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/launch_pti.html">launch_pti</a></span><span class="op">(</span></span>
-<span>  shp_dta         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"app-data/admin_bounds.rds"</span><span class="op">)</span>,</span>
-<span>  inp_dta         <span class="op">=</span> <span class="fu"><a href="../reference/fct_template_reader.html">fct_template_reader</a></span><span class="op">(</span><span class="st">"app-data/mtdt.xlsx"</span><span class="op">)</span>,</span>
-<span>  app_name        <span class="op">=</span> <span class="st">"My Country PTI"</span>,</span>
-<span>  show_waiter     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_adm_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"admin1"</span>, <span class="st">"admin2"</span><span class="op">)</span>,</span>
-<span>  shapes_path     <span class="op">=</span> <span class="st">"app-data/shapefiles.zip"</span>,</span>
-<span>  mtdtpdf_path    <span class="op">=</span> <span class="st">"app-data/metadata.pdf"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Then click <em>Run App</em> in RStudio (or <code>shiny::runApp("path/to/myPTI")</code>). The app should open in a browser tab.</p>
-<p>The most useful <code><a href="../reference/launch_pti.html">launch_pti()</a></code> arguments:</p>
+<p>Two inputs are mandatory; one is optional:</p>
 <table class="table caption-top">
-<colgroup>
-<col style="width: 9%">
-<col style="width: 90%">
-</colgroup>
 <thead><tr class="header">
-<th>Argument</th>
-<th>Meaning</th>
+<th>Input</th>
+<th>Format</th>
+<th>Step that produces it</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>shp_dta</code></td>
-<td>Required. The shapes list (or its on-disk RDS read with <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code>).</td>
+<td>Boundary shapes</td>
+<td>Named list of <code>sf</code> tibbles, one per admin level.</td>
+<td><a href="build-pti-1-shapefiles.html">Step 1</a></td>
 </tr>
 <tr class="even">
-<td><code>inp_dta</code></td>
-<td>Required. The parsed metadata list (run your <code>mtdt.xlsx</code> through <code><a href="../reference/fct_template_reader.html">fct_template_reader()</a></code>).</td>
+<td>Metadata workbook</td>
+<td>Multi-sheet <code>.xlsx</code> — indicator dictionary + per-admin values.</td>
+<td><a href="build-pti-3-metadata.html">Step 3</a></td>
 </tr>
 <tr class="odd">
-<td><code>app_name</code></td>
-<td>Display title in the navbar and downloads.</td>
-</tr>
-<tr class="even">
-<td><code>ui_type</code></td>
+<td>HEX gridded data</td>
+<td>H3 res-6 polygons + indicator values. <em>Optional.</em>
+</td>
 <td>
-<code>"twocol"</code> (default — full multi-tab dashboard) or <code>"box"</code> (compact single-card embedding for putting PTI inside another Shiny app).</td>
-</tr>
-<tr class="odd">
-<td><code>show_adm_levels</code></td>
-<td>Vector like <code>c("admin1", "admin2")</code> controlling which levels users can compute PTI at. <code>NULL</code> (default) shows all levels with data.</td>
-</tr>
-<tr class="even">
-<td><code>tabs</code></td>
-<td>Subset of <code>c("info", "compare", "explorer")</code>. Drop <code>"info"</code> to skip the landing-page modal; drop <code>"compare"</code> to hide the side-by-side comparison view.</td>
-</tr>
-<tr class="odd">
-<td><code>shapes_path</code></td>
-<td>Path to a zip archive of raw shapefiles served as a download from the app. If <code>NULL</code>, the app generates one from <code>shp_dta</code> on the fly.</td>
-</tr>
-<tr class="even">
-<td><code>mtdtpdf_path</code></td>
-<td>Path to a pre-rendered PDF of the metadata catalogue, served as a download. If <code>NULL</code>, the app does not offer a PDF download.</td>
-</tr>
-<tr class="odd">
-<td><code>show_waiter</code></td>
-<td>
-<code>TRUE</code> to show a loading splash on cold start. Set <code>FALSE</code> when embedding the PTI as a tab inside a multi-tab dashboard.</td>
-</tr>
-<tr class="even">
-<td><code>pti_landing_page</code></td>
-<td>Path to a markdown file rendered as the landing-page modal. If omitted, the modal is skipped.</td>
+<a href="build-pti-4-hex.html">Step 4</a> (under development)</td>
 </tr>
 </tbody>
 </table>
-<p>For one-page embedding (no navbar, no Compare/Explorer tabs), use <code><a href="../reference/launch_pti_onepage.html">launch_pti_onepage()</a></code> — same <code>shp_dta</code> / <code>inp_dta</code> arguments, simpler UI.</p>
-<hr></section><section class="level2"><h2 id="deploy">7. Deploy<a class="anchor" aria-label="anchor" href="#deploy"></a>
+<p>The full column contract for both lives in <a href="dataprep.html">Data preparation reference</a>.</p>
+</section><section class="level2"><h2 id="reproducible-quickstart-the-bundled-rwanda-app-in-5-lines">Reproducible quickstart — the bundled Rwanda app in &lt; 5 lines<a class="anchor" aria-label="anchor" href="#reproducible-quickstart-the-bundled-rwanda-app-in-5-lines"></a>
 </h2>
-<p>Three common targets. Pick whichever your team already runs.</p>
-<p><strong>shinyapps.io</strong> — easiest for a public demo.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rsconnect</span><span class="fu">::</span><span class="fu">deployApp</span><span class="op">(</span>appDir <span class="op">=</span> <span class="st">"path/to/myPTI"</span>, appName <span class="op">=</span> <span class="st">"myPTI"</span><span class="op">)</span></span></code></pre></div>
-<p>Make sure <code>app.R</code>’s paths are <em>relative</em> (e.g. <code>"app-data/admin_bounds.rds"</code>, not <code>"~/projects/myPTI/app-data/..."</code>). Absolute paths break on the server.</p>
-<p><strong>Posit Connect</strong> — for internal-network deployments. Use the <em>Publish</em> blue-arrow button in RStudio with a Connect server configured.</p>
-<p><strong>Self-hosted Shiny Server</strong> — <code>scp</code> the project directory into <code>/srv/shiny-server/myPTI</code> (or wherever the server reads). The dependencies on the host need to match what’s in <code>DESCRIPTION</code>.</p>
-<p>For a real-world deployment recipe, see the <a href="https://github.com/wbPTI/zamPTI" class="external-link"><code>zamPTI</code></a> example app repo (private — request access from <a href="https://github.com/EBukin" class="external-link">Eduard Bukin</a>).</p>
-<hr></section><section class="level2"><h2 id="troubleshooting">8. Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
+<p>The fastest way to see a working PTI app is the Rwanda template that ships with the package:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span>; <span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"worldbank/devPTIpack"</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/create_new_pti.html">create_new_pti</a></span><span class="op">(</span><span class="st">"~/projects/rwa_pti"</span><span class="op">)</span>           <span class="co"># scaffold</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"~/projects/rwa_pti/00-master.R"</span><span class="op">)</span>       <span class="co"># Steps 1 + 3 (+ 5 once enabled)</span></span>
+<span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="st">"~/projects/rwa_pti/app.R"</span><span class="op">)</span>      <span class="co"># local launch</span></span></code></pre></div>
+<p>Five Rwandan provinces, 30 districts, 3 synthetic indicators, two pillars — a complete dashboard in under five minutes. Once that runs, swap in your country’s data and re-run the same pipeline.</p>
+</section><section class="level2"><h2 id="the-journey">The journey<a class="anchor" aria-label="anchor" href="#the-journey"></a>
 </h2>
+<p>The pipeline is seven steps. Steps 1–5 produce files in <code>app-data/</code>; the deployed app consumes them.</p>
 <table class="table caption-top">
-<colgroup>
-<col style="width: 26%">
-<col style="width: 36%">
-<col style="width: 37%">
-</colgroup>
 <thead><tr class="header">
-<th>Symptom</th>
-<th>Likely cause</th>
-<th>Fix</th>
+<th>#</th>
+<th>Step</th>
+<th>What it does</th>
+<th>Required?</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>App launches but the indicator dropdown is empty</td>
-<td>
-<code>var_code</code> in <code>metadata</code> doesn’t match a column name in any <code>admin&lt;N&gt;_*</code> sheet</td>
-<td>Verify column names letter-for-letter; remember case sensitivity</td>
+<td>0</td>
+<td><a href="build-pti-0-setup.html">Setup</a></td>
+<td>Install <code>devPTIpack</code>, scaffold the project folder via <code><a href="../reference/create_new_pti.html">create_new_pti()</a></code>.</td>
+<td>Always</td>
 </tr>
 <tr class="even">
-<td>
-<code><a href="../reference/validate_read_metadata.html">validate_read_metadata()</a></code> warns “filter columns are not read as logical”</td>
-<td>
-<code>fltr_*</code> cells stored as <code>"TRUE"</code> / <code>"FALSE"</code> strings</td>
-<td>Re-write the <code>.xlsx</code> from R with <code><a href="https://docs.ropensci.org/writexl//reference/write_xlsx.html" class="external-link">writexl::write_xlsx()</a></code> — the columns will then be true booleans</td>
+<td>1</td>
+<td><a href="build-pti-1-shapefiles.html">Shapefiles</a></td>
+<td>Load + validate administrative boundaries; save <code>app-data/shapes.rds</code>.</td>
+<td>Always</td>
 </tr>
 <tr class="odd">
-<td>
-<code><a href="../reference/validate_geometries.html">validate_geometries()</a></code> warns “values in <code>admin1Pcod</code> of <code>admin2_X</code> not in admin1_Y”</td>
-<td>Orphan child P-codes — the cascade rule (dataprep §1.4) is broken</td>
-<td>Fix the upstream join, or filter the orphan rows out</td>
+<td>2</td>
+<td><a href="build-pti-2-zonal-stats.html">Zonal stats</a></td>
+<td>Extract polygon-level indicators from raster surfaces.</td>
+<td>Optional</td>
 </tr>
 <tr class="even">
-<td>Map renders but some polygons are blank (no colour)</td>
-<td>The polygon has <code>NA</code> for every selected indicator</td>
-<td>
-<code><a href="../reference/get_vars_un_avbil.html">get_vars_un_avbil()</a></code> lists unavailable admins. Either fill the data or accept the gap.</td>
+<td>3</td>
+<td><a href="build-pti-3-metadata.html">Metadata Excel</a></td>
+<td>Build the indicator workbook; validate against shapes; save <code>app-data/metadata-user.xlsx</code>.</td>
+<td>Always</td>
 </tr>
 <tr class="odd">
-<td>
-<code><a href="../reference/launch_pti.html">launch_pti()</a></code> aborts with “indicator column type”</td>
-<td>An indicator column is character / factor / Date instead of numeric</td>
-<td>Cast in the source pipeline; the package does not coerce silently</td>
+<td>4</td>
+<td><a href="build-pti-4-hex.html">HEX data</a></td>
+<td>Pull H3 res-6 indicator values from the HEX API. <em>Order-flexible</em> — before or after Step 3.</td>
+<td>Optional</td>
 </tr>
 <tr class="even">
-<td>Deployed app shows a 404 for the PDF download</td>
-<td>
-<code>mtdtpdf_path</code> is absolute or the file was not uploaded</td>
-<td>Use a relative path; verify <code>app-data/metadata.pdf</code> exists in the deployed bundle</td>
+<td>5</td>
+<td><a href="build-pti-5-compile.html">Compile &amp; finalise</a></td>
+<td>Merge metadata + re-validate + render PDF + zip GeoJSONs.</td>
+<td>Always</td>
 </tr>
 <tr class="odd">
-<td>
-<code><a href="../reference/validate_metadata.html">validate_metadata()</a></code> complains about pillar count</td>
-<td>Two indicators with the same <code>pillar_group</code> have different <code>pillar_name</code> strings</td>
-<td>Make <code>pillar_name</code> consistent within each group</td>
+<td>6</td>
+<td><a href="build-pti-6-deploy.html">Deploy</a></td>
+<td>Publish <code>app.R</code> + <code>landing-page.md</code> + <code>app-data/</code> to Posit Connect or shinyapps.io.</td>
+<td>When sharing</td>
 </tr>
 </tbody>
 </table>
-<p>If you hit something not on the list, run the validators with <code>error_on_fail = FALSE</code> and inspect <code>res$issues</code> — every check the package enforces is named in the <code>check</code> field.</p>
-<hr></section><section class="level2"><h2 id="next-steps">9. Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
+<p><strong>Step 4 is order-flexible</strong> — it produces an independent <code>app-data/metadata-hex.xlsx</code> that Step 5 merges with the user metadata. You can do it before or after Step 3. The other steps run sequentially.</p>
+</section><section class="level2"><h2 id="the-00-master-r-shortcut">The <code>00-master.R</code> shortcut<a class="anchor" aria-label="anchor" href="#the-00-master-r-shortcut"></a>
+</h2>
+<p>Each scaffolded project ships <a href="https://github.com/worldbank/devPTIpack/blob/main/inst/template_pti/00-master.R" class="external-link"><code>00-master.R</code></a> — a pipeline orchestrator that calls <code><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_render.html" class="external-link">quarto::quarto_render()</a></code> on the step <code>.qmd</code> files top-to-bottom, populates <code>app-data/</code>, and (optionally) writes the rendered Quarto trail under <code>docs/</code>. After your first walkthrough, <strong><code>source("00-master.R")</code> is the everyday command</strong> — it re-runs Steps 1, (3), 5 every time your raw inputs change. Comment / uncomment lines to skip optional steps (Step 2, 4) or pause work.</p>
+<p>The website tutorials (this page and Steps 0–6) are how you <em>learn</em> the pipeline. <code>00-master.R</code> is how you <em>operate</em> it once you know it.</p>
+</section><section class="level2"><h2 id="where-to-start">Where to start<a class="anchor" aria-label="anchor" href="#where-to-start"></a>
 </h2>
 <ul>
 <li>
-<a href="methodology.html">PTI Methodology</a> — the conceptual framing (z-scores, weights, monitoring).</li>
+<strong>First time?</strong> Begin with <a href="build-pti-0-setup.html">Step 0 — Setup</a> and follow the steps top to bottom.</li>
 <li>
-<a href="dataprep.html">Data preparation reference</a> — the canonical input-shape spec referenced throughout this walkthrough.</li>
+<strong>Already familiar with <code>devPTIpack</code>?</strong> Jump straight to the step you’re working on. Each tutorial has a “Next” pointer back into the chain.</li>
 <li>
-<a href="../reference/index.html">Function reference</a> — every exported function, organised by category.</li>
+<strong>Reference question</strong> (“what columns does the metadata sheet need?”) — go to <a href="dataprep.html">Data preparation reference</a>.</li>
 <li>
-<a href="past-projects.html">Past projects</a> — what completed PTI deployments look like.</li>
-</ul>
-<hr></section><script id="quarto-html-after-body" type="application/javascript">
+<strong>Method question</strong> (“how is the PTI score computed?”) — go to <a href="methodology.html">PTI Methodology</a>.</li>
+</ul></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);

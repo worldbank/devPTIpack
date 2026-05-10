@@ -772,6 +772,21 @@ that gates \#83 by walking the template end-to-end:
 [`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md)
 smoke. Issue [\#82](https://github.com/worldbank/devPTIpack/issues/82).
 
+arch-09 PR \#D —
+`compile_pti_data(shp_path, metadata_paths, output_dir, error_on_fail)`
+exported (issue
+[\#83](https://github.com/worldbank/devPTIpack/issues/83)): merges 1+
+intermediate metadata xlsx files, writes canonical `metadata.xlsx` +
+`shapefiles.zip` + `pti-metadata.pdf`, runs both validators on the
+combined inputs, prints a verbose CLI summary, returns the
+validator-style structured result. `inst/metadata.Rmd` rewritten —
+parameterised, dropped `pacman` / `here` / heavy plotting stack;
+one-map-per-indicator using
+[`gg_admin_list()`](https://worldbank.github.io/devPTIpack/reference/gg_admin_list.md) +
+ggplot2. `inst/template_pti/05-compile.qmd` now a working step (no
+longer a stub). `DESCRIPTION` Imports gains `zip (>= 2.3)`. 23-test file
+(`tests/testthat/test-compile-pti-data.R`).
+
 Confirm `R CMD check` builds vignettes cleanly.
 
 **After this phase:** add `shinytest2` automation for Tier 3.
@@ -1294,10 +1309,11 @@ and
 both return `status = "pass"` with 0 failures / 0 warnings on Rwanda
 inputs. Divergence noted in changelog: validator app calls
 (`app_validate_shp` in 01, `app_validate_metadata` in 03) commented
-pending \#80 / \#81; `compile_pti_data()` in 05-compile.qmd commented
-pending \#83; 00-master.R does not render 04 (HEX API) or 05 by default.
-NOT pushed; commit on `feat/template-scaffold` only – per the issue
-brief, no PR opened. \|
+pending \#80 / \#81;
+[`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md)
+in 05-compile.qmd commented pending \#83; 00-master.R does not render 04
+(HEX API) or 05 by default. NOT pushed; commit on
+`feat/template-scaffold` only – per the issue brief, no PR opened. \|
 
 Suite total after this branch: **0 failures / 1 skip / 710 PASS**
 ([`testthat::test_local()`](https://testthat.r-lib.org/reference/test_package.html);

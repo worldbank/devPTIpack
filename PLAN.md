@@ -752,6 +752,14 @@ one toggleable layer per admin level and the
 summary in a sidebar; 12-test Tier-1+Tier-2 file
 (`tests/testthat/test-app-validate-shp.R`).
 
+arch-09 PR \#C — `app_validate_metadata(shp_dta, inp_dta)` exported
+(issue [\#81](https://github.com/worldbank/devPTIpack/issues/81)):
+standalone Shiny launcher running both validators with
+`error_on_fail = FALSE`, surfacing their statuses in a sidebar, and
+embedding the existing `mod_dta_explorer2_*` Data Explorer for visual
+indicator inspection; 13-test Tier-1+Tier-2 file
+(`tests/testthat/test-app-validate-metadata.R`).
+
 Confirm `R CMD check` builds vignettes cleanly.
 
 **After this phase:** add `shinytest2` automation for Tier 3.

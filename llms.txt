@@ -332,6 +332,8 @@ shinyApp(ui, server)
 
 - [`app_sys()`](https://worldbank.github.io/devPTIpack/reference/app_sys.md)
   : Resolve a path inside the installed devPTIpack package
+- [`app_validate_shp()`](https://worldbank.github.io/devPTIpack/reference/app_validate_shp.md)
+  : Visual shapefile inspector for PTI deployers
 - [`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
   : Scaffold a new PTI app project
 - [`drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/drop_inval_adm.md)

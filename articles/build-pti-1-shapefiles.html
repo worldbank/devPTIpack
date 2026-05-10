@@ -99,17 +99,181 @@
 
 
     <p>Prepare the administrative-boundary shapefiles that anchor every other input to the PTI app — load, validate, fix, and save them to <code>app-data/</code>.</p>
+<p>The end product of this step is a single file: <code>app-data/shapes.rds</code>, a named list of <code>sf</code> tibbles, one per administrative level. Step 3’s metadata workbook keys against the polygon codes in this file, and the deployed app reads it on launch.</p>
+<p>This page walks through the Rwanda template: 5 provinces (Adm1) with 30 districts (Adm2). The advanced section at the bottom covers the multi-level case (Adm1 + Adm2 together).</p>
 <section class="level2"><h2 id="a--requirements">A. Requirements<a class="anchor" aria-label="anchor" href="#a--requirements"></a>
 </h2>
-</section><section class="level2"><h2 id="b--load-pre-existing-official-shapefiles-placeholder">B. Load pre-existing official shapefiles (PLACEHOLDER)<a class="anchor" aria-label="anchor" href="#b--load-pre-existing-official-shapefiles-placeholder"></a>
+<p>Each layer is a single <code>sf</code> tibble. The list slot name follows the package convention <code>admin&lt;N&gt;_&lt;HumanName&gt;</code>, e.g. <code>admin1_Province</code>. Required columns at minimum:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 66%">
+</colgroup>
+<thead><tr class="header">
+<th>Column</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>admin&lt;N&gt;Pcod</code></td>
+<td><code>character</code></td>
+<td>Unique polygon identifier (P-code) at this level. One per row.</td>
+</tr>
+<tr class="even">
+<td><code>admin&lt;N&gt;Name</code></td>
+<td><code>character</code></td>
+<td>Human-readable polygon name. One per row.</td>
+</tr>
+<tr class="odd">
+<td><code>area</code></td>
+<td><code>numeric</code></td>
+<td>Polygon area in km². Compute <em>after</em> projecting to a metre-based CRS.</td>
+</tr>
+<tr class="even">
+<td><code>geometry</code></td>
+<td><code>sfc_(MULTI)POLYGON</code></td>
+<td>Spatial geometry. <code>POLYGON</code> or <code>MULTIPOLYGON</code> only.</td>
+</tr>
+</tbody>
+</table>
+<p>Sub-admin layers must also carry every parent layer’s <code>admin&lt;k&gt;Pcod</code> column (the cascade rule). For Rwanda, the <code>admin2_District</code> layer carries both <code>admin0Pcod</code> and <code>admin1Pcod</code> so districts join up to provinces and the country.</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 69%">
+</colgroup>
+<thead><tr class="header">
+<th>Topic</th>
+<th>Quick rule</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Projection for the saved file</td>
+<td>Pick one CRS (commonly <code>EPSG:4326</code>) and use it consistently across layers.</td>
+</tr>
+<tr class="even">
+<td>
+<code>area</code> units</td>
+<td>km² — re-project to UTM, compute, convert with <code>units::set_units("km^2")</code>.</td>
+</tr>
+<tr class="odd">
+<td>Geometry simplification</td>
+<td>Trade off file size against rendering performance. <code><a href="https://r-spatial.github.io/sf/reference/geos_unary.html" class="external-link">sf::st_simplify()</a></code> is your friend; tolerances of 50–500 m work well for most country-level apps.</td>
+</tr>
+<tr class="even">
+<td>Single layer vs. multi-level</td>
+<td>Single layer = simplest case; multi-level requires nesting + parent P-codes (see §E).</td>
+</tr>
+</tbody>
+</table>
+<p>For the full column reference, P-code uniqueness rules, cascade-rule enforcement, and what <code><a href="../reference/validate_geometries.html">validate_geometries()</a></code> checks vs. doesn’t, see the <a href="dataprep.html">Data preparation reference §1</a>.</p>
+</section><section class="level2"><h2 id="b--load-pre-existing-official-shapefiles">B. Load pre-existing official shapefiles<a class="anchor" aria-label="anchor" href="#b--load-pre-existing-official-shapefiles"></a>
 </h2>
-</section><section class="level2"><h2 id="c--validate-your-shapefile">C. Validate your shapefile<a class="anchor" aria-label="anchor" href="#c--validate-your-shapefile"></a>
+<blockquote>
+<p>⚠ <strong>Feature under development.</strong> A future <code>load_official_shp(country)</code> helper will pull World Bank internal official boundaries (with consistent P-codes and naming) so deployers don’t need to download or rename anything. Until that lands, follow §C–§D below using the publicly available geoBoundaries data shipped with the template.</p>
+</blockquote>
+<p>If you already have official shapefiles for your country, skip to §C — <code><a href="../reference/validate_geometries.html">validate_geometries()</a></code> accepts any input that conforms to the column contract above.</p>
+</section><section class="level2"><h2 id="c--load-and-validate-your-shapefile">C. Load and validate your shapefile<a class="anchor" aria-label="anchor" href="#c--load-and-validate-your-shapefile"></a>
 </h2>
-</section><section class="level2"><h2 id="d--fix-problems-save">D. Fix problems &amp; save<a class="anchor" aria-label="anchor" href="#d--fix-problems-save"></a>
+<p>Load the Rwanda GeoJSONs from the template’s <code>sample-data/</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">adm0_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm0.geojson"</span><span class="op">)</span></span>
+<span><span class="va">adm1_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm1.geojson"</span><span class="op">)</span></span>
+<span><span class="va">adm2_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm2.geojson"</span><span class="op">)</span></span></code></pre></div>
+<p>geoBoundaries gives every polygon a <code>shapeID</code> and <code>shapeName</code>. Rename those into the package convention and compute <code>area</code> (<code>m²</code> at first; convert if needed):</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="va">adm1</span> <span class="op">&lt;-</span> <span class="va">adm1_raw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    admin0Pcod <span class="op">=</span> <span class="st">"RWA"</span>,</span>
+<span>    admin1Pcod <span class="op">=</span> <span class="va">shapeID</span>,</span>
+<span>    admin1Name <span class="op">=</span> <span class="va">shapeName</span>,</span>
+<span>    area       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">st_area</a></span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">admin0Pcod</span>, <span class="va">admin1Pcod</span>, <span class="va">admin1Name</span>, <span class="va">area</span>, <span class="va">geometry</span><span class="op">)</span></span></code></pre></div>
+<p>Assemble the list. Slot names are case-sensitive and must match exactly what the metadata workbook will reference:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="va">my_shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>admin1_Province <span class="op">=</span> <span class="va">adm1</span><span class="op">)</span></span></code></pre></div>
+<p>Run the structural validator:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="fu"><a href="../reference/validate_geometries.html">validate_geometries</a></span><span class="op">(</span><span class="va">my_shp</span><span class="op">)</span></span></code></pre></div>
+<p>It reports <code>pass</code> / <code>warn</code> / <code>fail</code> and prints the underlying issues (P-code duplicates, geometry types, parent–child orphans, missing required columns, cascade-rule failures). The full check list lives in <a href="dataprep.html">§1.7 of the data preparation reference</a>.</p>
+<p>For visual inspection — does the country actually look right on a map? — call the standalone Shiny app:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="fu"><a href="../reference/app_validate_shp.html">app_validate_shp</a></span><span class="op">(</span><span class="va">my_shp</span><span class="op">)</span></span></code></pre></div>
+<p>It opens a leaflet map with one tab per admin level, hover popups for <code>admin&lt;N&gt;Pcod</code> / <code>admin&lt;N&gt;Name</code>, and a side-panel summary of the structural validator’s output. Use it to spot holes between polygons, wrong boundaries, or duplicate names that the structural checks can’t catch from columns alone. The app is read-only — it does not edit your data.</p>
+</section><section class="level2"><h2 id="d--fix-problems-and-save">D. Fix problems and save<a class="anchor" aria-label="anchor" href="#d--fix-problems-and-save"></a>
 </h2>
-</section><section class="level2"><h2 id="e--advanced-multiple-admin-levels">E. Advanced: multiple admin levels<a class="anchor" aria-label="anchor" href="#e--advanced-multiple-admin-levels"></a>
+<p>Common fixes you’ll do here, on the way to a clean save:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="co"># Re-project to WGS84 if the source is in a different CRS.</span></span>
+<span><span class="va">adm1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="va">adm1</span>, <span class="fl">4326</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Snap to valid geometries — fixes self-intersections, slivers.</span></span>
+<span><span class="va">adm1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/valid.html" class="external-link">st_make_valid</a></span><span class="op">(</span><span class="va">adm1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Simplify to control file size (tolerance in metres for projected CRSs;</span></span>
+<span><span class="co"># in degrees for EPSG:4326 — values 0.001–0.01 are typical).</span></span>
+<span><span class="va">adm1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_unary.html" class="external-link">st_simplify</a></span><span class="op">(</span><span class="va">adm1</span>, dTolerance <span class="op">=</span> <span class="fl">0.001</span>, preserveTopology <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Drop any column that is not in the required set.</span></span>
+<span><span class="va">adm1</span> <span class="op">&lt;-</span> <span class="va">adm1</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">admin0Pcod</span>, <span class="va">admin1Pcod</span>, <span class="va">admin1Name</span>, <span class="va">area</span>, <span class="va">geometry</span><span class="op">)</span></span></code></pre></div>
+<p>Re-run <code><a href="../reference/validate_geometries.html">validate_geometries()</a></code> after each change until it passes. Then save:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"app-data"</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">my_shp</span>, <span class="st">"app-data/shapes.rds"</span><span class="op">)</span></span></code></pre></div>
+<p>Keep the original <code>.geojson</code> files under <code>sample-data/</code> (or wherever your raw inputs live) as the source-of-truth for re-runs. The <code>.rds</code> under <code>app-data/</code> is the <em>deployment</em> artefact — disposable, regenerable from the raw inputs.</p>
+</section><section class="level2"><h2 id="sec-advanced-multi-level">E. Advanced: multiple admin levels<a class="anchor" aria-label="anchor" href="#sec-advanced-multi-level"></a>
 </h2>
-</section><script id="quarto-html-after-body" type="application/javascript">
+<p>Most real PTI apps need at least two admin levels — provinces and districts, regions and communes. The list grows accordingly:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="va">my_shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  admin0_Country  <span class="op">=</span> <span class="va">adm0</span>,</span>
+<span>  admin1_Province <span class="op">=</span> <span class="va">adm1</span>,</span>
+<span>  admin2_District <span class="op">=</span> <span class="va">adm2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The cascade rule kicks in here: each sub-admin layer must carry the parent’s P-code. Rwanda’s geoBoundaries data does not include <code>admin1Pcod</code> on the admin2 file, so derive it via a centroid-in-polygon join:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="va">adm2_centroids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_unary.html" class="external-link">st_centroid</a></span><span class="op">(</span><span class="va">adm2_raw</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">parent_lookup</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_join.html" class="external-link">st_join</a></span><span class="op">(</span><span class="va">adm2_centroids</span>, <span class="va">adm1_raw</span>, join <span class="op">=</span> <span class="va">st_within</span>, suffix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">""</span>, <span class="st">"_p"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span>child_id <span class="op">=</span> <span class="va">shapeID</span>, admin1Pcod <span class="op">=</span> <span class="va">shapeID_p</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">adm2</span> <span class="op">&lt;-</span> <span class="va">adm2_raw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">parent_lookup</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shapeID"</span> <span class="op">=</span> <span class="st">"child_id"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    admin0Pcod <span class="op">=</span> <span class="st">"RWA"</span>,</span>
+<span>    admin2Pcod <span class="op">=</span> <span class="va">shapeID</span>,</span>
+<span>    admin2Name <span class="op">=</span> <span class="va">shapeName</span>,</span>
+<span>    area       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">st_area</a></span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">admin0Pcod</span>, <span class="va">admin1Pcod</span>, <span class="va">admin2Pcod</span>, <span class="va">admin2Name</span>, <span class="va">area</span>, <span class="va">geometry</span><span class="op">)</span></span></code></pre></div>
+<p>Then assemble and validate as before. <code><a href="../reference/validate_geometries.html">validate_geometries()</a></code> catches orphan children — a district’s <code>admin1Pcod</code> that doesn’t appear in any province’s <code>admin1Pcod</code>.</p>
+<p>The bundled <code>ukr_shp</code> demonstrates this pattern at four levels (country → oblast → rayon → hexagon). Inspect it with <code>data(ukr_shp); str(ukr_shp, max.level = 2)</code> for a worked example.</p>
+<p><strong>When to use multi-level:</strong> include extra admin levels only if you have indicator data measured at that level. The PTI calculation pipeline runs at the most disaggregated level for which an indicator is available, so adding an unused level just inflates the deployed app’s data size.</p>
+</section><section class="level2"><h2 id="next">Next<a class="anchor" aria-label="anchor" href="#next"></a>
+</h2>
+<p>Once <code>app-data/shapes.rds</code> is in place:</p>
+<ul>
+<li>If you have <strong>raster data</strong> to extract zonal stats from, continue with <a href="build-pti-2-zonal-stats.html">Step 2 — Zonal stats</a>.</li>
+<li>Otherwise, jump to <a href="build-pti-3-metadata.html">Step 3 — Metadata Excel</a> to prepare your indicator workbook.</li>
+</ul></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);

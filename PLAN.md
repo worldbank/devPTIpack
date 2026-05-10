@@ -808,6 +808,22 @@ Create 8 stub vignettes in `vignettes/articles/` (Steps 0–6 +
 - Issue \#78 — PR draft on `docs/navbar-restructure` (commit pending
   stop-hook autodraft).
 
+arch-09 PR \#E — write Steps 0, 1, 2 (stub), 3 vignette prose (issue
+[\#84](https://github.com/worldbank/devPTIpack/issues/84)): Rwanda
+worked example throughout, `eval=FALSE` code blocks, condensed
+column-requirement tables in Steps 1 and 3 with links to `dataprep.qmd`,
+advanced multi-level subsection in Step 1, simple + multi-level
+walkthroughs in Step 3, both validator UX flows (`validate_*` +
+`app_validate_*`) wired into Steps 1 and 3.
+
+arch-09 PR \#F — rewrite `build-pti.qmd` overview + write Steps 5–6
+vignettes (issue
+[\#85](https://github.com/worldbank/devPTIpack/issues/85)).
+
+arch-09 final integration audit — pkgdown links, R CMD check, user
+sign-off (issue
+[\#86](https://github.com/worldbank/devPTIpack/issues/86)).
+
 ------------------------------------------------------------------------
 
 ## 8. Phase 5 — Hex ingestion (#13, independent)

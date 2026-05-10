@@ -99,16 +99,73 @@
 
 
     <blockquote>
-<p>This step is optional. Use it when you need to extract zonal statistics from raster data (e.g., satellite imagery, gridded population data) before building your metadata Excel in Step 3.</p>
+<p><strong>This step is optional.</strong> Use it when you need to extract zonal statistics from raster data (e.g. satellite imagery, gridded population, accessibility surfaces, night-time lights) before building your metadata Excel in Step 3.</p>
+<p>The template ships <code>02a-user-zonal-stats.qmd</code> as a stub. It is <strong>not</strong> rendered by <code>00-master.R</code> — run it manually whenever you need to recompute. Add <code>02b-…qmd</code>, <code>02c-…qmd</code> etc. for additional extracts.</p>
 </blockquote>
 <section class="level2"><h2 id="when-you-need-zonal-stats">When you need zonal stats<a class="anchor" aria-label="anchor" href="#when-you-need-zonal-stats"></a>
 </h2>
+<p>Reach for this step when one of your indicators is only available as a raster surface and you need polygon-level aggregates to plug into Step 3. Typical cases:</p>
+<ul>
+<li>Population-weighted poverty rate by district from a gridded poverty raster.</li>
+<li>Mean night-time-lights intensity per province as a proxy for economic activity.</li>
+<li>Average travel time to the nearest health facility per polygon.</li>
+<li>Land-cover composition (% forest, % cropland) per admin unit.</li>
+</ul>
+<p>Skip this step entirely if every indicator you plan to ship already arrives as a tabular per-polygon value.</p>
 </section><section class="level2"><h2 id="common-tools">Common tools<a class="anchor" aria-label="anchor" href="#common-tools"></a>
 </h2>
+<p>Both of the following work well; pick whichever fits your existing workflow:</p>
+<ul>
+<li>
+<a href="https://isciences.gitlab.io/exactextractr/" class="external-link"><code>exactextractr</code></a> — fast zonal stats with fractional pixel coverage. Best for population-weighted means and areas of binary masks.</li>
+<li>
+<a href="https://rspatial.github.io/terra/reference/extract.html" class="external-link"><code>terra::extract()</code></a> — general-purpose raster sampling. Slower than <code>exactextractr</code> for large rasters but more flexible across summary functions.</li>
+</ul>
+<p>Both produce one numeric column per indicator, indexed by polygon position; you’ll attach the result to the polygon’s <code>admin&lt;N&gt;Pcod</code>.</p>
 </section><section class="level2"><h2 id="output-format">Output format<a class="anchor" aria-label="anchor" href="#output-format"></a>
 </h2>
+<p>The output of this step is a tidy table — one row per polygon, one column per indicator — keyed by <code>admin&lt;N&gt;Pcod</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://isciences.gitlab.io/exactextractr/" class="external-link">exactextractr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ropensci.r-universe.dev/writexl" class="external-link">writexl</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load the admin layer the indicator should attach to.</span></span>
+<span><span class="va">adm2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm2.geojson"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load the raster you want to summarise.</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"path/to/your-raster.tif"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute the zonal mean per polygon (fractional pixel coverage).</span></span>
+<span><span class="va">adm2</span><span class="op">$</span><span class="va">mean_value</span> <span class="op">&lt;-</span> <span class="fu">exact_extract</span><span class="op">(</span><span class="va">r</span>, <span class="va">adm2</span>, fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Reshape to the columns Step 3 expects: admin&lt;N&gt;Pcod + one column per indicator.</span></span>
+<span><span class="va">my_zonal</span> <span class="op">&lt;-</span> <span class="va">adm2</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span></span>
+<span>    admin2Pcod   <span class="op">=</span> <span class="va">shapeID</span>,           <span class="co"># adapt to your P-code source</span></span>
+<span>    my_indicator <span class="op">=</span> <span class="va">mean_value</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Save next to the rest of your raw inputs so Step 3 can pick it up.</span></span>
+<span><span class="fu"><a href="https://docs.ropensci.org/writexl//reference/write_xlsx.html" class="external-link">write_xlsx</a></span><span class="op">(</span><span class="va">my_zonal</span>, <span class="st">"sample-data/my-zonal-stats-adm2.xlsx"</span><span class="op">)</span></span></code></pre></div>
+<p>The package convention is one Excel sheet per admin level; if you produce multiple admin levels in this step, write each into its own sheet before Step 3 ingests them.</p>
 </section><section class="level2"><h2 id="how-the-output-feeds-into-step-3">How the output feeds into Step 3<a class="anchor" aria-label="anchor" href="#how-the-output-feeds-into-step-3"></a>
 </h2>
+<p>Step 3 (the metadata workbook) expects one sheet per admin level — <code>admin&lt;N&gt;_&lt;HumanName&gt;</code> — containing the indicator columns referenced by the <code>metadata</code> sheet. The output of this step is one of those sheets (or one input that feeds into one of them).</p>
+<p>A typical workflow is:</p>
+<ol type="1">
+<li>Run this step once per raster indicator.</li>
+<li>Merge the resulting tidy tables into your draft metadata workbook by <code>admin&lt;N&gt;Pcod</code> (left-join on the relevant admin sheet).</li>
+<li>Add a row to the workbook’s <code>metadata</code> sheet for the new indicator.</li>
+<li>Validate in Step 3.</li>
+</ol>
+<p>The full column contract for Step 3 admin sheets lives in <a href="dataprep.html">Data preparation reference §2.4</a>. Refer there for required types, the parent P-code cascade, and what <code><a href="../reference/validate_metadata.html">validate_metadata()</a></code> checks.</p>
+</section><section class="level2"><h2 id="next">Next<a class="anchor" aria-label="anchor" href="#next"></a>
+</h2>
+<p>When your zonal-stats outputs are ready, continue with <a href="build-pti-3-metadata.html">Step 3 — Metadata Excel</a>.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);

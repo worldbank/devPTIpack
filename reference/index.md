@@ -5,7 +5,7 @@
 - [`app_sys()`](https://worldbank.github.io/devPTIpack/reference/app_sys.md)
   : Resolve a path inside the installed devPTIpack package
 - [`app_validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/app_validate_metadata.md)
-  : Standalone validation app — geometry + metadata + Data Explorer
+  : Standalone validation app – geometry + metadata + Data Explorer
 - [`app_validate_shp()`](https://worldbank.github.io/devPTIpack/reference/app_validate_shp.md)
   : Visual shapefile inspector for PTI deployers
 - [`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md)

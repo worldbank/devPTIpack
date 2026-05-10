@@ -1,4 +1,4 @@
-# Standalone validation app — geometry + metadata + Data Explorer
+# Standalone validation app – geometry + metadata + Data Explorer
 
 Launches a Shiny app that runs both \[validate_geometries()\] and
 \[validate_metadata()\] on the supplied in-memory inputs, displays the
@@ -51,7 +51,7 @@ distributions before compiling the deployment bundle in Step 5.
 The app renders even when the validators report \`status = "fail"\` so
 the deployer can see \*what\* is wrong instead of getting an R error and
 no UI. The Data Explorer is wrapped in \`tryCatch()\` so a single broken
-indicator does not take the whole launcher down — if the explorer fails
+indicator does not take the whole launcher down – if the explorer fails
 to construct, only its tab area shows an error message and the
 validation summary is still readable.
 
@@ -68,7 +68,7 @@ if (FALSE) { # \dontrun{
 # Inspect the bundled Ukraine shapefile + synthetic metadata.
 app_validate_metadata(ukr_shp, ukr_mtdt_full)
 
-# Renders even when the geometry validator fails — useful for
+# Renders even when the geometry validator fails -- useful for
 # visualising *what* is broken rather than only *that* something is.
 broken_shp <- ukr_shp
 broken_shp$admin1_Oblast$admin1Pcod <- NULL

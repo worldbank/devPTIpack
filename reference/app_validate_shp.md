@@ -5,7 +5,7 @@ on a leaflet map so the deployer can visually spot holes, wrong
 boundaries, or geometry artefacts before running the calculation
 pipeline. Internally calls \[validate_geometries()\] with
 \`error_on_fail = FALSE\` and surfaces the structured diagnostic summary
-alongside the map. The app is read-only — it never mutates the inputs.
+alongside the map. The app is read-only – it never mutates the inputs.
 
 ## Usage
 
@@ -53,7 +53,7 @@ if (FALSE) { # \dontrun{
 # Inspect the bundled Ukraine shapefile.
 app_validate_shp(ukr_shp)
 
-# The app still renders if a layer is structurally broken — useful
+# The app still renders if a layer is structurally broken -- useful
 # for spotting *what* is wrong rather than only *that* something is.
 broken <- ukr_shp
 broken$admin1_Oblast$admin1Pcod <- NULL

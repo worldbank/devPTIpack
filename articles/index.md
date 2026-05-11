@@ -5,8 +5,8 @@
 - [PTI
   Methodology](https://worldbank.github.io/devPTIpack/articles/methodology.md):
 
-  What Project Targeting Index (PTI) is and how the PTI process looks
-  like?
+  What the Project Targeting Index (PTI) is, how the data pipeline
+  works, and how the composite index is constructed.
 
 - [PTI overview
   paper](https://worldbank.github.io/devPTIpack/articles/overview-paper.md):

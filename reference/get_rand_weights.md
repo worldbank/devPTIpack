@@ -28,9 +28,9 @@ A named list of tibbles. Each element is a tibble with columns
 ## Examples
 
 ``` r
-data(ukr_mtdt_full)
+data(rwa_mtdt_full)
 set.seed(1)
-wts <- get_rand_weights(ukr_mtdt_full$metadata)
+wts <- get_rand_weights(rwa_mtdt_full$metadata)
 length(wts) >= 1 && length(wts) <= 5
 #> [1] TRUE
 all(vapply(wts, function(x) all(c("var_code", "weight") %in% names(x)),

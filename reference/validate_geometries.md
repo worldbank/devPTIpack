@@ -41,21 +41,17 @@ rather than on \`message\` text.
 ## Examples
 
 ``` r
-result <- validate_geometries(ukr_shp)
+result <- validate_geometries(rwa_shp)
 #> 
 #> ── Layer: admin0_Country ──
 #> 
 #> ✔ validate_single_geom: all checks passed.
 #> 
-#> ── Layer: admin1_Oblast ──
+#> ── Layer: admin1_Province ──
 #> 
 #> ✔ validate_single_geom: all checks passed.
 #> 
-#> ── Layer: admin2_Rayon ──
-#> 
-#> ✔ validate_single_geom: all checks passed.
-#> 
-#> ── Layer: admin4_Hexagon ──
+#> ── Layer: admin2_District ──
 #> 
 #> ✔ validate_single_geom: all checks passed.
 #> 

@@ -129,13 +129,13 @@ projection mistakes that a structural validator alone misses.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Inspect the bundled Ukraine shapefile.</span></span></span>
-<span class="r-in"><span><span class="fu">app_validate_shp</span><span class="op">(</span><span class="va">ukr_shp</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Inspect the bundled Rwanda shapefile.</span></span></span>
+<span class="r-in"><span><span class="fu">app_validate_shp</span><span class="op">(</span><span class="va">rwa_shp</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The app still renders if a layer is structurally broken -- useful</span></span></span>
 <span class="r-in"><span><span class="co"># for spotting *what* is wrong rather than only *that* something is.</span></span></span>
-<span class="r-in"><span><span class="va">broken</span> <span class="op">&lt;-</span> <span class="va">ukr_shp</span></span></span>
-<span class="r-in"><span><span class="va">broken</span><span class="op">$</span><span class="va">admin1_Oblast</span><span class="op">$</span><span class="va">admin1Pcod</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span></span>
+<span class="r-in"><span><span class="va">broken</span> <span class="op">&lt;-</span> <span class="va">rwa_shp</span></span></span>
+<span class="r-in"><span><span class="va">broken</span><span class="op">$</span><span class="va">admin1_Province</span><span class="op">$</span><span class="va">admin1Pcod</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span></span>
 <span class="r-in"><span><span class="fu">app_validate_shp</span><span class="op">(</span><span class="va">broken</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

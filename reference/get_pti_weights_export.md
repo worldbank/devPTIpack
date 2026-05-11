@@ -32,19 +32,13 @@ A tibble with \`Variable name\`, \`Pillar\`, and one \`Weights -
 ## Examples
 
 ``` r
-data(ukr_mtdt_full)
-weights <- get_rand_weights(ukr_mtdt_full$metadata)
-get_pti_weights_export(weights, ukr_mtdt_full$metadata)
-#> # A tibble: 9 × 4
-#>   `Variable name`              Pillar  `Weights - wlefo 1` `Weights - ombwk 2`
-#>   <chr>                        <chr>                 <dbl>               <dbl>
-#> 1 var_nval3_skewd_adm1         Pilar 1                  -1                   1
-#> 2 var_nval6_na_adm12           Pilar 1                   1                  -1
-#> 3 var_nval15_small_skewd_adm12 Pilar 1                   1                   2
-#> 4 var_nvalinf_skewd_adm2       Pilar 1                   1                   1
-#> 5 var_nval60_na_adm4           Pilar 1                  -1                  -2
-#> 6 var_nval4_small_skewd_adm4   Pilar 1                  -2                   0
-#> 7 var_nvalinf_norm_adm24       Pilar 1                  -1                   1
-#> 8 var_nvalinf_unif_adm124      Pilar 1                   0                   1
-#> 9 var_nvalinf_huge_unif_adm24  Pilar 1                  -1                  -2
+data(rwa_mtdt_full)
+weights <- get_rand_weights(rwa_mtdt_full$metadata)
+get_pti_weights_export(weights, rwa_mtdt_full$metadata)
+#> # A tibble: 3 × 4
+#>   `Variable name`     Pillar            `Weights - wlefo 1` `Weights - fiexo 2`
+#>   <chr>               <chr>                           <dbl>               <dbl>
+#> 1 Poverty rate        Poverty & welfare                  -1                  -2
+#> 2 Adult literacy rate Poverty & welfare                   1                   0
+#> 3 Road density        Connectivity                        1                   2
 ```

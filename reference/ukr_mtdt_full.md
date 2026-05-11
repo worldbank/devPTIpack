@@ -3,7 +3,7 @@
 A named list mirroring the structure that \[fct_template_reader()\]
 produces from a PTI metadata Excel template. Bundled as the canonical
 sample metadata input for \[launch_pti()\], \[run_pti_pipeline()\],
-examples, and the test suite. Pairs with \[ukr_shp\] — the admin slot
+examples, and the test suite. Pairs with \[ukr_shp\] – the admin slot
 names line up with the geometry slot names so the two can be passed
 directly to the pipeline.
 
@@ -19,7 +19,7 @@ A named list of length 5:
 
 - general:
 
-  \`tbl_df\` with 1 row and column \`country\` — country-level metadata
+  \`tbl_df\` with 1 row and column \`country\` – country-level metadata
   (display name, etc.).
 
 - admin1_Oblast:
@@ -51,7 +51,7 @@ A named list of length 5:
   \`fltr_exclude_explorer\`, \`fltr_overlay_pti\`,
   \`fltr_overlay_explorer\`, \`legend_revert_colours\`.
 
-Indicator column names embed their semantics — for example
+Indicator column names embed their semantics – for example
 \`var_nval6_na_adm12\` denotes a 6-valued indicator with NAs available
 at admin1 and admin2. Synthetic by design, so the suite can exercise the
 calculation pipeline without exposing real administrative data.

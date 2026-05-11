@@ -66,20 +66,20 @@ Golem options. Pass \`na_rm\` explicitly rather than relying on
 ## Examples
 
 ``` r
-data(ukr_shp)
-data(ukr_mtdt_full)
+data(rwa_shp)
+data(rwa_mtdt_full)
 
 # The indicators_list default fires from inside the package namespace,
 # so the example does not call get_indicators_list() (now internal).
-weights <- get_rand_weights(ukr_mtdt_full$metadata)
+weights <- get_rand_weights(rwa_mtdt_full$metadata)
 
 result <- run_pti_pipeline(
   weights_clean = weights,
-  inp_dta       = ukr_mtdt_full,
-  shp_dta       = ukr_shp
+  inp_dta       = rwa_mtdt_full,
+  shp_dta       = rwa_shp
 )
 names(result)
-#> [1] "admin0" "admin1" "admin2" "admin4"
+#> [1] "admin0" "admin1" "admin2"
 names(result[[1]])
 #> [1] "pti_data"    "pti_codes"   "admin_level"
 ```

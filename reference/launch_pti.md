@@ -118,12 +118,12 @@ starting the Shiny app.
 
 ``` r
 if (FALSE) { # \dontrun{
-launch_pti(shp_dta = ukr_shp,
-           inp_dta = ukr_mtdt_full,
-           app_name = "Ukraine PTI demo")
+launch_pti(shp_dta = rwa_shp,
+           inp_dta = rwa_mtdt_full,
+           app_name = "Rwanda PTI demo")
 
-launch_pti(shp_dta = ukr_shp,
-           inp_dta = ukr_mtdt_full,
+launch_pti(shp_dta = rwa_shp,
+           inp_dta = rwa_mtdt_full,
            tabs = c("info", "compare", "explorer", "how"))
 } # }
 ```

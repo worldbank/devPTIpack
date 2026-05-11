@@ -18,25 +18,25 @@ one row per polygon at that admin level:
 
 - admin0_Country:
 
-  1 row — country polygon (Ukraine).
+  1 row – country polygon (Ukraine).
 
 - admin1_Oblast:
 
-  27 rows — first-level admin regions (oblasts).
+  27 rows – first-level admin regions (oblasts).
 
 - admin2_Rayon:
 
-  629 rows — second-level admin regions (rayons).
+  629 rows – second-level admin regions (rayons).
 
 - admin4_Hexagon:
 
-  1,939 rows — H3 hexagonal grid cells used as a synthetic admin4 level.
+  1,939 rows – H3 hexagonal grid cells used as a synthetic admin4 level.
 
 Each tibble contains, at its admin depth \`N\`, the columns:
 
 - adminNPcod:
 
-  Character. Unique polygon identifier (P-code) — e.g. \`admin0Pcod\` at
+  Character. Unique polygon identifier (P-code) – e.g. \`admin0Pcod\` at
   admin0, \`admin1Pcod\` at admin1.
 
 - adminNName:
@@ -62,7 +62,7 @@ Derived from public Ukraine administrative boundaries.
 
 ## Details
 
-Slot names follow the package convention \`adminN_HumanName\` —
+Slot names follow the package convention \`adminN_HumanName\` –
 \`adminN\` is \`admin0\` for the country polygon, then
 \`admin1\`..\`admin9\` for nested sub-divisions; \`HumanName\` is a
 single word naming the level (e.g. \`Oblast\`, \`Rayon\`, \`Hexagon\`).

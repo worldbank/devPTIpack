@@ -44,10 +44,10 @@ Named list of \`sf\` tibbles, one per admin level (e.g.
 ## Examples
 
 ``` r
-data(ukr_shp)
+data(rwa_shp)
 
 # In-memory short-circuit: returns shape_dta unchanged.
-shp <- get_shape(shape_dta = ukr_shp)
+shp <- get_shape(shape_dta = rwa_shp)
 names(shp)
-#> [1] "admin0_Country" "admin1_Oblast"  "admin2_Rayon"   "admin4_Hexagon"
+#> [1] "admin0_Country"  "admin1_Province" "admin2_District"
 ```

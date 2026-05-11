@@ -68,6 +68,10 @@
   : Tab-opening invalidator for custom PTI page layouts
 - [`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
   : Run the full PTI calculation pipeline
+- [`rwa_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/rwa_mtdt_full.md)
+  : Rwanda sample PTI metadata input
+- [`rwa_shp`](https://worldbank.github.io/devPTIpack/reference/rwa_shp.md)
+  : Rwanda sample administrative boundaries
 - [`ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md)
   : Ukraine sample PTI metadata input
 - [`ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)

@@ -32,11 +32,11 @@ A named list of tibbles. Each element is a tibble with columns
 ## Examples
 
 ``` r
-data(ukr_mtdt_full)
-codes <- ukr_mtdt_full$metadata$var_code[1:5]
+data(rwa_mtdt_full)
+codes <- rwa_mtdt_full$metadata$var_code
 combos <- get_all_weights_combs(codes, n_items = 2)
 length(combos)
-#> [1] 10
-choose(5, 2)
-#> [1] 10
+#> [1] 3
+choose(length(codes), 2)
+#> [1] 3
 ```

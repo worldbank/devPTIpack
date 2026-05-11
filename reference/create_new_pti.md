@@ -63,8 +63,8 @@ list.files(new_app)
 #>  [3] "02a-user-zonal-stats.qmd" "03-metadata.qmd"         
 #>  [5] "04-hex-data.qmd"          "05-compile.qmd"          
 #>  [7] "06-deploy.R"              "R"                       
-#>  [9] "README.md"                "app-data"                
-#> [11] "app.R"                    "data-raw"                
-#> [13] "landing-page.md"          "sample-data"             
+#>  [9] "README.md"                "app.R"                   
+#> [11] "data-raw"                 "landing-page.md"         
+#> [13] "sample-data"             
 unlink(new_app, recursive = TRUE)
 ```

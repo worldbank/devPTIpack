@@ -13,13 +13,13 @@
 ## Citation
 
 Bukin E (2026). *devPTIpack: Project Targeting Index: a framework for
-developing PTI apps and dashboards*. R package version 0.0.0.9941,
+developing PTI apps and dashboards*. R package version 0.0.0.998,
 <https://worldbank.github.io/devPTIpack/>.
 
     @Manual{,
       title = {devPTIpack: Project Targeting Index: a framework for developing PTI apps and dashboards},
       author = {Eduard Bukin},
       year = {2026},
-      note = {R package version 0.0.0.9941},
+      note = {R package version 0.0.0.998},
       url = {https://worldbank.github.io/devPTIpack/},
     }

@@ -29,6 +29,12 @@ A named list of tibbles. Each element is a tibble with columns
 \<n_combo\> comb no. \<index\>"\`. Total length is
 \`sum(choose(length(var_codes), n_items))\`.
 
+## See also
+
+Other weights:
+[`get_min_admin_wght()`](https://worldbank.github.io/devPTIpack/reference/get_min_admin_wght.md),
+[`get_rand_weights()`](https://worldbank.github.io/devPTIpack/reference/get_rand_weights.md)
+
 ## Examples
 
 ``` r

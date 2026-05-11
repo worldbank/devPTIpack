@@ -26,6 +26,17 @@ drop_inval_adm(dta, adm_to_drom)
 
 The input list with offending elements removed.
 
+## See also
+
+Other validation:
+[`app_validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/app_validate_metadata.md),
+[`app_validate_shp()`](https://worldbank.github.io/devPTIpack/reference/app_validate_shp.md),
+[`mod_drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/mod_drop_inval_adm.md),
+[`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md),
+[`validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md),
+[`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md),
+[`validate_read_shp()`](https://worldbank.github.io/devPTIpack/reference/validate_read_shp.md)
+
 ## Examples
 
 ``` r

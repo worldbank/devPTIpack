@@ -56,6 +56,13 @@ polygons), simpler (no synthetic admin4 hex grid), and built from a
 public CC-BY 4.0 source – safe to render in tutorials and embed in
 screenshots.
 
+## See also
+
+Other sample-data:
+[`rwa_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/rwa_mtdt_full.md),
+[`ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md),
+[`ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)
+
 ## Examples
 
 ``` r

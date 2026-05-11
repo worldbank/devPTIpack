@@ -24,6 +24,11 @@ A single character string. The absolute path to the requested resource
 if it exists, or \`""\` if it does not (matching \[system.file()\]'s
 convention for missing files).
 
+## See also
+
+Other package-utilities:
+[`golem_add_external_resources()`](https://worldbank.github.io/devPTIpack/reference/golem_add_external_resources.md)
+
 ## Examples
 
 ``` r

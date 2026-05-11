@@ -29,6 +29,12 @@ A named list mirroring \`wght_list\`'s names. Each element is either a
 character vector of admin levels to hide, or \`NULL\` if the scheme is
 unaffected.
 
+## See also
+
+Other weights:
+[`get_all_weights_combs()`](https://worldbank.github.io/devPTIpack/reference/get_all_weights_combs.md),
+[`get_rand_weights()`](https://worldbank.github.io/devPTIpack/reference/get_rand_weights.md)
+
 ## Examples
 
 ``` r

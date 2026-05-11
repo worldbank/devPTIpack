@@ -29,6 +29,12 @@ get_pti_weights_export(wghts_dta, indic_dta)
 A tibble with \`Variable name\`, \`Pillar\`, and one \`Weights -
 \<scheme\>\` column per scheme.
 
+## See also
+
+Other data-export:
+[`get_pti_scores_export()`](https://worldbank.github.io/devPTIpack/reference/get_pti_scores_export.md),
+[`get_vars_un_avbil()`](https://worldbank.github.io/devPTIpack/reference/get_vars_un_avbil.md)
+
 ## Examples
 
 ``` r

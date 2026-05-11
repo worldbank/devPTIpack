@@ -23,6 +23,11 @@ A \[shiny::tags\$head()\] block ready to be included in a Shiny UI.
 Calls \[golem::get_golem_options()\] for \`pti.name\` to derive the app
 title, so it must run inside a \[golem::with_golem_options()\] context.
 
+## See also
+
+Other package-utilities:
+[`app_sys()`](https://worldbank.github.io/devPTIpack/reference/app_sys.md)
+
 ## Examples
 
 ``` r

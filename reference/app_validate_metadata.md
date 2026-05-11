@@ -61,6 +61,15 @@ validation summary is still readable.
 \[app_validate_shp()\] for the geometry-only sibling, and
 \[launch_pti()\] for the full PTI app.
 
+Other validation:
+[`app_validate_shp()`](https://worldbank.github.io/devPTIpack/reference/app_validate_shp.md),
+[`drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/drop_inval_adm.md),
+[`mod_drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/mod_drop_inval_adm.md),
+[`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md),
+[`validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md),
+[`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md),
+[`validate_read_shp()`](https://worldbank.github.io/devPTIpack/reference/validate_read_shp.md)
+
 ## Examples
 
 ``` r

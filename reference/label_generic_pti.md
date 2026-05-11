@@ -30,6 +30,13 @@ label_generic_pti(dta, glue_expr = generic_pti_glue())
 A named list of the same shape as \`dta\`, each tibble with an added
 \`pti_label\` character column.
 
+## See also
+
+Other pti-pipeline:
+[`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md),
+[`generic_pti_glue()`](https://worldbank.github.io/devPTIpack/reference/generic_pti_glue.md),
+[`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
+
 ## Examples
 
 ``` r

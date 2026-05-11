@@ -36,6 +36,17 @@ mod_drop_inval_adm(id, dta, wt_dta)
 A reactive expression that yields \`dta()\` with admin levels excluded
 where the active weighting cannot produce scores.
 
+## See also
+
+Other validation:
+[`app_validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/app_validate_metadata.md),
+[`app_validate_shp()`](https://worldbank.github.io/devPTIpack/reference/app_validate_shp.md),
+[`drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/drop_inval_adm.md),
+[`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md),
+[`validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md),
+[`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md),
+[`validate_read_shp()`](https://worldbank.github.io/devPTIpack/reference/validate_read_shp.md)
+
 ## Examples
 
 ``` r

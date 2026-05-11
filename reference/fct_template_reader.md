@@ -35,6 +35,11 @@ per metadata sheet (\`general\`, per-admin tibbles named
 \`admin\<N\>\_\*\`, and \`metadata\`), plus a derived \`weights_clean\`
 slot when the input contains a \`weights_table\` sheet.
 
+## See also
+
+Other data-input:
+[`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md)
+
 ## Examples
 
 ``` r

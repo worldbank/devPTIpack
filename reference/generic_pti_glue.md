@@ -16,6 +16,13 @@ generic_pti_glue()
 A length-1 character string with glue placeholders for \`spatial_name\`,
 \`pti_name\`, and \`pti_score\`.
 
+## See also
+
+Other pti-pipeline:
+[`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md),
+[`label_generic_pti()`](https://worldbank.github.io/devPTIpack/reference/label_generic_pti.md),
+[`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
+
 ## Examples
 
 ``` r

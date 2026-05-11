@@ -31,14 +31,26 @@ validate_metadata(shp_path, mtdt_path, error_on_fail = TRUE)
 
 - error_on_fail:
 
-  Logical. If \`TRUE\` (default), throws on any \`fail\`-level issue.
-  Pass \`FALSE\` to inspect the structured result instead.
+  Logical. If \`TRUE\` (default), throws on any \`fail\`-level issue at
+  the end of the run. Pass \`FALSE\` to inspect the structured result
+  instead.
 
 ## Value
 
 Invisibly, a list with components \`status\` (\`"pass"\`, \`"warn"\`, or
 \`"fail"\`), \`summary\` (one-line string), and \`issues\` (list of
 issue records).
+
+## See also
+
+Other validation:
+[`app_validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/app_validate_metadata.md),
+[`app_validate_shp()`](https://worldbank.github.io/devPTIpack/reference/app_validate_shp.md),
+[`drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/drop_inval_adm.md),
+[`mod_drop_inval_adm()`](https://worldbank.github.io/devPTIpack/reference/mod_drop_inval_adm.md),
+[`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md),
+[`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md),
+[`validate_read_shp()`](https://worldbank.github.io/devPTIpack/reference/validate_read_shp.md)
 
 ## Examples
 

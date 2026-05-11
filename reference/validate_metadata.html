@@ -112,8 +112,8 @@ shapes list (the on-disk form of objects shaped like [ukr_shp]).</p></dd>
 
 <dt id="arg-error-on-fail">error_on_fail<a class="anchor" aria-label="anchor" href="#arg-error-on-fail"></a></dt>
 <dd><p>Logical. If `TRUE` (default), throws on any
-`fail`-level issue. Pass `FALSE` to inspect the structured result
-instead.</p></dd>
+`fail`-level issue at the end of the run. Pass `FALSE` to inspect
+the structured result instead.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -121,6 +121,17 @@ instead.</p></dd>
     <p>Invisibly, a list with components `status` (`"pass"`,
   `"warn"`, or `"fail"`), `summary` (one-line string), and `issues`
   (list of issue records).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other validation:
+<code><a href="app_validate_metadata.html">app_validate_metadata()</a></code>,
+<code><a href="app_validate_shp.html">app_validate_shp()</a></code>,
+<code><a href="drop_inval_adm.html">drop_inval_adm()</a></code>,
+<code><a href="mod_drop_inval_adm.html">mod_drop_inval_adm()</a></code>,
+<code><a href="validate_geometries.html">validate_geometries()</a></code>,
+<code><a href="validate_read_metadata.html">validate_read_metadata()</a></code>,
+<code><a href="validate_read_shp.html">validate_read_shp()</a></code></p></div>
     </div>
 
     <div class="section level2">

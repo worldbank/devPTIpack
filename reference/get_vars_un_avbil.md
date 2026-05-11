@@ -33,6 +33,12 @@ get_vars_un_avbil(ind_list, admin_levels = NULL)
 A tibble with one row per unavailable \`(var_code, admin_level)\` pair,
 with columns \`var_code\` and \`admin_level\`.
 
+## See also
+
+Other data-export:
+[`get_pti_scores_export()`](https://worldbank.github.io/devPTIpack/reference/get_pti_scores_export.md),
+[`get_pti_weights_export()`](https://worldbank.github.io/devPTIpack/reference/get_pti_weights_export.md)
+
 ## Examples
 
 ``` r

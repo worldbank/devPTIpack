@@ -39,6 +39,12 @@ Invisibly, the absolute path to the scaffolded project (as returned by
 \[fs::path_abs()\]). Returns \`invisible(NULL)\` if the user declines
 the overwrite prompt.
 
+## See also
+
+Other pti-launch:
+[`launch_pti()`](https://worldbank.github.io/devPTIpack/reference/launch_pti.md),
+[`launch_pti_onepage()`](https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.md)
+
 ## Examples
 
 ``` r

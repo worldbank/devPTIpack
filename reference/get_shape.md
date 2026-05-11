@@ -41,6 +41,11 @@ Named list of \`sf\` tibbles, one per admin level (e.g.
 \`admin0_Country\`, \`admin1_Oblast\`, \`admin2_Rayon\`,
 \`admin4_Hexagon\`).
 
+## See also
+
+Other data-input:
+[`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
+
 ## Examples
 
 ``` r

@@ -62,9 +62,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="launch-a-pti-app">Launch a PTI app<a class="anchor" aria-label="anchor" href="#launch-a-pti-app"></a></h2>
 
-
+      <div class="section-desc"><p>Entry points that scaffold a project and serve the Shiny dashboard.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -73,34 +73,6 @@
 
       <dl><dt>
 
-          <code><a href="app_sys.html">app_sys()</a></code>
-
-        </dt>
-        <dd>Resolve a path inside the installed devPTIpack package</dd>
-
-        <dt>
-
-          <code><a href="app_validate_metadata.html">app_validate_metadata()</a></code>
-
-        </dt>
-        <dd>Standalone validation app – geometry + metadata + Data Explorer</dd>
-
-        <dt>
-
-          <code><a href="app_validate_shp.html">app_validate_shp()</a></code>
-
-        </dt>
-        <dd>Visual shapefile inspector for PTI deployers</dd>
-
-        <dt>
-
-          <code><a href="compile_pti_data.html">compile_pti_data()</a></code>
-
-        </dt>
-        <dd>Compile PTI deployment artefacts from intermediate files</dd>
-
-        <dt>
-
           <code><a href="create_new_pti.html">create_new_pti()</a></code>
 
         </dt>
@@ -108,17 +80,33 @@
 
         <dt>
 
-          <code><a href="drop_inval_adm.html">drop_inval_adm()</a></code>
+          <code><a href="launch_pti.html">launch_pti()</a></code>
 
         </dt>
-        <dd>Strip unplottable admin levels out of a pre-plot data structure</dd>
+        <dd>Launch a multi-tab PTI Shiny app</dd>
 
         <dt>
 
-          <code><a href="fct_template_reader.html">fct_template_reader()</a></code>
+          <code><a href="launch_pti_onepage.html">launch_pti_onepage()</a></code>
 
         </dt>
-        <dd>Read a PTI metadata Excel template into the package's list-of-tibbles format</dd>
+        <dd>Launch a single-page PTI Shiny app</dd>
+      </dl></div><div class="section level2">
+      <h2 id="calculation-pipeline">Calculation pipeline<a class="anchor" aria-label="anchor" href="#calculation-pipeline"></a></h2>
+
+      <div class="section-desc"><p>Compute scores, label outputs, and compile deployment artefacts.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="compile_pti_data.html">compile_pti_data()</a></code>
+
+        </dt>
+        <dd>Compile PTI deployment artefacts from intermediate files</dd>
 
         <dt>
 
@@ -128,6 +116,52 @@
         <dd>Default glue template for PTI map popups</dd>
 
         <dt>
+
+          <code><a href="label_generic_pti.html">label_generic_pti()</a></code>
+
+        </dt>
+        <dd>Apply a glue-template `pti_label` column to per-admin PTI tibbles</dd>
+
+        <dt>
+
+          <code><a href="run_pti_pipeline.html">run_pti_pipeline()</a></code>
+
+        </dt>
+        <dd>Run the full PTI calculation pipeline</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data-input">Data input<a class="anchor" aria-label="anchor" href="#data-input"></a></h2>
+
+      <div class="section-desc"><p>Read shapes and metadata workbooks from disk.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="fct_template_reader.html">fct_template_reader()</a></code>
+
+        </dt>
+        <dd>Read a PTI metadata Excel template into the package's list-of-tibbles format</dd>
+
+        <dt>
+
+          <code><a href="get_shape.html">get_shape()</a></code>
+
+        </dt>
+        <dd>Load admin-level shape data for a PTI app</dd>
+      </dl></div><div class="section level2">
+      <h2 id="weighting-schemes">Weighting schemes<a class="anchor" aria-label="anchor" href="#weighting-schemes"></a></h2>
+
+      <div class="section-desc"><p>Build weight sets passed to the calculation pipeline.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="get_all_weights_combs.html">get_all_weights_combs()</a></code>
 
@@ -143,6 +177,22 @@
 
         <dt>
 
+          <code><a href="get_rand_weights.html">get_rand_weights()</a></code>
+
+        </dt>
+        <dd>Generate a random list of weighting schemes</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data-export">Data export<a class="anchor" aria-label="anchor" href="#data-export"></a></h2>
+
+      <div class="section-desc"><p>Bundle scores and weight tables for the dashboard’s download buttons.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
           <code><a href="get_pti_scores_export.html">get_pti_scores_export()</a></code>
 
         </dt>
@@ -157,59 +207,40 @@
 
         <dt>
 
-          <code><a href="get_rand_weights.html">get_rand_weights()</a></code>
-
-        </dt>
-        <dd>Generate a random list of weighting schemes</dd>
-
-        <dt>
-
-          <code><a href="get_shape.html">get_shape()</a></code>
-
-        </dt>
-        <dd>Load admin-level shape data for a PTI app</dd>
-
-        <dt>
-
           <code><a href="get_vars_un_avbil.html">get_vars_un_avbil()</a></code>
 
         </dt>
         <dd>Identify (variable, admin-level) pairs with no native data</dd>
+      </dl></div><div class="section level2">
+      <h2 id="input-validation">Input validation<a class="anchor" aria-label="anchor" href="#input-validation"></a></h2>
+
+      <div class="section-desc"><p>Structural and visual checks on shapes and metadata inputs.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="app_validate_metadata.html">app_validate_metadata()</a></code>
+
+        </dt>
+        <dd>Standalone validation app – geometry + metadata + Data Explorer</dd>
 
         <dt>
 
-          <code><a href="gg_admin_list.html">gg_admin_list()</a></code>
+          <code><a href="app_validate_shp.html">app_validate_shp()</a></code>
 
         </dt>
-        <dd>Build a list of ggplot maps from PTI admin data</dd>
+        <dd>Visual shapefile inspector for PTI deployers</dd>
 
         <dt>
 
-          <code><a href="golem_add_external_resources.html">golem_add_external_resources()</a></code>
+          <code><a href="drop_inval_adm.html">drop_inval_adm()</a></code>
 
         </dt>
-        <dd>Bundle external resources for a PTI Shiny app</dd>
-
-        <dt>
-
-          <code><a href="label_generic_pti.html">label_generic_pti()</a></code>
-
-        </dt>
-        <dd>Apply a glue-template `pti_label` column to per-admin PTI tibbles</dd>
-
-        <dt>
-
-          <code><a href="launch_pti.html">launch_pti()</a></code>
-
-        </dt>
-        <dd>Launch a multi-tab PTI Shiny app</dd>
-
-        <dt>
-
-          <code><a href="launch_pti_onepage.html">launch_pti_onepage()</a></code>
-
-        </dt>
-        <dd>Launch a single-page PTI Shiny app</dd>
+        <dd>Strip unplottable admin levels out of a pre-plot data structure</dd>
 
         <dt>
 
@@ -219,6 +250,59 @@
         <dd>Drop-invalid-admin module server</dd>
 
         <dt>
+
+          <code><a href="validate_geometries.html">validate_geometries()</a></code>
+
+        </dt>
+        <dd>Validate every geometry layer in a shapes list</dd>
+
+        <dt>
+
+          <code><a href="validate_metadata.html">validate_metadata()</a></code>
+
+        </dt>
+        <dd>Verify that a shapes file and metadata file together produce valid PTI scores</dd>
+
+        <dt>
+
+          <code><a href="validate_read_metadata.html">validate_read_metadata()</a></code>
+
+        </dt>
+        <dd>Validate a metadata `.xlsx` file in isolation</dd>
+
+        <dt>
+
+          <code><a href="validate_read_shp.html">validate_read_shp()</a></code>
+
+        </dt>
+        <dd>Validate a shapes `.rds` file in isolation</dd>
+      </dl></div><div class="section level2">
+      <h2 id="visualisation-helpers">Visualisation helpers<a class="anchor" aria-label="anchor" href="#visualisation-helpers"></a></h2>
+
+      <div class="section-desc"><p>ggplot2-based map builders shared by the dashboard and the PDF render.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="gg_admin_list.html">gg_admin_list()</a></code>
+
+        </dt>
+        <dd>Build a list of ggplot maps from PTI admin data</dd>
+      </dl></div><div class="section level2">
+      <h2 id="shiny-modules">Shiny modules<a class="anchor" aria-label="anchor" href="#shiny-modules"></a></h2>
+
+      <div class="section-desc"><p>The reactive building blocks behind <code><a href="../reference/launch_pti.html">launch_pti()</a></code>.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="mod_dta_explorer2_server.html">mod_dta_explorer2_server()</a></code>
 
@@ -287,15 +371,40 @@
 
         </dt>
         <dd>Tab-opening invalidator for custom PTI page layouts</dd>
+      </dl></div><div class="section level2">
+      <h2 id="package-utilities">Package utilities<a class="anchor" aria-label="anchor" href="#package-utilities"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>golem boilerplate and resource resolvers.</p></div>
 
-          <code><a href="run_pti_pipeline.html">run_pti_pipeline()</a></code>
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="app_sys.html">app_sys()</a></code>
 
         </dt>
-        <dd>Run the full PTI calculation pipeline</dd>
+        <dd>Resolve a path inside the installed devPTIpack package</dd>
 
         <dt>
+
+          <code><a href="golem_add_external_resources.html">golem_add_external_resources()</a></code>
+
+        </dt>
+        <dd>Bundle external resources for a PTI Shiny app</dd>
+      </dl></div><div class="section level2">
+      <h2 id="bundled-sample-data">Bundled sample data<a class="anchor" aria-label="anchor" href="#bundled-sample-data"></a></h2>
+
+      <div class="section-desc"><p>Datasets ready to feed the pipeline. Rwanda for user-facing examples; Ukraine for the test suite.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="rwa_mtdt_full.html">rwa_mtdt_full</a></code>
 
@@ -322,36 +431,9 @@
 
         </dt>
         <dd>Ukraine sample administrative boundaries</dd>
-
-        <dt>
-
-          <code><a href="validate_geometries.html">validate_geometries()</a></code>
-
-        </dt>
-        <dd>Validate every geometry layer in a shapes list</dd>
-
-        <dt>
-
-          <code><a href="validate_metadata.html">validate_metadata()</a></code>
-
-        </dt>
-        <dd>Verify that a shapes file and metadata file together produce valid PTI scores</dd>
-
-        <dt>
-
-          <code><a href="validate_read_metadata.html">validate_read_metadata()</a></code>
-
-        </dt>
-        <dd>Validate a metadata `.xlsx` file in isolation</dd>
-
-        <dt>
-
-          <code><a href="validate_read_shp.html">validate_read_shp()</a></code>
-
-        </dt>
-        <dd>Validate a shapes `.rds` file in isolation</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

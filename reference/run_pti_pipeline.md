@@ -63,6 +63,13 @@ This function is deterministic given fixed inputs. It does not consult
 Golem options. Pass \`na_rm\` explicitly rather than relying on
 \`golem::get_golem_options("na_rm_pti")\` to keep tests hermetic.
 
+## See also
+
+Other pti-pipeline:
+[`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md),
+[`generic_pti_glue()`](https://worldbank.github.io/devPTIpack/reference/generic_pti_glue.md),
+[`label_generic_pti()`](https://worldbank.github.io/devPTIpack/reference/label_generic_pti.md)
+
 ## Examples
 
 ``` r

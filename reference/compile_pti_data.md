@@ -93,6 +93,11 @@ when LaTeX is not available — the rest of the artefacts still produced.
 \[validate_geometries()\], \[validate_metadata()\],
 \[fct_template_reader()\], \[launch_pti()\].
 
+Other pti-pipeline:
+[`generic_pti_glue()`](https://worldbank.github.io/devPTIpack/reference/generic_pti_glue.md),
+[`label_generic_pti()`](https://worldbank.github.io/devPTIpack/reference/label_generic_pti.md),
+[`run_pti_pipeline()`](https://worldbank.github.io/devPTIpack/reference/run_pti_pipeline.md)
+
 ## Examples
 
 ``` r

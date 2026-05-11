@@ -25,6 +25,12 @@ A named list of tibbles. Each element is a tibble with columns
 \`var_code\` and \`weight\`; element names follow the pattern
 \`"\<5-letter-prefix\> \<index\>"\`.
 
+## See also
+
+Other weights:
+[`get_all_weights_combs()`](https://worldbank.github.io/devPTIpack/reference/get_all_weights_combs.md),
+[`get_min_admin_wght()`](https://worldbank.github.io/devPTIpack/reference/get_min_admin_wght.md)
+
 ## Examples
 
 ``` r

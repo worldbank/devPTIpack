@@ -60,6 +60,13 @@ Compared with \[ukr_mtdt_full\]: smaller (3 indicators vs 9), simpler (2
 admin levels vs 4), and synthetic-by-design (no real social or economic
 data) – safe to publish in tutorials and screenshots.
 
+## See also
+
+Other sample-data:
+[`rwa_shp`](https://worldbank.github.io/devPTIpack/reference/rwa_shp.md),
+[`ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md),
+[`ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)
+
 ## Examples
 
 ``` r

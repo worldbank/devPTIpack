@@ -61,6 +61,13 @@ calculation pipeline without exposing real administrative data.
 Internal sample data bundled with the package for examples and tests.
 Indicator values are synthetic.
 
+## See also
+
+Other sample-data:
+[`rwa_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/rwa_mtdt_full.md),
+[`rwa_shp`](https://worldbank.github.io/devPTIpack/reference/rwa_shp.md),
+[`ukr_shp`](https://worldbank.github.io/devPTIpack/reference/ukr_shp.md)
+
 ## Examples
 
 ``` r

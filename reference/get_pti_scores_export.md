@@ -26,6 +26,12 @@ get_pti_scores_export(plotted_dta)
 A named list of tibbles – one per admin level. Each name is
 \`"\<admin_level\> PTI Scores"\` (e.g. \`"admin1 PTI Scores"\`).
 
+## See also
+
+Other data-export:
+[`get_pti_weights_export()`](https://worldbank.github.io/devPTIpack/reference/get_pti_weights_export.md),
+[`get_vars_un_avbil()`](https://worldbank.github.io/devPTIpack/reference/get_vars_un_avbil.md)
+
 ## Examples
 
 ``` r

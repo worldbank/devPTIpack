@@ -71,6 +71,13 @@ skipped; \`admin4\` is a synthetic H3 hexagon grid). This naming is what
 downstream functions like \[get_adm_levels()\] and
 \[expand_adm_levels()\] parse to build the admin hierarchy.
 
+## See also
+
+Other sample-data:
+[`rwa_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/rwa_mtdt_full.md),
+[`rwa_shp`](https://worldbank.github.io/devPTIpack/reference/rwa_shp.md),
+[`ukr_mtdt_full`](https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.md)
+
 ## Examples
 
 ``` r

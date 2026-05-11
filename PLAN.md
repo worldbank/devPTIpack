@@ -859,6 +859,19 @@ blocks to use Rwanda data (`launch_pti{,_onepage}`, `run_pti_pipeline`,
 `rwa_*` for new examples. Ukraine datasets unchanged — test suite
 continues to use them.
 
+Companion issue §7.1 — `@family`-tag migration + reference-page
+restructure (issue
+[\#75](https://github.com/worldbank/devPTIpack/issues/75)): added
+`@family` tags to all 37 exported functions + 4 datasets (41 inserts
+across 25 files), organised into 10 concept groups (`pti-launch` /
+`pti-pipeline` / `data-input` / `weights` / `data-export` / `validation`
+/ `visualisation` / `shiny-modules` / `package-utilities` /
+`sample-data`). Added a `reference:` block to `_pkgdown.yml` driven by
+`has_concept()` selectors — the reference index page now auto-groups by
+family with descriptive titles. Applied `@inheritParams` to collapse the
+`error_on_fail` / `shp_path` / `mtdt_path` doc duplication across
+`validate_*` siblings (3 sites). `R CMD check` stays at 0 / 0 / 3.
+
 ------------------------------------------------------------------------
 
 ## 8. Phase 5 — Hex ingestion (#13, independent)

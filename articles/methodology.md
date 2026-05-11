@@ -17,25 +17,29 @@ site selection (Finn & Masaki, 2020; Nguyen & Hoogeveen, 2018). Teams
 can ensure that project site selection aligns with the country strategy,
 and the country management unit (CMU) can monitor consistency between
 project sites and the strategy. Spatially targeting the Bank’s
-interventions based on objective criteria and evidence helps inject
-transparency into project site selection and promote efficiency in
+interventions based on objective criteria and evidence helps bring
+transparency to project site selection and promote efficiency in
 reaching intended beneficiaries. Teams can use the PTI online dashboard
-— which serves both as a database of subnational indicators and as a
-user-friendly tool for PTI calculation — to track fast-changing
-emergency situations (Masaki et al., 2022).
+to track fast-changing emergency situations (Masaki et al., 2022). The
+dashboard serves both as a database of subnational indicators and as a
+user-friendly tool for PTI calculation.
 
 The purpose of this document is to provide a guideline on how PTI works,
 what data components feed into the PTI dashboard, and what
-methodological aspects underpin the composite index. The process of
-developing a PTI dashboard can be broken down into four distinct but
-interrelated steps ([Figure 1](#fig-pti-process)):
+methodological aspects underpin the composite index. The PTI process
+comprises four components ([Figure 1](#fig-pti-process)). The first two
+describe the workflow — what teams do — while the third is a reference
+on how the composite index is constructed, and the fourth addresses
+ongoing maintenance:
 
-1.  [Identification](#identification);
-2.  [PTI preparation](#pti-prep);
-3.  [Methodology](#methodology); and
-4.  [Monitoring](#monitoring).
-
-Below, we discuss each of these steps in detail.
+1.  [Identification](#identification) — define development objectives
+    and select indicators;
+2.  [PTI preparation](#pti-prep) — build the data pipeline and deploy
+    the dashboard;
+3.  [Methodology](#methodology) — how the composite index is
+    constructed; and
+4.  [Monitoring](#monitoring) — keep the PTI current as conditions
+    change.
 
 ![](img/pti-process.png)
 
@@ -43,7 +47,7 @@ Figure 1: The PTI process
 
 ------------------------------------------------------------------------
 
-## Step 1: Identification
+## Identification
 
 ### Determine thematic areas of focus
 
@@ -77,7 +81,7 @@ highly disaggregated level.
 
 ------------------------------------------------------------------------
 
-## Step 2: PTI preparation
+## PTI Preparation
 
 The next step in the PTI process is to create a PTI dashboard. This
 dashboard primarily serves two purposes:
@@ -112,8 +116,9 @@ PTI app includes:
 - **Hexagonal grid** (optional) — a uniform H3 hexagonal grid covering
   the country, useful for indicators derived from raster data
   (population, night-time lights, accessibility). Hexagons avoid the
-  modifiable areal unit problem introduced by irregular administrative
-  polygons.
+  modifiable areal unit problem (the fact that analytical results can
+  change depending on how geographic boundaries are drawn) introduced by
+  irregular administrative polygons.
 
 All spatial layers are cleaned, validated, and combined into a single
 `shapes.rds` file with a parent-child hierarchy linking each
@@ -142,8 +147,9 @@ These indicator sources are combined with descriptive metadata into two
 intermediate Excel workbooks:
 
 - **`metadata-user.xlsx`** — the user-prepared indicator dictionary with
-  variable descriptions, pillar assignments, and per-admin-level data
-  sheets.
+  variable descriptions, pillar assignments (i.e., which thematic area
+  or development objective each indicator belongs to), and
+  per-admin-level data sheets.
 - **`metadata-hex.xlsx`** — hex-sourced indicators with auto-populated
   metadata, produced when the hex data pipeline is used.
 
@@ -186,26 +192,29 @@ accounted for during quality assurance include:
     lightweight enough to render in a web browser, free of holes and
     missing polygons, and carry unique names and regional identifiers.
 
-### Getting started
-
-For step-by-step instructions on setting up a new PTI project, preparing
-data, and deploying the dashboard, see the [Build a
-PTI](https://worldbank.github.io/devPTIpack/articles/build-pti.md)
-tutorial series.
+> **Getting started**
+>
+> For step-by-step instructions on setting up a new PTI project,
+> preparing data, and deploying the dashboard, see the [Build a
+> PTI](https://worldbank.github.io/devPTIpack/articles/build-pti.md)
+> tutorial series.
 
 ------------------------------------------------------------------------
 
-## Step 3: Methodology
+## Methodology
+
+The previous sections described the PTI workflow — identifying
+objectives, preparing data, and building a dashboard. This section turns
+to the methodology: how the composite index is actually constructed.
 
 The initial PTI methodology was proposed as part of “Approaches to
-Targeting in South Sudan” (World Bank, 2019) and has been robustly
-implemented in the `devPTIpack` R package. The PTI is a composite index
-of several development indicators chosen to inform geographical
-targeting. This section describes in detail how the index is
-constructed: normalization, index calculation, the role of weights, and
+Targeting in South Sudan” (World Bank, 2019) and has been implemented in
+the `devPTIpack` R package. The PTI is a composite index of several
+development indicators chosen to inform geographical targeting. The key
+topics are normalization, index calculation, the role of weights, and
 how data is projected across spatial levels.
 
-### 3.1 Normalization (z-score standardization)
+### Normalization (z-score standardization)
 
 Different indicators are measured in different units and have vastly
 different scales. For example, the number of poor people in a district
@@ -226,7 +235,7 @@ where:
 
 - $`x_{ij}`$ is the value of indicator $`j`$ in region $`i`$,
 - $`\bar{x}_j`$ is the mean of indicator $`j`$ across all regions, and
-- $`s_j`$ is the sample standard deviation of indicator $`j`$.
+- $`s_j`$ is the standard deviation of indicator $`j`$.
 
 After standardization, each indicator’s z-score tells you how many
 standard deviations a region’s value lies above or below the national
@@ -247,8 +256,8 @@ This is necessary because the statistical distribution of an indicator
 changes with the level of aggregation: district-level values typically
 show more variation than regional averages. Normalizing at each level
 ensures that the z-scores reflect a region’s position relative to its
-true peer group, rather than being distorted by grouping apples and
-oranges.
+true peer group, rather than being distorted by mixing fundamentally
+different distributions.
 
 As a consequence, the same raw value can yield different z-scores
 depending on the spatial level at which it is normalized.
@@ -269,26 +278,25 @@ districts (ADM 2). The poverty rate (%) is available at both levels:
 Mean = 33.3%, SD = 10.4%. The North region, with the highest poverty,
 gets a positive z-score.
 
-**ADM 2 normalization** (8 districts, shown for the North region’s
-districts):
+**ADM 2 normalization** (all 8 districts across the three regions):
 
-| District      | Poverty rate (%) | z-score |
-|---------------|:----------------:|:-------:|
-| North-A       |        52        |  +1.06  |
-| North-B       |        43        |  +0.39  |
-| North-C       |        38        |  +0.01  |
-| Central-West  |        35        |  −0.22  |
-| Central-East  |        28        |  −0.74  |
-| South-West    |        25        |  −0.97  |
-| South-Central |        22        |  −1.19  |
-| South-East    |        60        |  +1.66  |
+| District      | Region  | Poverty rate (%) | z-score |
+|---------------|---------|:----------------:|:-------:|
+| North-A       | North   |        52        |  +1.06  |
+| North-B       | North   |        43        |  +0.39  |
+| North-C       | North   |        38        |  +0.01  |
+| Central-West  | Central |        35        |  −0.22  |
+| Central-East  | Central |        28        |  −0.74  |
+| South-West    | South   |        25        |  −0.97  |
+| South-Central | South   |        22        |  −1.19  |
+| South-East    | South   |        60        |  +1.66  |
 
 Mean = 37.9%, SD = 13.3%. Notice that the South-East district has a very
 high poverty rate that was hidden within the South region’s ADM 1
 average. The z-score distribution at ADM 2 reveals subnational variation
 that the coarser ADM 1 normalization cannot capture.
 
-### 3.2 PTI index construction
+### PTI index construction
 
 Once all indicators are normalized, the PTI composite index for a given
 targeting priority $`p`$ is computed as a weighted sum of the
@@ -304,9 +312,10 @@ where:
 - $`w_j`$ is the weight assigned to indicator $`j`$.
 
 These calculations produce a single index number for each region. The
-regions are then ordered and assigned into user-defined quantiles, with
-the highest PTI value leading to targeting **Priority 1** and the lowest
-PTI value to the lowest targeting priority.
+regions are then ranked and divided into priority classes — typically 3
+to 5 groups of equal size (quantiles). The region with the highest PTI
+value is assigned to **Priority 1** (highest need), while the region
+with the lowest PTI value falls into the lowest priority class.
 
 #### The role of positive and negative weights
 
@@ -343,9 +352,10 @@ determining priority areas.
 
 #### Worked example: PTI with two indicators
 
-Using the ADM 2 z-scores from the example above, suppose we add an
-indicator for electricity access and compute the PTI with weights +1
-(poverty) and −1 (electricity):
+Using the ADM 2 poverty z-scores from the example above, suppose we add
+a second indicator — electricity grid access — which has been
+independently normalized at ADM 2 to produce its own set of z-scores. We
+compute the PTI with weights +1 (poverty) and −1 (electricity):
 
 | District      | Poverty z | Electricity z | PTI = (+1 × Pov) + (−1 × Elec) |
 |---------------|:---------:|:-------------:|:------------------------------:|
@@ -368,13 +378,14 @@ access.
 Figure 3: Example of a PTI map for South Sudan, showing priority areas
 based on weighted indicators.
 
-### 3.3 Data projection across spatial levels
+### Data projection across spatial levels
 
-In practice, not all indicators are available at every spatial level.
-Some may exist only at ADM 1 (regions) while others are available at ADM
-2 (districts) or at the hexagonal grid level. The PTI handles this
-mismatch through **data projection** — a set of rules that govern how
-indicator values move between spatial levels.
+The index formula in the previous section assumes every indicator is
+available at the target spatial level. In practice, not all indicators
+are available at every level: some may exist only at ADM 1 (regions)
+while others are available at ADM 2 (districts) or at the hexagonal grid
+level. The PTI handles this mismatch through **data projection** — a set
+of rules that govern how indicator values move between spatial levels.
 
 #### Top-down projection (coarse → fine)
 
@@ -392,8 +403,10 @@ Critically, **normalization happens before projection**:
     z-score).
 
 The indicator is **not re-normalized** at the finer level after
-projection. This preserves the statistical meaning of the original
-z-score.
+projection. Re-normalizing would erase the regional-level information
+the indicator was intended to capture — the z-score reflects how a
+region compares to all regions, and that comparative meaning must be
+preserved when the score is used at the district level.
 
 #### Worked example: projection from ADM 1 to ADM 2
 
@@ -439,8 +452,9 @@ The one exception is **hexagonal grid data**, where bottom-up
 aggregation is performed from hex cells to administrative polygons. In
 this case, the aggregation method is **case-dependent**: the appropriate
 function (mean, sum, population-weighted mean, etc.) and weighting
-scheme (population, area, or none) are chosen per indicator based on its
-statistical nature. For example:
+scheme (population, area, or none) are specified per indicator in the
+metadata workbook, based on the indicator’s statistical nature. For
+example:
 
 | Indicator         | Aggregation function | Weighting           |
 |-------------------|----------------------|---------------------|
@@ -451,10 +465,11 @@ statistical nature. For example:
 
 Hex-to-admin aggregation is always performed **directly from hex to each
 admin level** (hex → ADM 1, hex → ADM 2, etc.), never chained through
-intermediate levels (never hex → ADM 2 → ADM 1). This avoids compounding
-aggregation errors.
+intermediate levels (never hex → ADM 2 → ADM 1). Chaining would compound
+rounding and boundary-assignment errors at each intermediate step,
+producing less accurate results than a single direct aggregation.
 
-### 3.4 Weight identification
+### Weight identification
 
 Identifying appropriate weights for the PTI is fundamentally a
 **consensus-driven process**. It requires careful deliberation among
@@ -462,8 +477,8 @@ project stakeholders, including the technical team and government
 counterparts. The challenge lies in balancing technical rigor with
 practical considerations, as the choice of weights can significantly
 influence which areas are prioritized. This process is inherently
-iterative and may involve some ad hoc judgments, reflecting the
-complexity and context-specific nature of development targeting.
+iterative and may involve context-specific judgments, reflecting the
+complexity of development targeting.
 
 The steps involved in finalizing weights are as follows:
 
@@ -484,17 +499,20 @@ The steps involved in finalizing weights are as follows:
     weights reflect both analytical findings and stakeholder
     perspectives.
 
-Choosing appropriate weights is always a challenging decision that
-involves some degree of subjectivity. The process must be transparent
-and carefully evaluated, as even small changes in weights can
-substantially alter the ranking of priority areas.
+In practice, the PTI dashboard supports this process directly: users can
+toggle indicators on and off, adjust weights with sliders, and
+immediately see how the priority map responds. A ranking is considered
+robust when the top-priority areas remain largely stable across
+reasonable weight variations — for example, when the same districts
+appear in Priority 1 regardless of whether the poverty weight is set to
++1 or +2.
 
-It is essential to scrutinize the selection of weights to ensure that
-the resulting index accurately reflects the intended development
-priorities. In practice, changes in weights may have a pronounced effect
-on the overall ranking, especially when the selected variables are only
-loosely correlated or when few variables are used in constructing the
-PTI.
+Choosing appropriate weights always involves some degree of
+subjectivity. The process must be transparent and carefully evaluated,
+because even small changes in weights can substantially alter the
+ranking of priority areas — especially when the selected variables are
+only loosely correlated or when few variables are used in constructing
+the PTI.
 
 For instance, in the South Sudan example, the poverty rate and the
 number of poor are only weakly correlated (World Bank, 2019). This means
@@ -505,22 +523,24 @@ underscoring the importance of careful and collaborative evaluation.
 
 ------------------------------------------------------------------------
 
-## Step 4: Monitoring
+## Monitoring
 
-The PTI should not be a static tool but rather should be adjusted
-according to changing circumstances on the ground or as project
-objectives evolve. In addition, after project teams identify priority
-areas, they may face many unexpected challenges and unknown issues in
-those priority areas. Such context-specific information cannot be
-systematically collected by surveys or compiled from administrative
-data, but it is highly valuable information for future project teams.
-Therefore, identifying priority areas should not be based solely on the
-PTI. Project teams should record any challenges or issues they face in a
-project site so that future project teams can easily draw lessons from
-past experiences. These critical pieces of contextual information will
-be analyzed through case studies and, if appropriate, through
-statistical and econometric methods to inform future project design and
-targeting decisions.
+The PTI should not be a static tool. As circumstances on the ground
+change or project objectives evolve, the dashboard’s indicators and
+weights should be revisited and updated.
+
+Beyond recalibration, project teams working in priority areas will
+inevitably encounter unforeseen implementation challenges — logistical
+bottlenecks, political dynamics, infrastructure gaps — that no survey or
+administrative dataset can fully anticipate. Recording these experiences
+is essential: future project teams benefit greatly from lessons learned
+at specific sites.
+
+For these reasons, identifying priority areas should not be based solely
+on the PTI. Teams should complement the index with qualitative field
+knowledge, and systematically document site-level challenges so that
+future targeting decisions are informed by both quantitative evidence
+and operational experience.
 
 ------------------------------------------------------------------------
 
@@ -547,10 +567,10 @@ targeting decisions.
   Washington, DC: World Bank Group.
   <http://documents.worldbank.org/curated/en/325101561441344607>
 
-- World Bank. (2022). *Pakistan Portfolio Footprint Analysis*.
+- World Bank. (2022a). *Pakistan Portfolio Footprint Analysis*.
   Washington, DC: World Bank Group.
 
-- World Bank. (2022). *2022 Summer University: Introduction to R and
+- World Bank. (2022b). *2022 Summer University: Introduction to R and
   R-shiny as Tools for Building Interactive Geospatial Dashboards*.
 
 [^1]: The PTI dashboard for Zambia is available from

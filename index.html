@@ -89,223 +89,124 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of the <code>devPTIpack</code> is to be a platform that contains key instruments for creating PTI dashboards as well as embedding PTI modules in to the existing shiny apps.</p>
+<p><strong><code>devPTIpack</code></strong> is an R package for building interactive, geo-spatial <strong>Project Targeting Index (PTI)</strong> dashboards using Shiny. Given administrative boundary shapefiles and a metadata workbook of socioeconomic indicators, it computes weighted composite scores across admin levels and serves them in a ready-to-deploy Shiny application — no front-end coding required.</p>
+<p>➡ <strong><a href="https://worldbank.github.io/devPTIpack/articles/build-pti.html">Start here — Build a PTI</a></strong></p>
+<hr>
 <div class="section level2">
-<h2 id="installation">Installation:<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="quick-start-contents">Quick-start contents<a class="anchor" aria-label="anchor" href="#quick-start-contents"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Install development version from GitHub</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"wbPTI/devPTIpack"</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Install specific version from GitHub</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"wbPTI/devPTIpack@v0.0.9"</span>)</span></code></pre></div>
-<p>We add <code>@v0.0.9</code> to be able to refer to a specific tag. Check the <a href="https://github.com/wbPTI/devPTIpack/tags" class="external-link">tags’ tree</a> on github for existing tags.</p>
+<table class="table">
+<colgroup>
+<col width="2%">
+<col width="32%">
+<col width="65%">
+</colgroup>
+<thead><tr>
+<th>Step</th>
+<th>What you do</th>
+<th>Guide</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Install the package &amp; set up a new project folder</td>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/build-pti-0-setup.html">Step 0 — Setup</a></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Prepare and validate shapefiles</td>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/build-pti-1-shapefiles.html">Step 1 — Shapefiles</a></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Compute zonal statistics <em>(optional)</em>
+</td>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/build-pti-2-zonal-stats.html">Step 2 — Zonal stats</a></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Fill in the metadata Excel workbook</td>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/build-pti-3-metadata.html">Step 3 — Metadata</a></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Add HEX / hexagonal-grid data <em>(optional)</em>
+</td>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/build-pti-4-hex.html">Step 4 — HEX data</a></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Compile and finalise the PTI data</td>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/build-pti-5-compile.html">Step 5 — Compile</a></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Deploy to Shiny Server / Posit Connect</td>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/build-pti-6-deploy.html">Step 6 — Deploy</a></td>
+</tr>
+</tbody>
+</table>
+<p>See the <a href="https://worldbank.github.io/devPTIpack/articles/build-pti.html">full Build-a-PTI overview</a> and the <a href="https://worldbank.github.io/devPTIpack/articles/dataprep.html">data preparation reference</a> for more detail.</p>
+<div class="section level3">
+<h3 id="minimum-working-example">Minimum working example<a class="anchor" aria-label="anchor" href="#minimum-working-example"></a>
+</h3>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install</span></span>
+<span><span class="co"># remotes::install_github("worldbank/devPTIpack")</span></span>
+<span></span>
+<span><span class="co"># Launch with built-in sample data (Ukraine)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://worldbank.github.io/devPTIpack/">devPTIpack</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/launch_pti_onepage.html">launch_pti_onepage</a></span><span class="op">(</span></span>
+<span>  shp_dta  <span class="op">=</span> <span class="va">ukr_shp</span>,</span>
+<span>  inp_dta  <span class="op">=</span> <span class="va">ukr_mtdt_full</span>,</span>
+<span>  app_name <span class="op">=</span> <span class="st">"Sample PTI"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
 </div>
 <div class="section level2">
-<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+<h2 id="pti-methodology">PTI methodology<a class="anchor" aria-label="anchor" href="#pti-methodology"></a>
 </h2>
-<p>There are several ways how this package can be used:</p>
-<ol style="list-style-type: decimal">
-<li><p>to deploy a stand-along PTI apps to the server;</p></li>
-<li><p>to embed PTI modules into existing apps;</p></li>
-</ol>
-<div class="section level3">
-<h3 id="run-a-stand-along-pti-app">Run a stand-along PTI app<a class="anchor" aria-label="anchor" href="#run-a-stand-along-pti-app"></a>
-</h3>
-<p>PTI apps are pre-packaged in a form of two functions.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>devPTIpack<span class="sc">::</span><span class="fu">launch_pti</span>()</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>devPTIpack<span class="sc">::</span><span class="fu">launch_pti_onepage</span>()</span></code></pre></div>
-<p>Minimum data preparation requirements must be met in order to launch a PTI using functions from above. We need to have <code>shp_dta</code>, <code>inp_dta</code> and the app’s name. In more details, data preparation is explained in <code>vignette("dataprep")</code>. Some exemplary data sets are included in the package: geometries <code><a href="reference/ukr_shp.html">devPTIpack::ukr_shp</a></code> and metadata <code><a href="reference/ukr_mtdt_full.html">devPTIpack::ukr_mtdt_full</a></code>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Running PTI app with sample data</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">library</span>(devPTIpack)</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">launch_pti_onepage</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">shp_dta =</span> ukr_shp,</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">inp_dta =</span> ukr_mtdt_full,</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">app_name =</span> <span class="st">"Sample PTI"</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>)</span></code></pre></div>
-<p>Many other parameters could be specified in <code><a href="reference/launch_pti.html">devPTIpack::launch_pti()</a></code>. The most notable are:</p>
-<ul>
-<li>
-<code>app_name</code> - title of the app. Appears across multiple places in the app.</li>
-<li>
-<code>show_waiter</code> - <code>TRUE/FALSE</code> indicates weather a “waiter” screen has to show, when the app launches.</li>
-<li>
-<code>show_adm_levels</code> - vector <code>c("admin1", "admin4")</code> or <code>NULL</code>, indicates at what admin levels the map must be displayed If <code>NULL</code> all available administrative levels are used.</li>
-<li>
-<code>shapes_path</code> and <code>mtdtpdf_path</code> are relative or absolute path to a zip archive with shape files used for mapping and metadata pdf respectively.</li>
-<li>
-<code>wt_dwnld_options</code> and <code>map_dwnld_options</code> specify what data and metadata download options are available in different places of the app’s interface.</li>
-</ul>
-<div class="section level4">
-<h4 id="deploying-a-stand-along-pti-app">Deploying a stand-along PTI app<a class="anchor" aria-label="anchor" href="#deploying-a-stand-along-pti-app"></a>
-</h4>
-<p>When data is prepare properly and <code><a href="reference/launch_pti_onepage.html">devPTIpack::launch_pti_onepage()</a></code> works, we can create a dedicated folder, where app’s data and code can be stored. This is needed if we want to deploy the PTI app to a Shiny server or an RStudio Connect server.</p>
-<p>To create a new PTI project use <code><a href="reference/create_new_pti.html">devPTIpack::create_new_pti()</a></code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>devPTIpack<span class="sc">::</span><span class="fu">create_new_pti</span>(<span class="st">"PATH-TO-NEW-PROJECT-LOCATION/PROJECT-NAME"</span>)</span></code></pre></div>
-<ul>
-<li><p><code>PATH-TO-NEW-PROJECT-LOCATION</code> is a relative or an absolute path to the folder, where the app should be created.</p></li>
-<li><p>a new sub-folder with the app itself will be created with the named <code>PROJECT-NAME</code>.</p></li>
-</ul>
-<p>This is how a typical PTI folder looks like.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="sc">+--</span> app<span class="sc">-</span>data</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="sc">|</span>   \<span class="sc">--</span> metadata.Rmd</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="sc">+--</span> app.R</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="sc">+--</span> app<span class="sc">-</span>name.Rproj</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="sc">+--</span> landing<span class="sc">-</span>page.md</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>\<span class="sc">--</span> R</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="sc">|</span>   \<span class="sc">--</span> _disable_autoload.R</span></code></pre></div>
-<p>After the basic app folder was created, users need to populate it with data and make some minor edits.</p>
-<ul>
-<li><p>Step 1. Prepare proper <code>metadata.xlsx</code> and <code>shapes.rds</code> files; Files names can be anything. One will have to specify correct paths to the files in <code>app.R</code>.</p></li>
-<li><p>Step 2. Place shapes and metadata into the <code>app-data</code> folder. Use the <code>app-data</code> folder to store also other data such as archive with the geometrical boundaries or metadata pdf documentation.</p></li>
-<li><p>Step 3. Knit <code>metadata.Rmd</code> in order to generate <code>metadata.pdf</code> documentation of the data used in the app. This documentation is based on the <code>metadata.xlsx</code> and <code>shapes.rds</code>. Remember to re-render metadata PDF whenever the metadata changes.</p></li>
-<li>
-<p>Step 4. Modify the <code>app.R</code> file specifying paths to <code>metadata.xlsx</code>, <code>shapes.rds</code>, pdf documentation and archive with the geometrical boundaries. Change the app’s name and tune <code><a href="reference/launch_pti.html">devPTIpack::launch_pti()</a></code> function according to your needs.</p>
-<p>Note, that <code>inp_dta</code> parameter in <code><a href="reference/launch_pti.html">devPTIpack::launch_pti()</a></code> shell be specified as a pre-loaded r object. As it is usually generated based on the <code>metadata.xlsx</code>, use <code><a href="reference/fct_template_reader.html">devPTIpack::fct_template_reader()</a></code> (see <code><a href="reference/fct_template_reader.html">?devPTIpack::fct_template_reader</a></code>).</p>
-</li>
-<li><p>Step 5. Run the app and troubleshoot its functioning. Remember, if the app does not start, it is likely that there are some discrepancies in the data preparation. Always use the built-in data to check if the app launches from its own folder. You may try using <code><a href="reference/validate_geometries.html">devPTIpack::validate_geometries()</a></code> or <code><a href="reference/validate_metadata.html">devPTIpack::validate_metadata()</a></code> to check if geometries or metadata are prepared properly. These validation functions, however, are not exhaustive, thus, consult <code>vignette("dataprep")</code> or ask for help.</p></li>
-<li><p>Step 6. Develop additional functionality in folder <code>R</code>.</p></li>
-<li><p>Step 7. <code>landing-page.md</code> is an optional parameter and may be used for customizing the info modal that pops-up when the app launches.</p></li>
-</ul>
-<p>Fully, completed app folder may look like this:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="sc">+--</span> app<span class="sc">-</span>data</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="sc">|</span>   <span class="sc">+--</span> admin_bounds.rds</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="sc">|</span>   <span class="sc">+--</span> metadata.pdf</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="sc">|</span>   <span class="sc">+--</span> metadata.Rmd</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="sc">|</span>   <span class="sc">+--</span> mtdt.xlsx</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="sc">|</span>   \<span class="sc">--</span> shapefiles.zip</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="sc">+--</span> app.R</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="sc">+--</span> examplePTIapp.Rproj</span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="sc">+--</span> landing<span class="sc">-</span>page.md</span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>\<span class="sc">--</span> R</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    \<span class="sc">--</span> _disable_autoload.R</span></code></pre></div>
-<p>The <code>app.R</code> script, which launches the app and could be used to deploy such app to an external server is:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Launch the ShinyApp (Do not remove this comment)</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co"># To deploy, run: rsconnect::deployApp()</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># Or use the blue button on top of this file</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">library</span>(devPTIpack)</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">launch_pti</span>(</span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">shp_dta =</span> <span class="fu">readRDS</span>(<span class="st">"app-data/admin_bounds.rds"</span>),</span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="at">inp_dta =</span> devPTIpack<span class="sc">::</span><span class="fu">fct_template_reader</span>(<span class="st">"app-data/mtdt.xlsx"</span>),</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="at">app_name =</span> <span class="st">"Example country"</span>, </span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="at">show_waiter =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="at">show_adm_levels =</span> <span class="fu">c</span>(<span class="st">"admin1"</span>, <span class="st">"admin2"</span>),</span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="at">shapes_path =</span> <span class="st">"app-data/shapefiles.zip"</span>, </span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  <span class="at">mtdtpdf_path =</span> <span class="st">"app-data/metadata.pdf"</span>,</span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  <span class="at">pti_landing_page =</span> <span class="st">"./landing-page.md"</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>)</span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="62%">
+<col width="37%">
+</colgroup>
+<thead><tr>
+<th>Resource</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/methodology.html">Detailed methodology</a></td>
+<td>Full technical write-up of the PTI score construction</td>
+</tr>
+<tr>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/overview-paper.html">Overview paper</a></td>
+<td>High-level conceptual overview of the PTI framework</td>
+</tr>
+<tr>
+<td><a href="https://worldbank.github.io/devPTIpack/articles/past-projects.html">Past projects</a></td>
+<td>Country applications and case studies</td>
+</tr>
+</tbody>
+</table>
+<hr>
 </div>
+<div class="section level2">
+<h2 id="past-pti-projects">Past PTI projects<a class="anchor" aria-label="anchor" href="#past-pti-projects"></a>
+</h2>
+<p>Deployed PTI applications and country-level repositories are maintained under the <strong>wbPTI GitHub organisation</strong>:</p>
+<p><a href="https://github.com/wbpti/" class="external-link uri">https://github.com/wbpti/</a></p>
+<hr>
 </div>
-<div class="section level3">
-<h3 id="embedding-pti-modules-into-existing-apps">Embedding PTI modules into existing apps;<a class="anchor" aria-label="anchor" href="#embedding-pti-modules-into-existing-apps"></a>
-</h3>
-<p>Essentially, PTI is a set of modules, which are used in different combinations. <code><a href="reference/launch_pti_onepage.html">devPTIpack::launch_pti_onepage()</a></code> offers simple glance at one key meta-module that could be used to embed PTI into any Shiny app.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Server side</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>?devPTIpack<span class="sc">::</span>mod_ptipage_newsrv</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># UI side</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>?devPTIpack<span class="sc">::</span>mod_ptipage_box_ui</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>?devPTIpack<span class="sc">::</span>mod_ptipage_twocol_ui</span></code></pre></div>
-<p><code><a href="reference/mod_ptipage_newsrv.html">devPTIpack::mod_ptipage_newsrv()</a></code> could be paid with any of two available UI and launched as an app in the command line. Note that in order for the module to function with its UI, they have to be identified in the same namespace provided with <code>id</code> parameter. For more information on modules, see <a href="https://mastering-shiny.org/scaling-modules.html" class="external-link">19 Shiny modules</a> in <a href="https://mastering-shiny.org/index.html" class="external-link">Mastering Shiny</a> or <a href="https://shiny.rstudio.com/articles/modules.html" class="external-link">Modularizing Shiny app code</a> or <a href="https://engineering-shiny.org/build-app-golem.html#build-app-golem" class="external-link">10 Building the App with {golem}</a>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">library</span>(devPTIpack)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># user interface</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">mod_ptipage_twocol_ui</span>(<span class="at">id =</span> <span class="st">"pti_mod"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># server</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="fu">mod_ptipage_newsrv</span>(<span class="at">id =</span> <span class="st">"pti_mod"</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>                     <span class="at">inp_dta =</span> <span class="fu">reactive</span>(ukr_mtdt_full),</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>                     <span class="at">shp_dta =</span> <span class="fu">reactive</span>(ukr_shp), </span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>                     <span class="at">show_waiter =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>  }</span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co"># Shiny app.</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
-<p>Here is another example of embedding the PTI into an existing dashboard. It should be runnable in the console if all necessary packages are installed.</p>
+<div class="section level2">
+<h2 id="get-help--contact">Get help &amp; contact<a class="anchor" aria-label="anchor" href="#get-help--contact"></a>
+</h2>
 <ul>
-<li>Note that most of the code below describe the dashboard layout and structure and only a few lines are dedicated to the PTI.</li>
-<li>Remember to disable waiter when embedding module in a multitab dashboard.</li>
-<li>More elaborate example of multitab dashboard is in the source code of the function <code><a href="reference/launch_pti.html">devPTIpack::launch_pti</a></code>.</li>
+<li><p><strong>Bug reports and feature requests</strong> — open an issue on GitHub:<br><a href="https://github.com/worldbank/devPTIpack/issues/new" class="external-link uri">https://github.com/worldbank/devPTIpack/issues/new</a></p></li>
+<li><p><strong>General questions</strong> — reach out to the World Bank GeoPov team <a href="geopov/" target="_blank">geopov/</a></p></li>
 </ul>
-<!-- --><div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="do">## app.R ##</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">library</span>(shinydashboard)</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">library</span>(devPTIpack)</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">dashboardPage</span>(</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="fu">dashboardHeader</span>(<span class="at">title =</span> <span class="st">"Basic dashboard"</span>),</span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  <span class="do">## Sidebar content</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">dashboardSidebar</span>(</span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>    <span class="fu">sidebarMenu</span>(</span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>      <span class="fu">menuItem</span>(<span class="st">"Dashboard"</span>, <span class="at">tabName =</span> <span class="st">"dashboard"</span>, <span class="at">icon =</span> <span class="fu">icon</span>(<span class="st">"dashboard"</span>)),</span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>      <span class="fu">menuItem</span>(<span class="st">"PTI"</span>, <span class="at">tabName =</span> <span class="st">"pti"</span>, <span class="at">icon =</span> <span class="fu">icon</span>(<span class="st">"th"</span>))</span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>    )</span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  ),</span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>  <span class="do">## Body content</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>  <span class="fu">dashboardBody</span>(</span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>    <span class="fu">tabItems</span>(</span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>      <span class="co"># First tab content</span></span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>      <span class="fu">tabItem</span>(<span class="at">tabName =</span> <span class="st">"dashboard"</span>,</span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>        <span class="fu">fluidRow</span>(</span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>          <span class="fu">box</span>(<span class="fu">plotOutput</span>(<span class="st">"plot1"</span>, <span class="at">height =</span> <span class="dv">250</span>)),</span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a></span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>          <span class="fu">box</span>(</span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">"Controls"</span>,</span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>            <span class="fu">sliderInput</span>(<span class="st">"slider"</span>, <span class="st">"Number of observations:"</span>, <span class="dv">1</span>, <span class="dv">100</span>, <span class="dv">50</span>)</span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>          )</span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>        )</span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>      ),</span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a></span>
-<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>      <span class="co"># Second tab content</span></span>
-<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>      <span class="fu">tabItem</span>(<span class="at">tabName =</span> <span class="st">"pti"</span>,</span>
-<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a>        <span class="fu">fluidRow</span>(</span>
-<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a>          <span class="fu">box</span>(</span>
-<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a>            </span>
-<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a>            <span class="do">### </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> ## </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span></span>
-<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a>            <span class="do">### </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> PTI UI </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span></span>
-<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a>            <span class="do">### </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> ## </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span></span>
-<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a>            devPTIpack<span class="sc">::</span><span class="fu">mod_ptipage_box_ui</span>(</span>
-<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a>              <span class="at">id =</span> <span class="st">"pti_mod"</span>, </span>
-<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a>              <span class="at">map_height =</span> <span class="st">"575px"</span>, </span>
-<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a>              <span class="at">side_width =</span> <span class="st">"325px"</span>,</span>
-<span id="cb10-42"><a href="#cb10-42" tabindex="-1"></a>              <span class="at">wt_style =</span> <span class="st">"zoom:0.8;"</span></span>
-<span id="cb10-43"><a href="#cb10-43" tabindex="-1"></a>              ),</span>
-<span id="cb10-44"><a href="#cb10-44" tabindex="-1"></a>            <span class="at">width =</span> <span class="dv">10</span>,</span>
-<span id="cb10-45"><a href="#cb10-45" tabindex="-1"></a>            <span class="at">height =</span> <span class="st">"600px"</span></span>
-<span id="cb10-46"><a href="#cb10-46" tabindex="-1"></a>            )</span>
-<span id="cb10-47"><a href="#cb10-47" tabindex="-1"></a>        )</span>
-<span id="cb10-48"><a href="#cb10-48" tabindex="-1"></a>      )</span>
-<span id="cb10-49"><a href="#cb10-49" tabindex="-1"></a>    )</span>
-<span id="cb10-50"><a href="#cb10-50" tabindex="-1"></a>  )</span>
-<span id="cb10-51"><a href="#cb10-51" tabindex="-1"></a>)</span>
-<span id="cb10-52"><a href="#cb10-52" tabindex="-1"></a></span>
-<span id="cb10-53"><a href="#cb10-53" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output) {</span>
-<span id="cb10-54"><a href="#cb10-54" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">122</span>)</span>
-<span id="cb10-55"><a href="#cb10-55" tabindex="-1"></a>  histdata <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">500</span>)</span>
-<span id="cb10-56"><a href="#cb10-56" tabindex="-1"></a></span>
-<span id="cb10-57"><a href="#cb10-57" tabindex="-1"></a>  output<span class="sc">$</span>plot1 <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
-<span id="cb10-58"><a href="#cb10-58" tabindex="-1"></a>    data <span class="ot">&lt;-</span> histdata[<span class="fu">seq_len</span>(input<span class="sc">$</span>slider)]</span>
-<span id="cb10-59"><a href="#cb10-59" tabindex="-1"></a>    <span class="fu">hist</span>(data)</span>
-<span id="cb10-60"><a href="#cb10-60" tabindex="-1"></a>  })</span>
-<span id="cb10-61"><a href="#cb10-61" tabindex="-1"></a>  </span>
-<span id="cb10-62"><a href="#cb10-62" tabindex="-1"></a>  </span>
-<span id="cb10-63"><a href="#cb10-63" tabindex="-1"></a>  <span class="do">### </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> ## </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span></span>
-<span id="cb10-64"><a href="#cb10-64" tabindex="-1"></a>  <span class="do">### </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> PTI SERVER </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span></span>
-<span id="cb10-65"><a href="#cb10-65" tabindex="-1"></a>  <span class="do">### </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> ## </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span><span class="do"> </span><span class="al">###</span></span>
-<span id="cb10-66"><a href="#cb10-66" tabindex="-1"></a>  <span class="fu">mod_ptipage_newsrv</span>(</span>
-<span id="cb10-67"><a href="#cb10-67" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"pti_mod"</span>,</span>
-<span id="cb10-68"><a href="#cb10-68" tabindex="-1"></a>    <span class="at">inp_dta =</span> <span class="fu">reactive</span>(ukr_mtdt_full),</span>
-<span id="cb10-69"><a href="#cb10-69" tabindex="-1"></a>    <span class="at">shp_dta =</span> <span class="fu">reactive</span>(ukr_shp), </span>
-<span id="cb10-70"><a href="#cb10-70" tabindex="-1"></a>    <span class="at">show_waiter =</span> <span class="cn">TRUE</span></span>
-<span id="cb10-71"><a href="#cb10-71" tabindex="-1"></a>    )</span>
-<span id="cb10-72"><a href="#cb10-72" tabindex="-1"></a>  }</span>
-<span id="cb10-73"><a href="#cb10-73" tabindex="-1"></a></span>
-<span id="cb10-74"><a href="#cb10-74" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

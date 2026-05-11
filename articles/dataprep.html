@@ -238,9 +238,9 @@ admin2_District    [admin0Pcod, admin1Pcod, admin2Pcod, admin2Name]</code></pre>
 <li>
 <strong>Validity</strong>: each geometry should pass <code><a href="https://r-spatial.github.io/sf/reference/valid.html" class="external-link">sf::st_is_valid()</a></code>. Run <code><a href="https://r-spatial.github.io/sf/reference/valid.html" class="external-link">sf::st_make_valid()</a></code> on raw shapes before saving.</li>
 <li>
-<strong>CRS</strong>: the package does not enforce a specific CRS, but downstream raster operations and area computations assume metres. A common pattern is to re-project each layer to the country’s UTM zone for <code>area</code>, then transform back to a display CRS (often EPSG:4326) before saving. Pick one CRS for the whole list and stick with it.</li>
+<strong>CRS</strong>: all layers must be in <strong>EPSG:4326 (WGS84)</strong>. The package requires a consistent CRS across every layer in the list, and EPSG:4326 is the project standard. If your source data is in a different CRS, re-project to EPSG:4326 before assembling the list.</li>
 <li>
-<strong>Area</strong>: compute <code>area</code> in km² <em>after</em> projecting to UTM. <code><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">sf::st_area()</a></code> returns m² with a <code>units</code> attribute; convert with <code>units::set_units(., "km^2")</code> and drop the units attribute before saving.</li>
+<strong>Area</strong>: compute <code>area</code> in km² in EPSG:4326 using <code><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">sf::st_area()</a></code> with s2 enabled (the default). <code><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">sf::st_area()</a></code> returns a <code>units</code> object; convert and drop the attribute with <code>as.numeric(units::set_units(sf::st_area(geometry), "km^2"))</code>. For country-level PTI apps the resulting 1–5% area approximation is fit for purpose.</li>
 </ul></section><section class="level3"><h3 id="save-format">1.6 Save format<a class="anchor" aria-label="anchor" href="#save-format"></a>
 </h3>
 <p>Save the assembled list as compressed RDS:</p>

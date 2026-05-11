@@ -140,16 +140,18 @@ will flag it.
   Run
   [`sf::st_make_valid()`](https://r-spatial.github.io/sf/reference/valid.html)
   on raw shapes before saving.
-- **CRS**: the package does not enforce a specific CRS, but downstream
-  raster operations and area computations assume metres. A common
-  pattern is to re-project each layer to the country’s UTM zone for
-  `area`, then transform back to a display CRS (often EPSG:4326) before
-  saving. Pick one CRS for the whole list and stick with it.
-- **Area**: compute `area` in km² *after* projecting to UTM.
+- **CRS**: all layers must be in **EPSG:4326 (WGS84)**. The package
+  requires a consistent CRS across every layer in the list, and
+  EPSG:4326 is the project standard. If your source data is in a
+  different CRS, re-project to EPSG:4326 before assembling the list.
+- **Area**: compute `area` in km² in EPSG:4326 using
   [`sf::st_area()`](https://r-spatial.github.io/sf/reference/geos_measures.html)
-  returns m² with a `units` attribute; convert with
-  `units::set_units(., "km^2")` and drop the units attribute before
-  saving.
+  with s2 enabled (the default).
+  [`sf::st_area()`](https://r-spatial.github.io/sf/reference/geos_measures.html)
+  returns a `units` object; convert and drop the attribute with
+  `as.numeric(units::set_units(sf::st_area(geometry), "km^2"))`. For
+  country-level PTI apps the resulting 1–5% area approximation is fit
+  for purpose.
 
 ### 1.6 Save format
 

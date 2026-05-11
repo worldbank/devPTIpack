@@ -23,7 +23,7 @@ Required columns at minimum:
 |----|----|----|
 | `admin<N>Pcod` | `character` | Unique polygon identifier (P-code) at this level. One per row. |
 | `admin<N>Name` | `character` | Human-readable polygon name. One per row. |
-| `area` | `numeric` | Polygon area in km². Compute *after* projecting to a metre-based CRS. |
+| `area` | `numeric` | Polygon area in km². Compute in EPSG:4326 using `units::set_units(sf::st_area(geometry), "km^2")`. |
 | `geometry` | `sfc_(MULTI)POLYGON` | Spatial geometry. `POLYGON` or `MULTIPOLYGON` only. |
 
 Sub-admin layers must also carry every parent layer’s `admin<k>Pcod`
@@ -33,8 +33,8 @@ provinces and the country.
 
 | Topic | Quick rule |
 |----|----|
-| Projection for the saved file | Pick one CRS (commonly `EPSG:4326`) and use it consistently across layers. |
-| `area` units | km² — re-project to UTM, compute, convert with `units::set_units("km^2")`. |
+| Projection for the saved file | **EPSG:4326** — all layers must use this CRS. Re-project with `sf::st_transform(layer, 4326)` if needed. |
+| `area` units | km² — compute directly in EPSG:4326: `as.numeric(units::set_units(sf::st_area(geometry), "km^2"))`. No UTM step needed. |
 | Geometry simplification | Trade off file size against rendering performance. [`sf::st_simplify()`](https://r-spatial.github.io/sf/reference/geos_unary.html) is your friend; tolerances of 50–500 m work well for most country-level apps. |
 | Single layer vs. multi-level | Single layer = simplest case; multi-level requires nesting + parent P-codes (see §E). |
 
@@ -72,19 +72,20 @@ adm1_raw <- read_sf("sample-data/rwa_adm1.geojson")
 adm2_raw <- read_sf("sample-data/rwa_adm2.geojson")
 ```
 
-geoBoundaries gives every polygon a `shapeID` and `shapeName`. Rename
-those into the package convention and compute `area` (`m²` at first;
-convert if needed):
+geoBoundaries gives every polygon a `shapeID` and `shapeName`.
+Re-project to EPSG:4326, rename into the package convention, and compute
+`area` in km²:
 
 ``` r
 
 #| eval: false
 adm1 <- adm1_raw |>
+  st_transform(4326) |>
   mutate(
     admin0Pcod = "RWA",
     admin1Pcod = shapeID,
     admin1Name = shapeName,
-    area       = as.numeric(st_area(geometry))
+    area       = as.numeric(units::set_units(st_area(geometry), "km^2"))
   ) |>
   select(admin0Pcod, admin1Pcod, admin1Name, area, geometry)
 ```
@@ -135,7 +136,7 @@ Common fixes you’ll do here, on the way to a clean save:
 ``` r
 
 #| eval: false
-# Re-project to WGS84 if the source is in a different CRS.
+# All layers must be in EPSG:4326. st_transform() is a no-op if already correct.
 adm1 <- st_transform(adm1, 4326)
 
 # Snap to valid geometries — fixes self-intersections, slivers.

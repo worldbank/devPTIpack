@@ -129,7 +129,7 @@
 <tr class="odd">
 <td><code>area</code></td>
 <td><code>numeric</code></td>
-<td>Polygon area in km². Compute <em>after</em> projecting to a metre-based CRS.</td>
+<td>Polygon area in km². Compute in EPSG:4326 using <code>units::set_units(sf::st_area(geometry), "km^2")</code>.</td>
 </tr>
 <tr class="even">
 <td><code>geometry</code></td>
@@ -151,12 +151,13 @@
 <tbody>
 <tr class="odd">
 <td>Projection for the saved file</td>
-<td>Pick one CRS (commonly <code>EPSG:4326</code>) and use it consistently across layers.</td>
+<td>
+<strong>EPSG:4326</strong> — all layers must use this CRS. Re-project with <code>sf::st_transform(layer, 4326)</code> if needed.</td>
 </tr>
 <tr class="even">
 <td>
 <code>area</code> units</td>
-<td>km² — re-project to UTM, compute, convert with <code>units::set_units("km^2")</code>.</td>
+<td>km² — compute directly in EPSG:4326: <code>as.numeric(units::set_units(sf::st_area(geometry), "km^2"))</code>. No UTM step needed.</td>
 </tr>
 <tr class="odd">
 <td>Geometry simplification</td>
@@ -187,15 +188,16 @@
 <span><span class="va">adm0_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm0.geojson"</span><span class="op">)</span></span>
 <span><span class="va">adm1_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm1.geojson"</span><span class="op">)</span></span>
 <span><span class="va">adm2_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm2.geojson"</span><span class="op">)</span></span></code></pre></div>
-<p>geoBoundaries gives every polygon a <code>shapeID</code> and <code>shapeName</code>. Rename those into the package convention and compute <code>area</code> (<code>m²</code> at first; convert if needed):</p>
+<p>geoBoundaries gives every polygon a <code>shapeID</code> and <code>shapeName</code>. Re-project to EPSG:4326, rename into the package convention, and compute <code>area</code> in km²:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
 <span><span class="va">adm1</span> <span class="op">&lt;-</span> <span class="va">adm1_raw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="fl">4326</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    admin0Pcod <span class="op">=</span> <span class="st">"RWA"</span>,</span>
 <span>    admin1Pcod <span class="op">=</span> <span class="va">shapeID</span>,</span>
 <span>    admin1Name <span class="op">=</span> <span class="va">shapeName</span>,</span>
-<span>    area       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">st_area</a></span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span><span class="op">)</span></span>
+<span>    area       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">st_area</a></span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span>, <span class="st">"km^2"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">admin0Pcod</span>, <span class="va">admin1Pcod</span>, <span class="va">admin1Name</span>, <span class="va">area</span>, <span class="va">geometry</span><span class="op">)</span></span></code></pre></div>
 <p>Assemble the list. Slot names are case-sensitive and must match exactly what the metadata workbook will reference:</p>
@@ -217,7 +219,7 @@
 <p>Common fixes you’ll do here, on the way to a clean save:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
-<span><span class="co"># Re-project to WGS84 if the source is in a different CRS.</span></span>
+<span><span class="co"># All layers must be in EPSG:4326. st_transform() is a no-op if already correct.</span></span>
 <span><span class="va">adm1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="va">adm1</span>, <span class="fl">4326</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Snap to valid geometries — fixes self-intersections, slivers.</span></span>

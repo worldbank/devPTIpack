@@ -11,8 +11,6 @@ Useful links:
 
 - <https://worldbank.github.io/devPTIpack/>
 
-- <https://stunning-engine-gzjwl6l.pages.github.io/>
-
 ## Author
 
 **Maintainer**: Koichi Ito <koichi19960406@gmail.com>

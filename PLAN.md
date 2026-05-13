@@ -1034,8 +1034,21 @@ the network). Internal S3 constructors `pti_hex_var()` /
 [\#110](https://github.com/worldbank/devPTIpack/issues/110).
 
 arch-11 §“Year resolution” – year resolver (issue
-[\#110](https://github.com/worldbank/devPTIpack/issues/110); blocked by
-\#105).
+[\#110](https://github.com/worldbank/devPTIpack/issues/110)). Three
+internal helpers in `R/fct_hex_year_resolver.R`: `resolve_years()`
+(pure, per-variable: exact / nearest / later-on-tie / 7-year tolerance
+error), `resolve_years_for_vars()` (walks a `pti_hex_var` list, calls
+[`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md)
+unless a test stub is passed, stamps resolved years onto each var, emits
+one consolidated
+[`cli::cli_warn()`](https://cli.r-lib.org/reference/cli_abort.html)
+listing every substitution by canonical name),
+`prompt_or_error_for_years()` (interactive
+[`cli::cli_inform()`](https://cli.r-lib.org/reference/cli_abort.html) +
+[`utils::menu()`](https://rdrr.io/r/utils/menu.html) single-select for
+`years = NULL`; non-interactive errors with actionable message).
+Network-free unit tests (28 PASS / 0 FAIL) via the
+`available_years_lookup` test seam.
 
 arch-11 §“Fetching” – `fetch_hex_data()` with H5/H6 resolution bridge
 (issue [\#112](https://github.com/worldbank/devPTIpack/issues/112);

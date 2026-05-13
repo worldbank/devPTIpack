@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">devPTIpack</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9981</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.998</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,7 +121,7 @@
 <p>Step 1 must be complete. You need:</p>
 <ul>
 <li>
-<code>app-data/shapes.rds</code> containing your admin layers <strong>and</strong> an <code>admin9_Hexagon</code> layer built by <code>make_hex_grid()</code> and enriched by <code>make_admin_lookup()</code>.</li>
+<code>app-data/shapes.rds</code> containing your admin layers <strong>and</strong> an <code>admin9_Hexagon</code> layer built by <code><a href="../reference/make_hex_grid.html">make_hex_grid()</a></code> and enriched by <code><a href="../reference/make_admin_lookup.html">make_admin_lookup()</a></code>.</li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_shp</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"app-data/shapes.rds"</span><span class="op">)</span></span>
@@ -130,20 +130,20 @@
 </section><section class="level2"><h2 id="discovering-available-variables">Discovering available variables<a class="anchor" aria-label="anchor" href="#discovering-available-variables"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">list_hex_vars</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_hex_vars.html">list_hex_vars</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Returns a tibble — one row per registered variable — showing canonical name, display name, units, pillar, whether it has a time dimension, available years (hint from registry), and default aggregation strategy.</p>
 <p>Filter by pillar or temporal status:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">list_hex_vars</span><span class="op">(</span>pillar <span class="op">=</span> <span class="st">"Economic Activity"</span><span class="op">)</span></span>
-<span><span class="fu">list_hex_vars</span><span class="op">(</span>temporal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_hex_vars.html">list_hex_vars</a></span><span class="op">(</span>pillar <span class="op">=</span> <span class="st">"Economic Activity"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/list_hex_vars.html">list_hex_vars</a></span><span class="op">(</span>temporal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>To query the <strong>live</strong> parquet for actual available years (not just the registry hint):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">get_available_years</span><span class="op">(</span>vars <span class="op">=</span> <span class="cn">NULL</span>, <span class="st">"nightlights"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_available_years.html">get_available_years</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="cn">NULL</span>, <span class="st">"nightlights"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; nightlights (PTI Pre-computed Hex Data): 2013 2014 2015 ... 2022</span></span></code></pre></div>
 </section><section class="level2"><h2 id="selecting-variables-and-years">Selecting variables and years<a class="anchor" aria-label="anchor" href="#selecting-variables-and-years"></a>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu">use_hex_vars</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/use_hex_vars.html">use_hex_vars</a></span><span class="op">(</span></span>
 <span>  <span class="st">"nightlights"</span>,</span>
 <span>  <span class="st">"poverty_rate"</span>,</span>
 <span>  <span class="st">"population"</span>,</span>
@@ -168,7 +168,7 @@
 </h2>
 <p>If you have project-specific indicators in a local parquet file, merge them between fetch and aggregate:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_data</span> <span class="op">&lt;-</span> <span class="fu">arrow</span><span class="fu">::</span><span class="fu">open_dataset</span><span class="op">(</span><span class="st">"data-raw/conflict.parquet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">my_data</span> <span class="op">&lt;-</span> <span class="fu">arrow</span><span class="fu">::</span><span class="fu"><a href="https://arrow.apache.org/docs/r/reference/open_dataset.html" class="external-link">open_dataset</a></span><span class="op">(</span><span class="st">"data-raw/conflict.parquet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">h3id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">hex_ids</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>hex_id <span class="op">=</span> <span class="va">h3id</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -188,7 +188,7 @@
 <tbody>
 <tr class="odd">
 <td>Format</td>
-<td>Readable by <code>arrow::open_dataset()</code>
+<td>Readable by <code><a href="https://arrow.apache.org/docs/r/reference/open_dataset.html" class="external-link">arrow::open_dataset()</a></code>
 </td>
 </tr>
 <tr class="even">

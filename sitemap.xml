@@ -29,6 +29,7 @@
 <url><loc>https://worldbank.github.io/devPTIpack/reference/fct_template_reader.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/generic_pti_glue.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/get_all_weights_combs.html</loc></url>
+<url><loc>https://worldbank.github.io/devPTIpack/reference/get_available_years.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/get_min_admin_wght.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/get_pti_scores_export.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/get_pti_weights_export.html</loc></url>
@@ -41,6 +42,9 @@
 <url><loc>https://worldbank.github.io/devPTIpack/reference/label_generic_pti.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/launch_pti.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/launch_pti_onepage.html</loc></url>
+<url><loc>https://worldbank.github.io/devPTIpack/reference/list_hex_vars.html</loc></url>
+<url><loc>https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.html</loc></url>
+<url><loc>https://worldbank.github.io/devPTIpack/reference/make_hex_grid.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/mod_drop_inval_adm.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/mod_dta_explorer2_server.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/mod_dta_explorer2_ui.html</loc></url>
@@ -57,6 +61,7 @@
 <url><loc>https://worldbank.github.io/devPTIpack/reference/rwa_shp.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/ukr_mtdt_full.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/ukr_shp.html</loc></url>
+<url><loc>https://worldbank.github.io/devPTIpack/reference/use_hex_vars.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/validate_geometries.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/validate_metadata.html</loc></url>
 <url><loc>https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.html</loc></url>

@@ -34,6 +34,20 @@ at **0 fail / 1 skip / 710 PASS** (PR \#70 adds a new Tier-1 test file
 with 2 test_that blocks / 8 expectations covering the missing-`mt` error
 and the bundled-data success path).
 
+**Update (2026-05-12):** PR \#63 (`eb-docs-pkgdown` -\>
+`koichi-arch-redesign`) merged on 2026-05-12 (merge commit `effb832`),
+bringing the full arch-09 documentation chain (PRs \#89-#103) and
+Eduard’s new arch-10 + arch-11 design docs onto the integration line.
+`R CMD check` is at **0/0/0**. Two new work tracks are now active off
+`koichi-arch-redesign`: **arch-10** (Step 1 shapefiles enhancement,
+parent [\#104](https://github.com/worldbank/devPTIpack/issues/104))
+opens with [\#106](https://github.com/worldbank/devPTIpack/issues/106) –
+Step 1 vignette doc fixes (this PR); **arch-11** (hex data access
+pipeline, parent
+[\#107](https://github.com/worldbank/devPTIpack/issues/107)) supersedes
+arch-05 and provides the concrete implementation track for
+[\#13](https://github.com/worldbank/devPTIpack/issues/13).
+
 | Concern | Source of truth |
 |----|----|
 | Architecture overview & redesign workflow | [`.github/docs/arch-00-overview.md`](https://worldbank.github.io/devPTIpack/docs/arch-00-overview.md) |
@@ -43,7 +57,9 @@ and the bundled-data success path).
 | Calculation pipeline test spec (~71 cases) | [`.github/docs/arch-02.01-testing-calc-pipeline.md`](https://worldbank.github.io/devPTIpack/docs/arch-02.01-testing-calc-pipeline.md) |
 | Three-tier testing strategy + per-fn test map | [`.github/docs/arch-03-testing.md`](https://worldbank.github.io/devPTIpack/docs/arch-03-testing.md) |
 | Workspace, vignettes & pkgdown plan | [`.github/docs/arch-04-workspace.md`](https://worldbank.github.io/devPTIpack/docs/arch-04-workspace.md) |
-| Hex (H3) ingestion design | [`.github/docs/arch-05-hex-ingestion.md`](https://worldbank.github.io/devPTIpack/docs/arch-05-hex-ingestion.md) |
+| Hex (H3) ingestion design (superseded by arch-11) | [`.github/docs/arch-05-hex-ingestion.md`](https://worldbank.github.io/devPTIpack/docs/arch-05-hex-ingestion.md) |
+| Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`) | [`.github/docs/arch-10-step1-shapefiles-enhancement.md`](https://worldbank.github.io/devPTIpack/docs/arch-10-step1-shapefiles-enhancement.md) |
+| Hex data access pipeline (registry, fetch, aggregate, metadata) | [`.github/docs/arch-11-hex-data-access.md`](https://worldbank.github.io/devPTIpack/docs/arch-11-hex-data-access.md) |
 | Per-change log (compulsory) | [`.github/docs/changelog.md`](https://worldbank.github.io/devPTIpack/docs/changelog.md) |
 | Project conventions for AI agents | [`.claude/CLAUDE.md`](https://worldbank.github.io/devPTIpack/.claude/CLAUDE.md) |
 
@@ -59,7 +75,11 @@ documentation -
 [\#12](https://github.com/worldbank/devPTIpack/issues/12) — workspace,
 vignettes, pkgdown site -
 [\#13](https://github.com/worldbank/devPTIpack/issues/13) — hex
-ingestion pipeline (independent) -
+ingestion pipeline (independent; superseded by \#107) -
+[\#104](https://github.com/worldbank/devPTIpack/issues/104) — arch-10:
+Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`) -
+[\#107](https://github.com/worldbank/devPTIpack/issues/107) — arch-11:
+hex data access pipeline (supersedes arch-05/#13) -
 [\#5](https://github.com/worldbank/devPTIpack/issues/5),
 [\#7](https://github.com/worldbank/devPTIpack/issues/7),
 [\#6](https://github.com/worldbank/devPTIpack/issues/6),
@@ -133,12 +153,17 @@ sweeps only what’s missed.
 
 ### 3.1 Branch strategy (resolved)
 
-- Integration branch: **`koichi-arch-redesign`** off `main`.
-- Sub-branches per phase / batch (e.g. `tests/calc-pipeline-baseline`,
-  `cleanup/batch-1`) PR’d into `koichi-arch-redesign`.
-- Once Phase 1–4 are complete, `koichi-arch-redesign` PRs into `main`.
+- Integration branch: **`main`** (default branch).
+- Sub-branches per phase / batch (e.g. `feat/hex-year-resolver`,
+  `cleanup/batch-1`) PR’d directly into `main`.
 - Each PR keeps `R CMD check` green and updates the changelog and
   `PLAN.md`.
+- **Historical note (2026-05-12):** arch-redesign work originally
+  accumulated on `koichi-arch-redesign` (and earlier on
+  `eb-docs-pkgdown`). Both were merged into `main` once the redesign was
+  incremental enough to no longer warrant a long-lived integration
+  branch. PRs target `main` from then on; `Closes #N` lines auto-close
+  their issues.
 
 ### 3.2 Tooling — committed under `.claude/` ✓
 
@@ -595,11 +620,10 @@ Stripped 1 debug-residue line (`R/launch_pti.R:173` – a commented-out
 (`golem_add_external_resources`); added 2 `importFrom`s
 ([`cicerone::use_cicerone`](https://rdrr.io/pkg/cicerone/man/use_cicerone.html),
 [`rlang::dots_list`](https://rlang.r-lib.org/reference/list2.html));
-dropped 1 stale `importFrom`
-([`bsplus::use_bs_tooltip`](https://ijlyttle.github.io/bsplus/reference/bs_embed_tooltip.html)
-– carried over on `golem_add_external_resources` from the `@noRd` era
-but never called in `R/`; reviewer-flagged should-fix). Test-side: no
-qualified-call conversions needed – nothing was un-exported; the new
+dropped 1 stale `importFrom` (`bsplus::use_bs_tooltip` – carried over on
+`golem_add_external_resources` from the `@noRd` era but never called in
+`R/`; reviewer-flagged should-fix). Test-side: no qualified-call
+conversions needed – nothing was un-exported; the new
 `golem_add_external_resources` export strictly widens the public
 surface. Folded in the Batch 4 `TBD -> #50` swap on the §6 row above and
 on the §11 row below. Suite stays at 682 PASS – no regressions.
@@ -886,15 +910,156 @@ Suggests (`testthat`, `here`, `quarto`). **`R CMD check` is now 0 errors
 / 0 warnings / 0 notes.** Suite stays at PASS 803 / FAIL 0 / SKIP 1 /
 ERROR 12 (environmental).
 
+### arch-10 Step 1 shapefiles enhancement ([\#104](https://github.com/worldbank/devPTIpack/issues/104))
+
+Step 1 vignette + two new exported geometry helpers + Rwanda
+package-data rebuild. Spec:
+[`arch-10-step1-shapefiles-enhancement.md`](https://worldbank.github.io/devPTIpack/docs/arch-10-step1-shapefiles-enhancement.md).
+
+arch-10 §1 – fix six documentation gaps in
+`vignettes/articles/build-pti-1-shapefiles.qmd` (issue
+[\#106](https://github.com/worldbank/devPTIpack/issues/106), this PR):
+`area` km² fix in §E; `admin0_Country` mandatory callout +
+simple-example inclusion; `saveRDS(..., compress = "gz")`;
+non-contiguous level numbers note; `admin<N>Name` uniqueness + no-NA
+rules in requirements table; `<HumanName>` no-spaces / no-colons
+constraint;
+[`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md)
+blind-spots note (CRS mismatch, area units, topological validity,
+coverage gaps).
+
+arch-10 §2 – implement
+[`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md) +
+tests (issue
+[\#108](https://github.com/worldbank/devPTIpack/issues/108)). H3 package
+= `h3jsr` (arch-10 Decision 13 resolved). Algorithm: coarse pre-filter
+at `resolution - 2`, deterministic H3 child expansion,
+centroid-in-polygon retention; both spatial steps wrapped in an `s2`
+fallback with [`on.exit()`](https://rdrr.io/r/base/on.exit.html) guard
+restoring the caller’s `sf_use_s2()` state. Output is a **partial**
+`admin9_Hexagon` layer (admin0Pcod + admin9Pcod + admin9Name + area +
+geometry);
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md)
+(§3 / \#109) populates the parent Pcods before
+[`validate_geometries()`](https://worldbank.github.io/devPTIpack/reference/validate_geometries.md)
+is run.
+
+arch-10 §3 – implement
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md) +
+tests (issue
+[\#109](https://github.com/worldbank/devPTIpack/issues/109)). Parses
+level digits from `admin<N>_<HumanName>` slot names, sorts coarsest -\>
+finest (non-contiguous levels OK), pre-flight validates each layer
+(no-NA / unique Pcod + Name; auto-computes `area` in km^2 if absent),
+then iterates parent -\> child pairs doing centroid-in-polygon
+[`sf::st_join()`](https://r-spatial.github.io/sf/reference/st_join.html)
+with `s2` fallback. Tie-break warns + picks one parent at random per
+boundary-ambiguous child; orphans (no parent match) are hard errors.
+Cascade propagates so every layer carries all ancestor Pcods.
+`admin9_Hexagon` handled identically – no cascade exceptions.
+
+arch-10 §6 – Step 1 vignette §E rewrite + new §F hex workflow (issue
+[\#111](https://github.com/worldbank/devPTIpack/issues/111)). §E now
+uses
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md)
+as the canonical cascade step (replacing the manual centroid-join code)
+and ends with a forward-ref to §F naming `HEX_RESOLUTION` in
+`00-master.R` as the single resolution control point. New §F covers hex
+motivation (raster indicators, MAUP), resolution guide table (H5 ~252
+km^2, H6 ~36 km^2 default, H7 ~5.2 km^2), the canonical 4-layer
+[`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md)
+-\>
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md)
+workflow, the near-constant `area` caveat, and the `INCLUDE_HEX_IN_APP`
+escape hatch for large countries.
+
+arch-10 §5 – rebuild `rwa_shp` with hex layer; propagate `shapes.rds`
+through Steps 2-5 (issue
+[\#114](https://github.com/worldbank/devPTIpack/issues/114)).
+`data-raw/generate-rwa-package-data.R` now uses
+[`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md) +
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md)
+and computes area in km^2 via `units::set_units(...,"km^2")`.
+Regenerated `data/rwa_shp.rda` -\> 4 layers (admin0/1/2/9_Hexagon), 543
+polygons total (1 country + 5 provinces + 30 districts + 507 H3-6 hex
+cells). R/data.R roxygen updated to document the 4-level structure +
+km^2 area unit. Step 2 vignette: loads from `shapes.rds`, uses
+`admin2Pcod` as join key, gains a hex-extraction example with population
+vs area weighting note. Step 3 vignette: new callout that an
+`admin9_Hexagon` metadata sheet is required when Step 1 built a hex
+layer; cross-ref to Step 4 / arch-11 for the registry-driven hex
+pipeline that produces it. Step 5 vignette: callout on
+`admin9_Hexagon.geojson` shipping in `shapefiles.zip` by default +
+file-size controlled by resolution choice only (`st_simplify()` is
+meaningless for regular hex cells); polygon counts in the CLI example
+updated to 543.
+
 ------------------------------------------------------------------------
 
 ## 8. Phase 5 — Hex ingestion (#13, independent)
 
 Independent track. Five new exported functions, all developer-facing,
-all pre-deployment. Spec: arch-05.
+all pre-deployment. Spec: arch-05 (original sketch); **arch-11
+supersedes** the design (issue
+[\#107](https://github.com/worldbank/devPTIpack/issues/107)).
 
 **Decision:** deferred until Phases 1–4 are complete. The calculation
 pipeline is geometry-agnostic so this is non-blocking.
+
+### arch-11 Hexagonal Data Access Pipeline ([\#107](https://github.com/worldbank/devPTIpack/issues/107))
+
+Registry-driven hex variable access, fetch, aggregate, metadata
+generation. Spec:
+[`arch-11-hex-data-access.md`](https://worldbank.github.io/devPTIpack/docs/arch-11-hex-data-access.md).
+
+arch-11 §“Registry” – hex variable registry + reader functions (issue
+[\#105](https://github.com/worldbank/devPTIpack/issues/105)). New
+`inst/hex_vars_registry.yaml` ships with the package (registry_version
+`0.1.0`; one source `wb_flood_exposure` pointing at the WB Space2Stats
+parquet, two variables: `population` + `flood_exposure_15cm_1in100`).
+Schema verified live via
+[`arrow::open_dataset()`](https://arrow.apache.org/docs/r/reference/open_dataset.html):
+`hex_id` (string), `pop` (float), `pop_flood` (double), 3.67M rows, H3-6
+global coverage. New exports:
+[`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md)
+(tibble browser), `use_hex_vars(..., years)` (resolves canonical names
+against the registry, auto-injects population tagged `internal = TRUE`,
+suffixes duplicate names with `__<source-label>`),
+[`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md)
+(queries the live parquet’s `time_col` for ground-truth temporal
+coverage; returns `integer(0)` for non-temporal vars without touching
+the network). Internal S3 constructors `pti_hex_var()` /
+`pti_hex_source()` with field validation. Year-resolution logic
+(nearest-year substitution, 7-year tolerance) deferred to issue
+[\#110](https://github.com/worldbank/devPTIpack/issues/110).
+
+arch-11 §“Year resolution” – year resolver (issue
+[\#110](https://github.com/worldbank/devPTIpack/issues/110); blocked by
+\#105).
+
+arch-11 §“Fetching” – `fetch_hex_data()` with H5/H6 resolution bridge
+(issue [\#112](https://github.com/worldbank/devPTIpack/issues/112);
+blocked by \#105 + \#109 + \#110).
+
+arch-11 §“Aggregation” – `aggregate_hex_to_shapes()` (issue
+[\#113](https://github.com/worldbank/devPTIpack/issues/113); blocked by
+\#112).
+
+arch-11 §“Metadata Excel output” – `build_hex_metadata()` with
+`include_hex` gating (issue
+[\#115](https://github.com/worldbank/devPTIpack/issues/115); blocked by
+\#113).
+
+arch-11 §“compile_pti_data() multi-file merge” – extend
+[`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md)
+(issue [\#116](https://github.com/worldbank/devPTIpack/issues/116);
+blocked by \#115). (Note: the source-label suffix logic in
+`compile_merge_metadata()` landed earlier via Eduard’s PR \#63 commit
+`9e45918`.)
+
+arch-11 §“Step 4 vignette” – `build-pti-4-hex.qmd` walkthrough (issue
+[\#117](https://github.com/worldbank/devPTIpack/issues/117); blocked by
+\#112 + \#113 + \#115).
 
 ------------------------------------------------------------------------
 
@@ -973,7 +1138,7 @@ Hex ingestion pipeline (#13) lands on its own milestone.
 | [\#48](https://github.com/worldbank/devPTIpack/pull/48) | 2026-05-03 | Phase 3 Batch 2 (core calculation) | arch-02-docs Phase 3.2 — rewrote roxygen for all 12 functions in `R/calc_pti_helpers.R` (6) and `R/calc_pti_expander.R` (6). Honored arch-01 § “Permanent Functions”: un-exported the 10 INTERNAL fns and re-typed them with the `@noRd` template (typed `@param`, explicit `@return`, no `@examples`); kept `label_generic_pti` and `generic_pti_glue` exported with synthetic-input `@examples` (real input is now from internal `agg_pti_scores`, so the example builds a minimal scores list directly). Promoted `generic_pti_glue` from `@describeIn label_generic_pti` to standalone. Pinned 3 §12 bugs via `@note` tags: `get_adm_levels` lex sort, `get_scores_data` 1-row → NA, `expand_adm_levels` \>1 element silent NULL. Stripped pre-existing debug residue per arch-01:436 (~50 lines: 2 `# browser()`, 2 large commented-out alternate implementations in `structure_pti_data`, several stray comment lines). NAMESPACE delta: dropped 9 `export()` (`agg_pti_scores`, `clean_geoms`, `expand_adm_levels`, `get_adm_levels`, `get_mt`, `get_scores_data`, `get_weighted_data`, `pivot_pti_dta`, `structure_pti_data`); added 7 `importFrom`s ([`dplyr::bind_rows`](https://dplyr.tidyverse.org/reference/bind_rows.html), [`magrittr::extract`](https://magrittr.tidyverse.org/reference/aliases.html)/`extract2`, [`rlang::set_names`](https://rlang.r-lib.org/reference/set_names.html)/`sym`, [`tidyr::expand`](https://tidyr.tidyverse.org/reference/expand.html), [`golem::get_golem_options`](https://thinkr-open.github.io/golem/reference/get_golem_options.html)) that lost their previous bulk-import coverage. Test-side: converted 7 `devPTIpack::fn()` qualified calls in 3 pre-existing test files (`test-shps-converters.R`, `test-calc_pti.R`, `test-weighting-logic.R`) to unqualified — needed because `::` requires export and the tests’ [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) exposure is unaffected. Suite stays at 682 PASS — no regression. |
 | [\#49](https://github.com/worldbank/devPTIpack/pull/49) | 2026-05-03 | Phase 3 Batch 3 (data I/O & validation) | arch-02-docs Phase 3.3 – rewrote roxygen for 11 functions across 5 files: `R/fct_template_reader.R` (`fct_template_reader` exported, `fct_convert_weight_to_clean` internal), `R/fct_validate_metadata.R` (`validate_metadata` + `validate_read_shp` + `validate_read_metadata`, all exported), `R/validators.R` (`validate_geometries` exported, `validate_single_geom` un-exported per arch-01), `R/dta_cleaners.R` (`get_indicators_list` un-exported per arch-01), `R/mod_drop_inval_adm.R` (`mod_drop_inval_adm` module + `get_vars_un_avbil` + `get_min_admin_wght` + `drop_inval_adm`, all exported – folded in here for thematic coherence with the validation theme). Honored arch-01: closes 3x `@noRd + @export` rule violations (`validate_single_geom`, `validate_geometries`, `get_indicators_list`); promoted 5 functions from `@describeIn` chains to standalone exported help pages (`validate_read_shp`, `validate_read_metadata`, `get_vars_un_avbil`, `get_min_admin_wght`, `drop_inval_adm`). Pinned 2 §12 bugs via `@note`: `validate_read_shp` empty-pattern `str_detect` (issue \#7), `get_vars_un_avbil` asymmetric [`lag()`](https://rdrr.io/r/stats/lag.html) fill (PR \#34); the second `@note` flipped my initial example to use the working direction (admin2-only -\> admin1 unavailable) instead of the buggy direction. Stripped 4 `# browser()` debug-residue lines per arch-01:436 (`fct_template_reader.R` x2, `validators.R`, `dta_cleaners.R`) plus an 8-line commented-out runtime `test_that` block in `validators.R` replaced by the live `if (is.na(adm_order)...)` branch. **Kept the `@import dplyr purrr stringr readxl` bulk-import directive on `fct_template_reader`** – the [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) test environment relies on the bulk import to keep `mod_DT_inputs_server`’s 500ms throttle test deterministic across `testServer` calls (subtle shiny scheduler interaction; explicit-import-only triggers a cross-test reactive-state leak in the throttle Tier-2 test). Replaced `admin\d` regex notation in roxygen prose with `admin<N>` to avoid Rd “Lost braces” warnings; replaced em-dashes and arrows with `--` and `->` per the Batch 2 reviewer ASCII fix. NAMESPACE delta: dropped 2 `export()` (`get_indicators_list`, `validate_single_geom`); kept 4 bulk `import()` directives intact. Test-side: converted 7 `devPTIpack::get_indicators_list()` qualified calls in 2 pre-existing test files ([test-calc_pti.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-calc_pti.R) x4, [test-weighting-logic.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-weighting-logic.R) x3) to unqualified, and qualified 5 unqualified `tribble(` calls in [test-get_uavailab_admin.R](https://worldbank.github.io/devPTIpack/tests/testthat/test-get_uavailab_admin.R) to `tibble::tribble(`. Folded in the Batch 2 `TBD -> #48` swap on the §6 row and the §11 row above. Suite stays at 682 PASS – no regression. |
 | [\#50](https://github.com/worldbank/devPTIpack/pull/50) | 2026-05-04 | Phase 3 Batch 4 (visualisation helpers) | arch-02-docs Phase 3.4 – rewrote roxygen for 12 functions across `R/plot_pti_helpers.R` (10) and `R/fct_legend_map_satelites.R` (2). All 12 are INTERNAL per arch-01 § “Permanent Functions” / “Visualisation Helpers”; batch un-exports every one and converts to the `@noRd` internal template. Closes 4 `@noRd + @export` rule violations (`get_current_levels`, `filter_admin_levels`, `add_legend_paras`, `legend_map_satelite`; `recode_val_base` was already correct). Promoted 4 `@describeIn plot_pti_polygons` chains to standalone `@noRd` docs (`clean_pti_polygons`, `add_pti_poly_controls`, `clean_pti_poly_controls`, `check_existing_groups`) – the chain was acceptable while all 5 were exported but becomes meaningless once nothing has a help page. Pinned 3 §12 bugs via `@note` (all PR \#25, all in `plot_pti_helpers.R`): `filter_admin_levels` name-vs-value asymmetry, `complete_pti_labels` missing-assignment no-op (priority-rank suffix never appended in production), `check_existing_groups` empty-pattern `str_detect` error. Stripped 4 `# browser()` debug-residue lines per arch-01:436 (`plot_pti_helpers.R` x2, `fct_legend_map_satelites.R` x2). Left larger commented-out alternate-implementation blocks in `fct_legend_map_satelites.R` alone – arch-01’s “remove commented-out blocks” mandate names specific files and that file is not on the list. Fixed `@describeIn plot_pti_polygons plot_pti_polygons` typo on `add_pti_poly_controls`. Package-source fix: converted one `devPTIpack::get_current_levels()` qualified call in `R/mod_export_pti_data.R::get_pti_scores_export` to unqualified (the `::` form requires export and now errors after the un-export); 9 export-data tests broke and went green again after this one-line fix. NAMESPACE delta: dropped 11 `export()`; added 7 `importFrom`s ([`leaflet::addLayersControl`](https://rstudio.github.io/leaflet/reference/addLayersControl.html) / `clearGroup` / `layersControlOptions` / `showGroup`; [`purrr::map2_chr`](https://purrr.tidyverse.org/reference/map2.html); [`shiny::HTML`](https://rstudio.github.io/htmltools/reference/HTML.html); plus minor re-localisations from explicit-import sweeps). Test-side: no qualified-call conversions needed – the existing `devPTIpack:::legend_map_satelite` triple-colon calls in `tests/testthat/test-legend-mapping.R` keep working (`:::` resolves regardless of export status); other test files use unqualified calls that resolve via [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html). Folded in the Batch 3 `TBD -> #49` swap on the §6 row above and the §11 row above. Suite stays at 682 PASS – no regression. |
-| [\#51](https://github.com/worldbank/devPTIpack/pull/51) | 2026-05-04 | Phase 3 Batch 5 (entry points & app infrastructure) | arch-02-docs Phase 3.5 – rewrote roxygen for 5 functions across 4 files: `R/launch_pti.R` (`launch_pti_onepage` + `launch_pti`), `R/fct_create_new_pti.R` (`create_new_pti`), `R/app_config.R` (`app_sys`), `R/app_ui.R` (`golem_add_external_resources` – folded in here for thematic coherence with the entry-points theme; arch-01:24 classifies it as EXPORTED but it lived in app_ui.R behind `@noRd`). All 5 are EXPORTED per arch-01 § “Entry Points & App Scaffolding” – this batch is the inverse shape of Batches 2-4 (no un-exports; one promote-to-exported on `golem_add_external_resources`). Honored the rules-file Exported template: typed `@param`, `@return`, `@importFrom`, `@export`, runnable or `\dontrun{}` `@examples`. Closes 1 `@noRd + @export` rule violation (`app_sys`) and 1 `@noRd`-on-an-EXPORTED-fn arch-01 violation (`golem_add_external_resources`). Promoted the `@describeIn launch_pti_onepage` chain on `launch_pti` to a standalone help page – the two apps diverge in usage (one-page is a focused viewer, multi-tab pulls in compare + explorer + cicerone tour), and only `launch_pti` takes the `tabs` and `app_name` parameters. Examples: `app_sys` runs unwrapped (`app_sys("app", "www")`); `create_new_pti` runs unwrapped via a [`tempdir()`](https://rdrr.io/r/base/tempfile.html) scaffold with `open = FALSE` (rstudioapi gates skip cleanly outside RStudio); `launch_pti` / `launch_pti_onepage` / `golem_add_external_resources` use `\dontrun{}` per the rules-file “side-effect-heavy code” clause. Stripped 1 debug-residue line (`R/launch_pti.R:173` – a commented-out `observe(cat("tab: ", active_tab(), "\n"))` instrumentation). No pinned §12 bugs touched this batch. Reviewer-iteration adjustments: dropped a stale `@importFrom bsplus use_bs_tooltip` directive on `golem_add_external_resources` (carried from the `@noRd` era but the body never called it); flattened a `[add_logo()]` cross-ref to plain backticks since `add_logo()` is `@noRd` (avoids an “Rd cross-reference to non-existent topic” R CMD check note); added the `tabs` default to its `@param` description. NAMESPACE delta: added 1 export (`golem_add_external_resources`); added 2 `importFrom`s ([`cicerone::use_cicerone`](https://rdrr.io/pkg/cicerone/man/use_cicerone.html), [`rlang::dots_list`](https://rlang.r-lib.org/reference/list2.html)); dropped 1 stale `importFrom` ([`bsplus::use_bs_tooltip`](https://ijlyttle.github.io/bsplus/reference/bs_embed_tooltip.html)). Test-side: no qualified-call conversions needed – nothing was un-exported; the new `golem_add_external_resources` export strictly widens the public surface. Folded in the Batch 4 `TBD -> #50` swap on the §6 row and the §11 row above. Suite stays at 682 PASS – no regression. |
+| [\#51](https://github.com/worldbank/devPTIpack/pull/51) | 2026-05-04 | Phase 3 Batch 5 (entry points & app infrastructure) | arch-02-docs Phase 3.5 – rewrote roxygen for 5 functions across 4 files: `R/launch_pti.R` (`launch_pti_onepage` + `launch_pti`), `R/fct_create_new_pti.R` (`create_new_pti`), `R/app_config.R` (`app_sys`), `R/app_ui.R` (`golem_add_external_resources` – folded in here for thematic coherence with the entry-points theme; arch-01:24 classifies it as EXPORTED but it lived in app_ui.R behind `@noRd`). All 5 are EXPORTED per arch-01 § “Entry Points & App Scaffolding” – this batch is the inverse shape of Batches 2-4 (no un-exports; one promote-to-exported on `golem_add_external_resources`). Honored the rules-file Exported template: typed `@param`, `@return`, `@importFrom`, `@export`, runnable or `\dontrun{}` `@examples`. Closes 1 `@noRd + @export` rule violation (`app_sys`) and 1 `@noRd`-on-an-EXPORTED-fn arch-01 violation (`golem_add_external_resources`). Promoted the `@describeIn launch_pti_onepage` chain on `launch_pti` to a standalone help page – the two apps diverge in usage (one-page is a focused viewer, multi-tab pulls in compare + explorer + cicerone tour), and only `launch_pti` takes the `tabs` and `app_name` parameters. Examples: `app_sys` runs unwrapped (`app_sys("app", "www")`); `create_new_pti` runs unwrapped via a [`tempdir()`](https://rdrr.io/r/base/tempfile.html) scaffold with `open = FALSE` (rstudioapi gates skip cleanly outside RStudio); `launch_pti` / `launch_pti_onepage` / `golem_add_external_resources` use `\dontrun{}` per the rules-file “side-effect-heavy code” clause. Stripped 1 debug-residue line (`R/launch_pti.R:173` – a commented-out `observe(cat("tab: ", active_tab(), "\n"))` instrumentation). No pinned §12 bugs touched this batch. Reviewer-iteration adjustments: dropped a stale `@importFrom bsplus use_bs_tooltip` directive on `golem_add_external_resources` (carried from the `@noRd` era but the body never called it); flattened a `[add_logo()]` cross-ref to plain backticks since `add_logo()` is `@noRd` (avoids an “Rd cross-reference to non-existent topic” R CMD check note); added the `tabs` default to its `@param` description. NAMESPACE delta: added 1 export (`golem_add_external_resources`); added 2 `importFrom`s ([`cicerone::use_cicerone`](https://rdrr.io/pkg/cicerone/man/use_cicerone.html), [`rlang::dots_list`](https://rlang.r-lib.org/reference/list2.html)); dropped 1 stale `importFrom` (`bsplus::use_bs_tooltip`). Test-side: no qualified-call conversions needed – nothing was un-exported; the new `golem_add_external_resources` export strictly widens the public surface. Folded in the Batch 4 `TBD -> #50` swap on the §6 row and the §11 row above. Suite stays at 682 PASS – no regression. |
 | [\#52](https://github.com/worldbank/devPTIpack/pull/52) | 2026-05-04 | Phase 3 Batch 6a (PTI rendering & display stack) | arch-02-docs Phase 3.6a – rewrote roxygen for 44 functions across 16 files in the rendering stack: `R/mod_ptipage_core.R` (3), `R/mod_pti_comparepage.R` (2), `R/mod_calc_pti2.R` (2), `R/mod_dta_explorer2.R` (8), `R/mod_export_pti_data.R` (3), `R/mod_load_shapes.R` (2), `R/mod_plot_pti2.R` (1), `R/mod_plot_init_leaf.R` (2), `R/mod_plot_poly_leaf.R` (4), `R/mod_plot_poly_legend.R` (3), `R/mod_pti_map_side_pan.R` (7), `R/mod_map_pti_leaf_ui.R` (1), `R/mod_dwnld_dta.R` (3), `R/mod_dwnld_local_file.R` (1), `R/run_pti_pipeline.R` (1; cross-ref cleanup only), `R/mod_fetch_data.R` (1). Honored arch-01 § “Permanent Functions”: un-exported 15 INTERNAL fns (`filter_var_explorer`, `get_var_choices`, `make_gg_line_map`, `make_ggmap`, `mod_dta_explorer2_side_ui`, `mod_fltr_sel_var2_srv`, `mod_plot_init_leaf_server`, `mod_plot_leaf_export`, `mod_plot_poly_leaf_server`, `mod_plot_poly_legend_server`, `mod_select_var_ui`, `plot_leaf_line_map2`, `plot_pti_legend`, `remove_pti_legend`, `reshaped_explorer_dta`); promoted 3 EXPORTED fns from `@noRd` to `@export` (`mod_leaf_side_panel_ui`, `mod_map_pti_leaf_ui`, `mod_pti_comparepage_newsrv` – closes 3 arch-01 violations; the `mod_pti_comparepage_newsrv` one was missed by the scope inventory and surfaced when roxygen2 wrote out the new NAMESPACE). Promoted 14 `@describeIn` members to standalone docs across the chains in `mod_dta_explorer2`, `mod_plot_init_leaf`, `mod_plot_poly_leaf`, `mod_plot_poly_legend`; split `mod_ptipage_newsrv` out of the UI chain since server vs UI diverged in usage (Batch 5 `launch_pti` precedent). Pinned 2 §12 bugs via `@note` – `get_var_choices` empty-indicators NULL-attr (PR \#27), `mod_fltr_sel_var2_srv` multi-var-pillar predicate (PR \#37); the second `@note` had to escape `\%in\%` and avoid raw `~ {` brace literals to keep the Rd parser happy. Stripped 6 debug-residue lines per arch-01:436: 4 `# browser()` in `mod_plot_poly_leaf.R` (one in `mod_plot_leaf_export`, three in `make_ggmap` / `make_gg_line_map`), 1 in `mod_pti_map_side_pan.R` (PNG download handler), 1 in `mod_dta_explorer2.R` (`mod_fltr_sel_var2_srv` `add_selected` observer); plus the 14-line commented-out `withProgress` / `tempfile` / `mapview` block in `mod_plot_leaf_export` (alternate impl that was never re-enabled). Left the larger commented-out alternate-implementation blocks in `mod_pti_map_side_pan.R` (chromote / mapshot / webshot2 PNG path, ggsave alternative; ~50 commented lines total) and the `radioButtons` / `adm_lvl_debounce` alternate path in `mod_get_admin_levels_srv` alone – arch-01’s “remove commented-out blocks” mandate names specific files and `mod_pti_map_side_pan.R` is not one of them. Examples: `get_shape` runs unwrapped via the `shape_dta = ukr_shp` short-circuit; `get_pti_weights_export` runs unwrapped via `get_indicators_list(ukr_mtdt_full)` + [`get_rand_weights()`](https://worldbank.github.io/devPTIpack/reference/get_rand_weights.md); UI / server modules use `\dontrun{}` per the rules-file “Shiny modules” clause; `get_pti_scores_export` uses `\dontrun{}` because reproducing its expected `plotted_dta` shape requires the full reactive chain (preplot + drop_inval_adm + filter_admin_levels + add_legend_paras + complete_pti_labels). NAMESPACE delta: dropped 15 `export()`; added 3 `export()`; added 5 `importFrom`s ([`purrr::pmap_dfr`](https://purrr.tidyverse.org/reference/map_dfr.html), [`shiny::fillPage`](https://rdrr.io/pkg/shiny/man/fillPage.html), [`shiny::incProgress`](https://rdrr.io/pkg/shiny/man/withProgress.html), [`shiny::uiOutput`](https://rdrr.io/pkg/shiny/man/htmlOutput.html), [`shiny::withProgress`](https://rdrr.io/pkg/shiny/man/withProgress.html)) that lost their previous bulk-import coverage. Test-side: no qualified-call conversions needed – the existing `devPTIpack:::*` triple-colon calls in tests resolve regardless of export status; no `devPTIpack::` calls existed for any of the 15 un-exported fns. Cross-ref cleanup: flattened `[mod_calc_pti2_server()]`, `[get_indicators_list()]`, `[agg_pti_scores()]` cross-refs in `run_pti_pipeline` to plain backticks since those targets are `@noRd` (avoids “Rd cross-reference to non-existent topic” R CMD check notes per the Batch 5 reviewer fix). No prior-batch TBD swap to fold in – Batch 5 (#51) merged with the PR number already in place. Suite stays at 682 PASS – no regression. |
 | [\#53](https://github.com/worldbank/devPTIpack/pull/53) | 2026-05-04 | **Phase 3 Batch 6b (closes Phase 3 – \#11)** | arch-02-docs Phase 3.6b – audited 37 functions across 12 files closing the Phase 3 sweep (35 fns across 11 files rewritten in this PR; 2 fns in `mod_wt_btns_collect.R` already at standard from Batch 5 extraction PR \#45, no edits): `R/mod_wt_inp.R` (14), `R/mod_DT_inputs.R` (7), `R/mod_wt_btns_collect.R` (2; verified-only), `R/mod_first_open_count.R` (1), `R/mod_tab_open.R` (1), `R/mod_waiter.R` (3), `R/mod_weights_rand.R` (3), `R/mod_infotab.R` (1), `R/fct_guide.R` (1), `R/fct_helpers.R` (1; `add_logo`), `R/fct_inp_for_exp.R` (2), `R/supporting-goe-prep.R` (1; `gg_admin_list`). Honored arch-01 § “Permanent Functions”: un-exported 2 INTERNAL fns (`fct_inp_for_exp`, `fct_internal_wt_to_exp` – arch-01:166-167 classifies both INTERNAL but they were exported via the `@noRd + @export` rule violation; un-exporting closes the violation and aligns NAMESPACE with arch-01); kept 4 EXPORTED fns exported by dropping their `@noRd` tags (`mod_tab_open_first_newserv`, `gg_admin_list`, `get_rand_weights`, `get_all_weights_combs` – closes 4 more `@noRd + @export` rule violations without moving NAMESPACE). Net 6 rule-violations closed. Promoted the 14-fn `@describeIn mod_wt_inp_ui` chain to standalone `@noRd` docs (Batch 4 precedent for full-chain split when umbrella + members are all INTERNAL); promoted the 3-fn `@describeIn mod_waiter_newsrv` chain similarly; split `get_rand_weights` and `get_all_weights_combs` out of the `@describeIn mod_weights_rand_ui` chain so their EXPORTED help pages stand alone. Pinned 1 §12 bug via `@note`: `fct_internal_wt_to_exp(list())` left-join error (PR \#26). Stripped 8 `# browser()` debug-residue lines per arch-01:436 (4 in `mod_DT_inputs.R`, 1 in `mod_wt_inp.R`’s upload-stub `mod_wt_uplod_newsrv` body, 3 in `supporting-goe-prep.R`); also stripped the 8-line commented-out `observeEvent(update_dta())` alternate-impl block in `mod_DT_inputs.R` (contained an embedded [`browser()`](https://rdrr.io/r/base/browser.html); the live `observe(...)` block above implements the same logic without the debugger trap). Three scope-proposal-time corrections vs the user’s prompt-time hypotheses, surfaced and corrected at the gate before any roxygen edit: (1) `fct_inp_for_exp` + `fct_internal_wt_to_exp` are arch-01-INTERNAL not EXPORTED, so the close direction was drop-`@export` not drop-`@noRd`; (2) `mod_infotab.R` had no `# browser()` at line ~71 (and none anywhere); (3) total browser-strip count was 8 lines + 1 alt-impl block, not the 1 implied. NAMESPACE delta: dropped 2 `export()` (`fct_inp_for_exp`, `fct_internal_wt_to_exp`); added a batch of explicit `importFrom`s on the rewritten functions that lost bulk-import coverage when their `@describeIn` chains dispersed (notable: [`ggplot2::aes`](https://ggplot2.tidyverse.org/reference/aes.html)/`geom_sf`/`ggplot`/`labs`/`theme`/`theme_minimal` localised onto `gg_admin_list`; [`dplyr::case_when`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html)/`if_any`/`right_join`; `purrr::flatten`/`imap_dfr`/`pmap_chr`/`pwalk`; ~15 new `shiny::*` symbols including `actionLink`/`fileInput`/`isolate`/`modalDialog`/`renderUI`/`throttle`/`updateSelectInput`/`verbatimTextOutput`). Test-side: no qualified-call conversions needed – existing unqualified `fct_inp_for_exp(...)` / `fct_internal_wt_to_exp(...)` calls in `tests/testthat/test-export.R` resolve via [`pkgload::load_all()`](https://pkgload.r-lib.org/reference/load_all.html) regardless of export status. Folded in the Batch 6a `TBD -> #52` swap on the §6 row above and the §11 row above. **Closes Phase 3 (#11).** Suite stays at 682 PASS – no regression. |
 | [\#56](https://github.com/worldbank/devPTIpack/pull/56) | 2026-05-06 | **Phase 2.5 §12 (bug-fix \#1)** | §12 bug \#1 fixed – `R/plot_pti_helpers.R::complete_pti_labels` now assigns its [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html) result back to `dta`, so popups receive the `<strong>{priority_rank}</strong>` suffix the function was already computing but discarding. Test pin in `tests/testthat/test-plot-helpers.R` flipped from no-op (asserting the bug) to contract assertion (each output label equals the original concatenated with `<strong>{recode_function(pti_score)}</strong>`). Stripped the `@note Pinned bug (PR #25)` block from the function’s roxygen. Confirmed no caller depended on the broken behaviour: production caller `R/mod_plot_pti2.R:64` already piped through expecting the augmented labels; test setup `tests/testthat/test-map-render.R:16` only asserts `s3_class(g, "gg")` and never inspects label text. Folded in the Batch 6b `TBD -> #53` swap on the §6 row above and the §11 row above. Suite stays at 682 PASS – no regression. |

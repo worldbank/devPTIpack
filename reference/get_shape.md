@@ -44,7 +44,12 @@ Named list of \`sf\` tibbles, one per admin level (e.g.
 ## See also
 
 Other data-input:
-[`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
+[`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md),
+[`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md),
+[`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md),
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md),
+[`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md),
+[`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
 
 ## Examples
 
@@ -54,5 +59,5 @@ data(rwa_shp)
 # In-memory short-circuit: returns shape_dta unchanged.
 shp <- get_shape(shape_dta = rwa_shp)
 names(shp)
-#> [1] "admin0_Country"  "admin1_Province" "admin2_District"
+#> [1] "admin0_Country"  "admin1_Province" "admin2_District" "admin9_Hexagon" 
 ```

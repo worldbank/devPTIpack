@@ -54,6 +54,22 @@ silently. See
 [§2.1](https://worldbank.github.io/devPTIpack/articles/dataprep.md) for
 the full inventory.
 
+> **Hex layer requires a matching metadata sheet**
+>
+> If Step 1 built an `admin9_Hexagon` layer (Step 1 §F), the metadata
+> workbook **must** contain a sheet named `admin9_Hexagon` for any
+> indicator with `spatial_level = "admin9_Hexagon"`. Step 4 (HEX data,
+> covered by
+> [`build-pti-4-hex`](https://worldbank.github.io/devPTIpack/articles/build-pti-4-hex.md))
+> is the canonical way to produce this sheet via the registry-driven
+> pipeline; the output `app-data/metadata-hex.xlsx` is one of the inputs
+> Step 5 merges into the final `metadata.xlsx`.
+>
+> If your project doesn’t ship hex-level indicators, you can omit the
+> `admin9_Hexagon` sheet entirely from your user metadata workbook – the
+> hex layer in `shapes.rds` is then used for spatial-join machinery
+> only, not as a `spatial_level` target.
+
 ## Condensed column reference — `metadata` sheet
 
 Every row in `metadata` has these 14 columns. Required unless noted:
@@ -150,8 +166,9 @@ for the Data Explorer tab.
 
 The cascade rule applies here too: every row in `admin2_District` must
 have an `admin1Pcod` value that exists in `admin1_Province`’s
-`admin1Pcod` column. If you generated the Adm2 layer with a
-centroid-in-polygon join (see [Step 1
+`admin1Pcod` column. If you populated the cascade in Step 1 via
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md)
+(see [Step 1
 §E](https://worldbank.github.io/devPTIpack/articles/build-pti-1-shapefiles.html#sec-advanced-multi-level)),
 the workbook should already inherit those parent P-codes — but
 [`validate_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_metadata.md)

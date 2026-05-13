@@ -66,6 +66,10 @@ result <- validate_geometries(rwa_shp)
 #> 
 #> ✔ validate_single_geom: all checks passed.
 #> 
+#> ── Layer: admin9_Hexagon ──
+#> 
+#> ✔ validate_single_geom: all checks passed.
+#> 
 #> ── Cross-layer hierarchy ──
 #> 
 #> ✔ Hierarchy row count matches most-disaggregated layer.

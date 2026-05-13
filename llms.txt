@@ -108,8 +108,19 @@ Read shapes and metadata workbooks from disk.
 - [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
   : Read a PTI metadata Excel template into the package's
   list-of-tibbles format
+- [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md)
+  : Query a parquet endpoint for the actual available years of a
+  variable
 - [`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md)
   : Load admin-level shape data for a PTI app
+- [`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md)
+  : List the bundled hex variables available for the PTI pipeline
+- [`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md)
+  : Build the parent-child P-code cascade for a shapefile list
+- [`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md)
+  : Build an H3 hexagonal grid covering a country boundary
+- [`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
+  : Resolve hex variable names against the registry
 
 ## Weighting schemes
 

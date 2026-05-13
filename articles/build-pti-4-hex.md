@@ -33,8 +33,10 @@ indicator in the deployed app.
 Step 1 must be complete. You need:
 
 - `app-data/shapes.rds` containing your admin layers **and** an
-  `admin9_Hexagon` layer built by `make_hex_grid()` and enriched by
-  `make_admin_lookup()`.
+  `admin9_Hexagon` layer built by
+  [`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md)
+  and enriched by
+  [`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md).
 
 ``` r
 
@@ -140,14 +142,14 @@ hex_data <- dplyr::full_join(hex_data, my_data, by = "hex_id")
 
 **Local parquet contract:**
 
-| Requirement | Rule                                           |
-|-------------|------------------------------------------------|
-| Format      | Readable by `arrow::open_dataset()`            |
-| Layout      | Long format — one row per hex × time period    |
-| Hex column  | Any name — you rename to `hex_id` before merge |
-| Population  | Absent (comes from registry)                   |
-| Values      | Numeric columns, one per indicator             |
-| Uniqueness  | No duplicate hex ID per time period            |
+| Requirement | Rule |
+|----|----|
+| Format | Readable by [`arrow::open_dataset()`](https://arrow.apache.org/docs/r/reference/open_dataset.html) |
+| Layout | Long format — one row per hex × time period |
+| Hex column | Any name — you rename to `hex_id` before merge |
+| Population | Absent (comes from registry) |
+| Values | Numeric columns, one per indicator |
+| Uniqueness | No duplicate hex ID per time period |
 
 ## Aggregating to admin polygons
 

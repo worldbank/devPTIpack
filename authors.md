@@ -12,13 +12,14 @@
 
 ## Citation
 
-Bukin E, Ito K, Masaki T, Finn A (2026). *devPTIpack: Project Targeting
-Index Framework*. <https://worldbank.github.io/devPTIpack/>.
+Bukin E (2026). *devPTIpack: Project Targeting Index: a framework for
+developing PTI apps and dashboards*. R package version 0.0.0.998,
+<https://worldbank.github.io/devPTIpack/>.
 
     @Manual{,
-      title = {devPTIpack: Project Targeting Index Framework},
-      author = {Eduard Bukin and Koichi Ito and Takaaki Masaki and Arden Finn},
-      journal = {World Bank Open Source Software},
+      title = {devPTIpack: Project Targeting Index: a framework for developing PTI apps and dashboards},
+      author = {Eduard Bukin},
       year = {2026},
+      note = {R package version 0.0.0.998},
       url = {https://worldbank.github.io/devPTIpack/},
     }

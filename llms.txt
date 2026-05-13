@@ -108,6 +108,8 @@ Read shapes and metadata workbooks from disk.
 - [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
   : Read a PTI metadata Excel template into the package's
   list-of-tibbles format
+- [`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md)
+  : Fetch hex-level indicator data from registry parquet endpoints
 - [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md)
   : Query a parquet endpoint for the actual available years of a
   variable

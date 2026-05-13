@@ -337,8 +337,10 @@ Two notes on resolution choice:
   `INCLUDE_HEX_IN_APP <- FALSE` in `00-master.R` (Step 4 still
   aggregates hex-sourced indicators to admin levels in that mode).
 - `HEX_RESOLUTION` is encoded in every H3 index string written to
-  `shapes.rds`. Step 4 (`fetch_hex_data()`) detects the resolution
-  automatically from the indices — no second control point is needed.
+  `shapes.rds`. Step 4
+  ([`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md))
+  detects the resolution automatically from the indices — no second
+  control point is needed.
 
 ## Next
 

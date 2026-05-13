@@ -340,7 +340,7 @@
 <ul>
 <li>A large country at H6 can exceed 5,000 cells. The deployed Leaflet map renders ~5,000 polygons comfortably; beyond that, consider H5 or exclude hex polygons from the deployed app entirely via <code>INCLUDE_HEX_IN_APP &lt;- FALSE</code> in <code>00-master.R</code> (Step 4 still aggregates hex-sourced indicators to admin levels in that mode).</li>
 <li>
-<code>HEX_RESOLUTION</code> is encoded in every H3 index string written to <code>shapes.rds</code>. Step 4 (<code>fetch_hex_data()</code>) detects the resolution automatically from the indices — no second control point is needed.</li>
+<code>HEX_RESOLUTION</code> is encoded in every H3 index string written to <code>shapes.rds</code>. Step 4 (<code><a href="../reference/fetch_hex_data.html">fetch_hex_data()</a></code>) detects the resolution automatically from the indices — no second control point is needed.</li>
 </ul></section><section class="level2"><h2 id="next">Next<a class="anchor" aria-label="anchor" href="#next"></a>
 </h2>
 <p>Once <code>app-data/shapes.rds</code> is in place:</p>

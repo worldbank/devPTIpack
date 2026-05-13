@@ -114,9 +114,11 @@ pushdown). Temporal variables are pivoted wide: `nightlights_2015`,
 after `hex_id`.
 
 **Resolution bridge:** if your hex grid is at H5 (coarser than the H6
-source data), `fetch_hex_data()` transparently expands each H5 cell to
-its H6 children, fetches at H6, and aggregates back to H5. Requesting
-finer than H6 (e.g. H7) produces an error.
+source data),
+[`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md)
+transparently expands each H5 cell to its H6 children, fetches at H6,
+and aggregates back to H5. Requesting finer than H6 (e.g. H7) produces
+an error.
 
 Progress is reported per variable.
 

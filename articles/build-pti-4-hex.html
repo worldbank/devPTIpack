@@ -160,9 +160,9 @@
 </section><section class="level2"><h2 id="fetching-hex-data">Fetching hex data<a class="anchor" aria-label="anchor" href="#fetching-hex-data"></a>
 </h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hex_data</span> <span class="op">&lt;-</span> <span class="fu">fetch_hex_data</span><span class="op">(</span>hex_ids <span class="op">=</span> <span class="va">hex_ids</span>, vars <span class="op">=</span> <span class="va">vars</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">hex_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fetch_hex_data.html">fetch_hex_data</a></span><span class="op">(</span>hex_ids <span class="op">=</span> <span class="va">hex_ids</span>, vars <span class="op">=</span> <span class="va">vars</span><span class="op">)</span></span></code></pre></div>
 <p>Only hexagons matching your <code>hex_ids</code> are read (parquet predicate pushdown). Temporal variables are pivoted wide: <code>nightlights_2015</code>, <code>nightlights_2022</code>. Population is always the first indicator column after <code>hex_id</code>.</p>
-<p><strong>Resolution bridge:</strong> if your hex grid is at H5 (coarser than the H6 source data), <code>fetch_hex_data()</code> transparently expands each H5 cell to its H6 children, fetches at H6, and aggregates back to H5. Requesting finer than H6 (e.g. H7) produces an error.</p>
+<p><strong>Resolution bridge:</strong> if your hex grid is at H5 (coarser than the H6 source data), <code><a href="../reference/fetch_hex_data.html">fetch_hex_data()</a></code> transparently expands each H5 cell to its H6 children, fetches at H6, and aggregates back to H5. Requesting finer than H6 (e.g. H7) produces an error.</p>
 <p>Progress is reported per variable.</p>
 </section><section class="level2"><h2 id="optional-merging-your-own-data">Optional: merging your own data<a class="anchor" aria-label="anchor" href="#optional-merging-your-own-data"></a>
 </h2>

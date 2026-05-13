@@ -45,6 +45,7 @@ Named list of \`sf\` tibbles, one per admin level (e.g.
 
 Other data-input:
 [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md),
+[`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md),
 [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md),
 [`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md),
 [`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md),

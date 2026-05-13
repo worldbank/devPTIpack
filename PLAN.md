@@ -1050,9 +1050,26 @@ listing every substitution by canonical name),
 Network-free unit tests (28 PASS / 0 FAIL) via the
 `available_years_lookup` test seam.
 
-arch-11 §“Fetching” – `fetch_hex_data()` with H5/H6 resolution bridge
-(issue [\#112](https://github.com/worldbank/devPTIpack/issues/112);
-blocked by \#105 + \#109 + \#110).
+arch-11 §“Fetching” –
+[`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md)
+with H5/H6 resolution bridge (issue
+[\#112](https://github.com/worldbank/devPTIpack/issues/112); blocked by
+\#105 + \#109 + \#110). New `R/fct_hex_fetch.R`: exported
+`fetch_hex_data(hex_ids, vars, dataset_loader, available_years_lookup)`.
+Calls `resolve_years_for_vars()` first; detects H3 resolution via
+[`h3jsr::get_res()`](https://obrl-soil.github.io/h3jsr/reference/get_res.html);
+H6 → direct arrow fetch; H5 → bridge (7 H6 children per H5 via
+[`h3jsr::get_children()`](https://obrl-soil.github.io/h3jsr/reference/get_children.html),
+aggregate back using each var’s `weight`/`fun`); H4 or lower → error; H7
+or higher → error. Both `dataset_loader` and `available_years_lookup`
+are test seams for network-free Tier-1 tests. Temporal vars pivot
+long→wide with `<canonical>_<year>` column names. Population column is
+always first after `hex_id`. Also: `pti_hex_var()` gains `path` and
+`hex_col` fields (defaults `NA`);
+[`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
+embeds them from the registry source so
+[`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md)
+stays YAML-free. 23 PASS / 0 FAIL in `tests/testthat/test-hex-fetch.R`.
 
 arch-11 §“Aggregation” – `aggregate_hex_to_shapes()` (issue
 [\#113](https://github.com/worldbank/devPTIpack/issues/113); blocked by

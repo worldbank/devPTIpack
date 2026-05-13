@@ -69,6 +69,7 @@ before returning. Column names follow the convention
 ## See also
 
 Other data-input:
+[`aggregate_hex_to_shapes()`](https://worldbank.github.io/devPTIpack/reference/aggregate_hex_to_shapes.md),
 [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md),
 [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md),
 [`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md),

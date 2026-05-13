@@ -28,6 +28,8 @@ Compute scores, label outputs, and compile deployment artefacts.
 
 Read shapes and metadata workbooks from disk.
 
+- [`aggregate_hex_to_shapes()`](https://worldbank.github.io/devPTIpack/reference/aggregate_hex_to_shapes.md)
+  : Aggregate hex-level indicator data to administrative shapes
 - [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
   : Read a PTI metadata Excel template into the package's
   list-of-tibbles format

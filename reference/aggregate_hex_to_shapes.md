@@ -62,6 +62,7 @@ for downstream use by \[build_hex_metadata()\].
 ## See also
 
 Other data-input:
+[`build_hex_metadata()`](https://worldbank.github.io/devPTIpack/reference/build_hex_metadata.md),
 [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md),
 [`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md),
 [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md),

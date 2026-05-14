@@ -1088,10 +1088,23 @@ with `hex_layer$area`; all-NA group → `NA_real_` + `cli_warn`. Temporal
 column stems (strip `_<year>`) look up strategy before falling back to
 `.default`. 35 PASS / 0 FAIL in `tests/testthat/test-hex-aggregate.R`.
 
-arch-11 §“Metadata Excel output” – `build_hex_metadata()` with
-`include_hex` gating (issue
+arch-11 §“Metadata Excel output” –
+[`build_hex_metadata()`](https://worldbank.github.io/devPTIpack/reference/build_hex_metadata.md)
+with `include_hex` gating (issue
 [\#115](https://github.com/worldbank/devPTIpack/issues/115); blocked by
-\#113).
+\#113). New `R/fct_hex_build_metadata.R`: exported
+`build_hex_metadata(aggregated, shp_dta, indicator_config, country_name, output_path, include_hex, include_population)`
+writes a `metadata-hex.xlsx` workbook in the Step-3 template format;
+registry metadata auto-populated from `inst/hex_vars_registry.yaml` via
+`hex_meta_registry_lookup()`; `indicator_config` tibble overrides with
+`cli_warn`; non-registry vars without `indicator_config` → `cli_abort`;
+`include_hex` missing + \>5,000 cells → interactive prompt or
+non-interactive warn+`FALSE`; `include_population = FALSE` (default)
+excludes population row from metadata sheet; temporal `{year}`
+glue-expands in `var_name`; validation via
+[`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md)
+at the end. 42 PASS / 0 FAIL in
+`tests/testthat/test-hex-build-metadata.R`.
 
 arch-11 §“compile_pti_data() multi-file merge” – extend
 [`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md)
@@ -1551,6 +1564,63 @@ this exact error and commenting them out. **This PR closes the Phase 2.5
 this one).** Folded in nothing – prior PR \#69 self-swapped its TBD
 before merge. Suite goes from 702 PASS -\> 710 PASS (FAIL=0, SKIP=1) –
 net +8 expectations from the new test file. \|
+
+[\#125](https://github.com/worldbank/devPTIpack/pull/125) \| 2026-05-13
+\| **arch-11 §“Registry” (#105)** \| Hex variable registry + reader
+functions. New `R/fct_hex_registry.R`: `read_hex_registry()`,
+[`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md),
+[`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md),
+[`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md).
+Registry YAML at `inst/hex_vars_registry.yaml` (registry_version 0.1.0;
+sources: wb_flood_exposure with population +
+flood_exposure_15cm_1in100). Suite 1109 PASS / 0 FAIL in
+`tests/testthat/test-hex-registry.R`. \|
+
+[\#126](https://github.com/worldbank/devPTIpack/pull/126) \| 2026-05-13
+\| **chore: switch integration target to main** \| Retired
+`koichi-arch-redesign` + `eb-docs-pkgdown` integration branches; updated
+CLAUDE.md and PLAN.md to reflect that PRs now target `main` directly. \|
+
+[\#127](https://github.com/worldbank/devPTIpack/pull/127) \| 2026-05-13
+\| **arch-11 §“Year resolution” (#110)** \| Hex year resolver. New
+`R/fct_hex_year_resolver.R`: `resolve_years()`,
+`resolve_years_for_vars()`, `prompt_or_error_for_years()`,
+`is_interactive()`. Suite PASS in
+`tests/testthat/test-hex-year-resolver.R`. Fixed `is_interactive()`
+wrapper so CI tests pass via `local_mocked_bindings`. \|
+
+[\#128](https://github.com/worldbank/devPTIpack/pull/128) \| 2026-05-13
+\| **arch-11 §“Fetching” (#112)** \|
+[`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md)
+with H5/H6 bridge. New `R/fct_hex_fetch.R`: exported
+`fetch_hex_data(hex_ids, vars, dataset_loader, available_years_lookup)` +
+internal `hex_build_url()`, `hex_fetch_parquet()`,
+`hex_merge_sources()`. `pti_hex_var` S3 class gains `path` + `hex_col`
+slots. 23 PASS / 0 FAIL in `tests/testthat/test-hex-fetch.R`. \|
+
+[\#129](https://github.com/worldbank/devPTIpack/pull/129) \| 2026-05-13
+\| **arch-11 §“Aggregation” (#113)** \|
+[`aggregate_hex_to_shapes()`](https://worldbank.github.io/devPTIpack/reference/aggregate_hex_to_shapes.md).
+New `R/fct_hex_aggregate.R`: exported
+`aggregate_hex_to_shapes(hex_data, hex_layer, shp_dta, strategy)` +
+internal `hex_agg_build_exprs()`. Population placed last in
+[`dplyr::summarise()`](https://dplyr.tidyverse.org/reference/summarise.html)
+to keep the original vector available for pop-weighted expressions. 35
+PASS / 0 FAIL in `tests/testthat/test-hex-aggregate.R`. \|
+
+[\#130](https://github.com/worldbank/devPTIpack/pull/130) \| 2026-05-13
+\| **arch-11 §“Metadata Excel output” (#115)** \|
+[`build_hex_metadata()`](https://worldbank.github.io/devPTIpack/reference/build_hex_metadata.md).
+New `R/fct_hex_build_metadata.R`: exported
+`build_hex_metadata(aggregated, shp_dta, indicator_config, country_name, output_path, include_hex, include_population)` +
+internal helpers `hex_meta_registry_lookup()`, `hex_meta_user_row()`,
+`hex_meta_merge()`. Writes `metadata-hex.xlsx` in the Step-3 template
+format; registry auto-populated from `inst/hex_vars_registry.yaml`;
+`indicator_config` overrides with warning; temporal `{year}`
+glue-expansion;
+[`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md)
+end-to-end validation. 42 PASS / 0 FAIL in
+`tests/testthat/test-hex-build-metadata.R`. \|
 
 [\#79-draft](https://github.com/worldbank/devPTIpack/issues/79) \|
 2026-05-08 \| **arch-09 PR \#A2 — template scaffold + Rwanda data

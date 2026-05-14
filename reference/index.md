@@ -30,6 +30,8 @@ Read shapes and metadata workbooks from disk.
 
 - [`aggregate_hex_to_shapes()`](https://worldbank.github.io/devPTIpack/reference/aggregate_hex_to_shapes.md)
   : Aggregate hex-level indicator data to administrative shapes
+- [`build_hex_metadata()`](https://worldbank.github.io/devPTIpack/reference/build_hex_metadata.md)
+  : Build the hex-pipeline metadata Excel workbook
 - [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
   : Read a PTI metadata Excel template into the package's
   list-of-tibbles format

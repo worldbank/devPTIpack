@@ -39,6 +39,7 @@ slot when the input contains a \`weights_table\` sheet.
 
 Other data-input:
 [`aggregate_hex_to_shapes()`](https://worldbank.github.io/devPTIpack/reference/aggregate_hex_to_shapes.md),
+[`build_hex_metadata()`](https://worldbank.github.io/devPTIpack/reference/build_hex_metadata.md),
 [`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md),
 [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md),
 [`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md),

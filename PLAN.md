@@ -1108,10 +1108,15 @@ at the end. 42 PASS / 0 FAIL in
 
 arch-11 §“compile_pti_data() multi-file merge” – extend
 [`compile_pti_data()`](https://worldbank.github.io/devPTIpack/reference/compile_pti_data.md)
-(issue [\#116](https://github.com/worldbank/devPTIpack/issues/116);
-blocked by \#115). (Note: the source-label suffix logic in
-`compile_merge_metadata()` landed earlier via Eduard’s PR \#63 commit
-`9e45918`.)
+(GitHub issue
+[\#117](https://github.com/worldbank/devPTIpack/issues/117); PLAN had
+issue numbers swapped with \#116). The core merge contract (source-label
+suffix, admin full_join, weights first-non-empty) landed via Eduard’s PR
+\#63 commit `9e45918`. This PR adds `.x`/`.y` suffix detection warning
+([`cli::cli_warn()`](https://cli.r-lib.org/reference/cli_abort.html))
+and 5 new test blocks (38 PASS / 0 FAIL) covering collision rename,
+admin column sync, general first-file-wins, weights_table multi-file
+warning, and `.x`/`.y` detection.
 
 arch-11 §“Step 4 vignette” – `build-pti-4-hex.qmd` walkthrough (issue
 [\#117](https://github.com/worldbank/devPTIpack/issues/117); blocked by
@@ -1620,7 +1625,16 @@ format; registry auto-populated from `inst/hex_vars_registry.yaml`;
 glue-expansion;
 [`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md)
 end-to-end validation. 42 PASS / 0 FAIL in
-`tests/testthat/test-hex-build-metadata.R`. \|
+`tests/testthat/test-hex-build-metadata.R`. \|  
+[\#131](https://github.com/worldbank/devPTIpack/pull/131) \| 2026-05-14
+\| **arch-11 §“compile_pti_data() multi-file merge” (GitHub \#117)** \|
+Added `.x`/`.y` suffix detection via
+[`cli::cli_warn()`](https://cli.r-lib.org/reference/cli_abort.html) in
+`compile_merge_metadata()` and 5 new test blocks in
+`test-compile-pti-data.R` covering: duplicate var_code → `__<source>`
+suffix, admin column rename sync, general first-file-wins, weights_table
+multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub
+issue \#117. \|
 
 [\#79-draft](https://github.com/worldbank/devPTIpack/issues/79) \|
 2026-05-08 \| **arch-09 PR \#A2 — template scaffold + Rwanda data

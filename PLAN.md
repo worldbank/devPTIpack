@@ -60,6 +60,7 @@ arch-05 and provides the concrete implementation track for
 | Hex (H3) ingestion design (superseded by arch-11) | [`.github/docs/arch-05-hex-ingestion.md`](https://worldbank.github.io/devPTIpack/docs/arch-05-hex-ingestion.md) |
 | Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`) | [`.github/docs/arch-10-step1-shapefiles-enhancement.md`](https://worldbank.github.io/devPTIpack/docs/arch-10-step1-shapefiles-enhancement.md) |
 | Hex data access pipeline (registry, fetch, aggregate, metadata) | [`.github/docs/arch-11-hex-data-access.md`](https://worldbank.github.io/devPTIpack/docs/arch-11-hex-data-access.md) |
+| Hex registry catalog expansion (Space2Stats) | [`.github/docs/arch-12-hex-catalog-expansion.md`](https://worldbank.github.io/devPTIpack/docs/arch-12-hex-catalog-expansion.md) |
 | Per-change log (compulsory) | [`.github/docs/changelog.md`](https://worldbank.github.io/devPTIpack/docs/changelog.md) |
 | Project conventions for AI agents | [`.claude/CLAUDE.md`](https://worldbank.github.io/devPTIpack/.claude/CLAUDE.md) |
 
@@ -80,6 +81,8 @@ ingestion pipeline (independent; superseded by \#107) -
 Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`) -
 [\#107](https://github.com/worldbank/devPTIpack/issues/107) — arch-11:
 hex data access pipeline (supersedes arch-05/#13) -
+[\#133](https://github.com/worldbank/devPTIpack/issues/133) — arch-12:
+hex registry catalog expansion (Space2Stats, 6 collections) -
 [\#5](https://github.com/worldbank/devPTIpack/issues/5),
 [\#7](https://github.com/worldbank/devPTIpack/issues/7),
 [\#6](https://github.com/worldbank/devPTIpack/issues/6),
@@ -1131,6 +1134,64 @@ false).
 
 ------------------------------------------------------------------------
 
+------------------------------------------------------------------------
+
+## 8b. Phase 6 — Hex registry catalog expansion / arch-12 (#133, independent)
+
+Expand `inst/hex_vars_registry.yaml` from 1 real indicator to the full
+[WB Space2Stats](https://space2stats.ds.io) catalog (~108 columns across
+6 collections at H3 Level 6). Spec:
+[`arch-12-hex-catalog-expansion.md`](https://worldbank.github.io/devPTIpack/docs/arch-12-hex-catalog-expansion.md).
+
+arch-12 §A — Discover & document Space2Stats parquet asset URLs (issue
+[\#134](https://github.com/worldbank/devPTIpack/issues/134);
+research-only PR, no code change). Crawl STAC + WB data catalog for the
+5 static collections; record HTTPS paths, hex_col names, column lists,
+and whether partitioned-parquet support is needed.
+
+arch-12 §B — Add `space2stats_population_2020` source (YAML-only PR;
+issue [\#135](https://github.com/worldbank/devPTIpack/issues/135);
+depends on \#134). ~18 WorldPop population + age/sex columns.
+`pillar_name: "Demographics"`.
+
+arch-12 §C — Add `urbanization_ghssmod` source (YAML-only PR; issue
+[\#136](https://github.com/worldbank/devPTIpack/issues/136); depends on
+\#134). GHS-SMOD degree-of-urbanisation share columns.
+`pillar_name: "Urbanization"`.
+
+arch-12 §D — Add `nighttime_lights` source (YAML-only PR; issue
+[\#137](https://github.com/worldbank/devPTIpack/issues/137); depends on
+\#134). VIIRS annual NTL 2012–2024 via `time_col`.
+`pillar_name: "Economic activity"`.
+
+arch-12 §E — Add `builtarea_ghsl` source (YAML-only PR; issue
+[\#138](https://github.com/worldbank/devPTIpack/issues/138); depends on
+\#134). GHSL built-up area decadal 1975–2030.
+`pillar_name: "Infrastructure"`.
+
+arch-12 §F — Add REST backend (`backend: "rest"`) + climate static
+columns (code PR; issue
+[\#139](https://github.com/worldbank/devPTIpack/issues/139); depends on
+\#134). New `backend` / `api_root` / `collection` YAML fields; dispatch
+in `hex_fetch_source()`; new `hex_fetch_source_rest()`; REST
+[`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md)
+path. Adds drought/cyclone/landslide/fires static columns under
+`pillar_name: "Climate hazards"`.
+
+arch-12 §G — Add climate time-series (SPI) via REST (YAML-only PR; issue
+[\#140](https://github.com/worldbank/devPTIpack/issues/140); depends on
+\#139). SPI-3 monthly series via `/timeseries_by_hexids`.
+
+**Execution order:** A first (unblocks B–E in parallel). F after A. G
+after F.
+
+**DoD:**
+[`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md)
+returns ≥ 100 variables; Rwanda pipeline run fetching one variable from
+each new collection completes without warnings; `R CMD check` 0/0/0.
+
+------------------------------------------------------------------------
+
 ## 9. Open questions for the team
 
 *(All Phase 0 questions resolved — see §3. Below are the still-open
@@ -1633,6 +1694,21 @@ glue-expansion;
 [`validate_read_metadata()`](https://worldbank.github.io/devPTIpack/reference/validate_read_metadata.md)
 end-to-end validation. 42 PASS / 0 FAIL in
 `tests/testthat/test-hex-build-metadata.R`. \|  
+[arch-12 planning](https://github.com/worldbank/devPTIpack/issues/133)
+\| 2026-05-14 \| **arch-12 roadmap (Space2Stats catalog expansion)** \|
+Wrote `.github/docs/arch-12-hex-catalog-expansion.md`. Opened umbrella
+tracker [\#133](https://github.com/worldbank/devPTIpack/issues/133) and
+7 sub-issues
+([\#134](https://github.com/worldbank/devPTIpack/issues/134) URL
+discovery, [\#135](https://github.com/worldbank/devPTIpack/issues/135)
+population, [\#136](https://github.com/worldbank/devPTIpack/issues/136)
+urbanization,
+[\#137](https://github.com/worldbank/devPTIpack/issues/137) nighttime
+lights, [\#138](https://github.com/worldbank/devPTIpack/issues/138)
+built-area, [\#139](https://github.com/worldbank/devPTIpack/issues/139)
+REST backend + climate static,
+[\#140](https://github.com/worldbank/devPTIpack/issues/140) climate time
+series). Arch-12 Phase 6 block added to PLAN.md. \|  
 [\#131](https://github.com/worldbank/devPTIpack/pull/131) \| 2026-05-14
 \| **arch-11 §“compile_pti_data() multi-file merge” (GitHub \#117)** \|
 Added `.x`/`.y` suffix detection via

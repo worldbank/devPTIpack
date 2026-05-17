@@ -1727,6 +1727,25 @@ suffix, admin column rename sync, general first-file-wins, weights_table
 multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub
 issue \#117. \|
 
+[\#166](https://github.com/worldbank/devPTIpack/pull/166) \| 2026-05-17
+\| **Bug fix:
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
+IDE-platform guard (#143)** \| Replaced
+[`rstudioapi::isAvailable()`](https://rstudio.github.io/rstudioapi/reference/isAvailable.html)
+guards with `rstudioapi::hasFun("initializeProject")` /
+`hasFun("openProject")` so the function works in Positron, VSCode, and
+headless R — not just RStudio. Added `else` branch emitting a
+[`cli::cli_inform()`](https://cli.r-lib.org/reference/cli_abort.html)
+message with the project path. Removed two dead variable assignments
+(`rproj_path`, `copied_files`). Updated `@importFrom` (removed
+`isAvailable`, added `hasFun` + `cli_inform`). Added
+`mockery (>= 0.4.4)` to `Suggests`. New
+`tests/testthat/test-create-new-pti.R`: 7 test cases (12 expectations)
+covering headless scaffold, no `.Rproj` outside RStudio, cli message on
+non-RStudio, rstudioapi calls in RStudio, `open=FALSE` suppresses
+`openProject`, overwrite-decline, all skeleton files copied. 12 PASS / 0
+FAIL. \|
+
 [\#79-draft](https://github.com/worldbank/devPTIpack/issues/79) \|
 2026-05-08 \| **arch-09 PR \#A2 — template scaffold + Rwanda data
 (draft)** \| Issue \#79 – branch `feat/template-scaffold` off

@@ -24,9 +24,10 @@ create_new_pti(path, open = TRUE, app_name = basename(path))
 
 - open:
 
-  Logical. If \`TRUE\` (default) and an RStudio session is active, opens
-  the new project in a new RStudio window after scaffolding. Ignored
-  outside RStudio.
+  Logical. If \`TRUE\` (default) and RStudio is active, opens the new
+  project in a new RStudio window after scaffolding. In other
+  environments (Positron, VSCode, headless R) the project path is
+  printed and no auto-open is attempted.
 
 - app_name:
 
@@ -49,11 +50,13 @@ Other pti-launch:
 
 ``` r
 # Scaffold into a temporary directory; works headlessly because
-# rstudioapi::isAvailable() is FALSE outside RStudio.
+# rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.
 new_app <- file.path(tempdir(), "demo_pti")
 create_new_pti(new_app, open = FALSE)
 #> ── Creating dir ────────────────────────────────────────────────────────────────
 #> • Created package directory
+#> ✔ Project scaffolded at /tmp/RtmpX9lPNy/demo_pti
+#> ℹ Open this folder as a new project in your IDE to get started.
 #> ── Copying package skeleton ────────────────────────────────────────────────────
 #> • Copied app skeleton
 #> ── Setting the default config ──────────────────────────────────────────────────

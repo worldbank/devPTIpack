@@ -1009,7 +1009,7 @@ collections at H3 Level 6). Spec:
       dispatch in `hex_fetch_source()`; new `hex_fetch_source_rest()`;
       REST `get_available_years()` path. Adds drought/cyclone/landslide/fires
       static columns under one `wb_space2stats_api` source.
-      `pillar_name: "Climate hazards"`. PR [#TBD](https://github.com/worldbank/devPTIpack/pull/TBD).
+      `pillar_name: "Climate hazards"`. PR [#169](https://github.com/worldbank/devPTIpack/pull/169).
 - [ ] arch-12 §B — Add population + age/sex pyramid vars to `wb_space2stats_api`
       (YAML-only PR; issue
       [#135](https://github.com/worldbank/devPTIpack/issues/135);

@@ -226,3 +226,39 @@ test_that("get_available_years: Space2Stats REST fields contract", {
   expect_true(2022L %in% result)
   expect_identical(result, sort(result))
 })
+
+test_that("fetch_hex_data: end-to-end REST + parquet pop with real registry names", {
+  testthat::skip_if_not_installed("httptest2")
+
+  hex_ids <- c("866ad8d47ffffff", "866ad8d4fffffff")
+
+  # use_hex_vars() with real YAML canonical names; auto-injects population
+  vars <- devPTIpack::use_hex_vars(
+    "fires_density", "cyclone_frequency", "landslide_susceptibility", "drought_spei"
+  )
+
+  # Mock the parquet loader so no real download is needed
+  pop_ldr <- function(path) {
+    tibble::tibble(
+      hex_id = c("866ad8d47ffffff", "866ad8d4fffffff"),
+      pop    = c(5000.0, 6000.0)
+    )
+  }
+
+  result <- httptest2::with_mock_api(
+    devPTIpack::fetch_hex_data(
+      hex_ids, vars,
+      dataset_loader        = pop_ldr,
+      available_years_lookup = list()
+    )
+  )
+
+  expect_equal(nrow(result), 2L)
+  expect_true("fires_density"            %in% names(result))
+  expect_true("cyclone_frequency"        %in% names(result))
+  expect_true("landslide_susceptibility" %in% names(result))
+  expect_true("drought_spei"            %in% names(result))
+  expect_true("population"              %in% names(result))
+  expect_true(is.numeric(result$fires_density))
+  expect_identical(names(result)[2L], "population")
+})

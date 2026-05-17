@@ -19,6 +19,7 @@
 | Tests | `tests/testthat/space2stats.ds.io/`: committed real API response fixtures for `GET /fields` and two `POST /summary_by_hexids` calls (climate static + NTL temporal) recorded from `https://space2stats.ds.io`. |
 | Code | `R/fct_hex_registry.R` `get_available_years()`: moved REST branch before the `time_col` NA early-return (bug — the REST branch was unreachable for template variables since they have `time_col = NA`). |
 | Config | `DESCRIPTION`: added `httptest2 (>= 1.0)` to `Suggests`. |
+| Tests | `tests/testthat/test-hex-fetch-rest.R`: added end-to-end integration test using real YAML canonical names through `use_hex_vars()` → `fetch_hex_data()` (REST + parquet pop join); catches canonical-name mismatches the earlier unit tests missed. |
 
 ---
 

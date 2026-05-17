@@ -45,6 +45,18 @@ tests for code scheduled for deletion.
    - `pivot_pti_dta` over-matches names containing `"administrative"`.
    - `expand_adm_levels` extracts only the first digit for level comparison.
    See arch-03 §"Known Issues to Pin".
+
+### Codex handoff (default when `codex:codex-rescue` is available)
+
+Step 3 ("Author cases") is the right place to delegate. By the time you
+reach it you have: the target function name + path, the test file path
+(existing or new), the case table from arch-02.01 or arch-03, and the
+fixture names from `helper-test-data.R`. Brief Codex with all four,
+plus the "Skeleton (copy-and-adapt)" block from this skill. Codex
+writes the `test_that()` blocks; Claude reviews the diff against the
+case table before running step 5. See `.claude/CLAUDE.md` §"Codex
+delegation policy".
+
 5. **Run.** `Rscript -e 'devtools::test(filter = "<basename>")'` from repo
    root. All tests must pass against the *current* (uncleaned) codebase
    before the test file lands.

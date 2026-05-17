@@ -74,6 +74,45 @@ vignettes, Quarto auto-anchor footgun on cross-page links, package
 data rebuilds) -- defaulting to `REQUIRED` to be safe trains the user
 to ignore the label.
 
+## Codex delegation policy (when /codex is available)
+
+When the `codex:codex-rescue` subagent is available, delegate
+**multi-line code writing** to Codex. Claude retains planning, docs
+(`.md`), config (YAML, JSON), single-line fixes, version bumps, and any
+work where the value is in judgement rather than mechanical typing.
+
+**Default invocation:**
+
+```r
+Agent({ subagent_type: "codex:codex-rescue", prompt: "..." })
+```
+
+Write the prompt as a self-contained brief: file paths, line numbers,
+the change to make, the tests to run. The subagent is write-capable by
+default — no `--ask` gating needed.
+
+**Default model:** `gpt-5.4` with `--effort high`. Override only if the
+brief is unusually small (`gpt-5.4-mini`) or unusually large (`xhigh`).
+State the override explicitly in the prompt.
+
+**Review loop:** after Codex returns, Claude reads the diff and runs the
+same green-light checks it would have run itself (`devtools::test()` on
+the changed area, `R CMD check` if scope warrants). If Codex's output
+is broken, fix it inline — don't waste a second Codex round-trip on a
+typo.
+
+**Boundary on autonomy:** Codex implements *what the plan says*. If the
+brief is ambiguous, Claude tightens it before invoking — never ask Codex
+to make design choices.
+
+**What stays with Claude regardless of Codex availability:**
+- Anything inside `.claude/` (skills, agents, CLAUDE.md, hooks,
+  settings) — the meta-tooling layer.
+- `PLAN.md`, `.github/docs/arch-*.md`, `changelog.md`.
+- PR descriptions, commit messages, issue comments.
+- Reads (`Read`, `Grep`, `Glob`, `Bash` for git/gh queries).
+- Single-line fixes, typos, version bumps.
+
 ## PLAN.md Sync (COMPULSORY)
 
 [`PLAN.md`](../PLAN.md) is the working tracker. It must stay in step with

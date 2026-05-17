@@ -12,6 +12,12 @@
 | Code | `R/fct_create_new_pti.R`: replaced `rstudioapi::isAvailable()` guards with `rstudioapi::hasFun("initializeProject")` / `hasFun("openProject")` so the function works in Positron, VSCode, and headless R; added `cli_inform()` fallback for non-RStudio environments; removed dead variable assignments (`rproj_path`, `copied_files`). Fixes #143 (PR [#166](https://github.com/worldbank/devPTIpack/pull/166)). |
 | Tests | New `tests/testthat/test-create-new-pti.R`: 7 test cases (12 expectations) using `mockery::stub()` to cover headless scaffold, no `.Rproj` outside RStudio, cli message vs error, rstudioapi calls in RStudio, `open=FALSE`, overwrite-decline, and full skeleton copy. |
 | Config | `DESCRIPTION`: added `mockery (>= 0.4.4)` to `Suggests` (required for the new test mocks). |
+| Docs | Created `.github/docs/arch-13-data-pipeline-redesign.md`: full design spec for Eduard's deployer-facing pipeline redesign epic ([#149](https://github.com/worldbank/devPTIpack/issues/149)) — 24 sub-issues inventoried (Infrastructure Inf-1–4, Setup A–B, Helpers C, Pipeline D–L, Docs, AI tooling P, Standalone M/N), dependency graph, schema-overlap note for `wb_shapes_registry.yaml` (#146) vs `hex_vars_registry.yaml`, roadmap positioning relative to arch-12. |
+| Docs | Updated `PLAN.md`: added arch-13 to source-of-truth table + GitHub issues map; new §8c Phase 7 block with all 21 sub-issue checkboxes; ticked #143 prereq as done (PR [#166](https://github.com/worldbank/devPTIpack/pull/166)). |
+| Rules | Updated `.claude/CLAUDE.md` "Source-of-truth docs" list to include arch-12 and arch-13 entries. |
+| Rules | `.claude/CLAUDE.md`: added "Codex delegation policy" section — delegates multi-line code writing to `codex:codex-rescue` (gpt-5.4 + effort high); documents boundary (Claude keeps meta-tooling, docs, config, single-line fixes), invocation pattern, and review loop. |
+| Rules | `.claude/skills/tdd-permanent-fn/SKILL.md`: added "Codex handoff" subsection after step 4 — explains when and how to delegate test authoring to Codex at the point where the case table is ready. |
+| Config | `.claude/settings.local.json`: added `Bash(codex *)` to personal `allow` list so `codex:codex-rescue` spawns without a per-call permission prompt. |
 
 ---
 

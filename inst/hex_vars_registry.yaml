@@ -52,7 +52,7 @@
 #                               composite PTI score by default
 #                               (display-only).
 
-registry_version: "0.1.0"
+registry_version: "0.2.0"
 
 sources:
 
@@ -105,4 +105,64 @@ sources:
         available_years: ~
         weight: "none"
         fun: "sum"
+        fltr_exclude_pti: false
+
+  wb_space2stats_api:
+    label: "WB Space2Stats REST API"
+    backend: "rest"
+    api_root: "https://space2stats.ds.io"
+    hex_col: "hex_id"
+    pop_var: ~
+    variables:
+      fires_density:
+        source_col: "fires_density_mean"
+        var_name: "Fire Density"
+        var_description: "Mean density of fire events per H3-6 cell, derived from NASA VIIRS active-fire detections."
+        var_units: "fires/km2"
+        pillar_group: ~
+        pillar_name: "Climate hazards"
+        legend_revert_colours: true
+        time_col: ~
+        available_years: ~
+        weight: "area"
+        fun: "mean"
+        fltr_exclude_pti: false
+      cyclone_frequency:
+        source_col: "cy_frequency_mean"
+        var_name: "Cyclone Frequency"
+        var_description: "Mean annual frequency of tropical cyclone events per H3-6 cell, sourced from IBTrACS via Space2Stats."
+        var_units: "events/year"
+        pillar_group: ~
+        pillar_name: "Climate hazards"
+        legend_revert_colours: true
+        time_col: ~
+        available_years: ~
+        weight: "area"
+        fun: "mean"
+        fltr_exclude_pti: false
+      landslide_susceptibility:
+        source_col: "landslide_susceptibility_mean_2023"
+        var_name: "Landslide Susceptibility (2023)"
+        var_description: "Mean landslide susceptibility index per H3-6 cell from the 2023 Global Landslide Catalog."
+        var_units: "index"
+        pillar_group: ~
+        pillar_name: "Climate hazards"
+        legend_revert_colours: true
+        time_col: ~
+        available_years: ~
+        weight: "area"
+        fun: "mean"
+        fltr_exclude_pti: false
+      drought_spei:
+        source_col: "drought_spei_1_5_rp100_mean"
+        var_name: "Drought (SPEI 1-in-100)"
+        var_description: "Mean SPEI-based drought severity for a 1-in-100 year return-period event per H3-6 cell."
+        var_units: "SPEI index"
+        pillar_group: ~
+        pillar_name: "Climate hazards"
+        legend_revert_colours: true
+        time_col: ~
+        available_years: ~
+        weight: "area"
+        fun: "mean"
         fltr_exclude_pti: false

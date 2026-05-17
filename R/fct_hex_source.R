@@ -8,6 +8,9 @@
 #' deployers do not normally construct these directly.
 #'
 #' @param source_col Character. Column name in the parquet source.
+#' @param source_col_template Character or `NA`. Glue-style template
+#'   with `{year}` for wide-format temporal columns. Mutually exclusive
+#'   with `source_col`.
 #' @param canonical_name Character. The deployer-facing name (e.g.
 #'   `"flood_exposure_15cm_1in100"`). When the same canonical name
 #'   appears in multiple sources, [use_hex_vars()] disambiguates by
@@ -41,6 +44,9 @@
 #' @param fun Character. Aggregation function hint: one of
 #'   `"mean"` / `"median"` / `"sum"` / `"min"` / `"max"`.
 #'   Documentation-only.
+#' @param resolved_cols Character vector. Source columns resolved from
+#'   `source_col_template` and requested years by [use_hex_vars()];
+#'   empty for static variables.
 #' @param internal Logical. `TRUE` when the variable was auto-injected
 #'   by [use_hex_vars()] (population) rather than requested by the
 #'   deployer. `build_hex_metadata()` reads this tag to exclude
@@ -52,7 +58,7 @@
 #'
 #' @noRd
 pti_hex_var <- function(
-  source_col,
+  source_col = NA_character_,
   canonical_name,
   var_name,
   var_description = NA_character_,
@@ -65,13 +71,31 @@ pti_hex_var <- function(
   years = integer(0),
   weight = c("none", "pop", "area"),
   fun = c("mean", "median", "sum", "min", "max"),
+  source_col_template = NA_character_,
+  resolved_cols = character(0),
   internal = FALSE,
   path = NA_character_,
   hex_col = NA_character_
 ) {
-  if (!is.character(source_col) || length(source_col) != 1L ||
-        is.na(source_col) || !nzchar(source_col)) {
-    stop("'source_col' must be a single non-empty character.", call. = FALSE)
+  if (!is.character(source_col) || length(source_col) != 1L) {
+    stop("'source_col' must be a single character or NA.", call. = FALSE)
+  }
+  if (!is.character(source_col_template) ||
+        length(source_col_template) != 1L) {
+    stop("'source_col_template' must be a single character or NA.",
+         call. = FALSE)
+  }
+  has_col  <- !is.na(source_col) && nzchar(source_col)
+  has_tmpl <- !is.na(source_col_template) && nzchar(source_col_template)
+  if (has_col == has_tmpl) {
+    stop(
+      "Exactly one of 'source_col' or 'source_col_template' must be supplied.",
+      call. = FALSE
+    )
+  }
+  if (has_tmpl && !grepl("{year}", source_col_template, fixed = TRUE)) {
+    stop("'source_col_template' must contain '{year}' as a placeholder.",
+         call. = FALSE)
   }
   if (!is.character(canonical_name) || length(canonical_name) != 1L ||
         is.na(canonical_name) || !nzchar(canonical_name)) {
@@ -117,6 +141,9 @@ pti_hex_var <- function(
       years = as.integer(years),
       weight = weight,
       fun = fun,
+      source_col_template = if (is.null(source_col_template)) NA_character_
+                            else as.character(source_col_template),
+      resolved_cols = as.character(resolved_cols),
       internal = internal,
       path = if (is.null(path)) NA_character_ else as.character(path),
       hex_col = if (is.null(hex_col)) NA_character_ else as.character(hex_col)
@@ -128,9 +155,9 @@ pti_hex_var <- function(
 
 #' Construct a hex source descriptor (S3)
 #'
-#' Internal S3 constructor for one parquet endpoint -- the unit of
+#' Internal S3 constructor for one hex data endpoint -- the unit of
 #' organisation in `inst/hex_vars_registry.yaml`. A source bundles a
-#' parquet URL, the column in that parquet carrying the H3 cell index,
+#' parquet URL or REST API root, the column carrying the H3 cell index,
 #' the list of `pti_hex_var` descriptors that source publishes, an
 #' optional `pop_var` (the `pti_hex_var` describing the population
 #' column in this source -- only one source across the registry may
@@ -140,7 +167,9 @@ pti_hex_var <- function(
 #'   [list_hex_vars()] and used as the disambiguation suffix when two
 #'   sources expose the same canonical name.
 #' @param path Character. HTTPS URL of the parquet (or a partitioned
-#'   directory path eventually).
+#'   directory path eventually). Required for parquet sources.
+#' @param backend Character. One of `"parquet"` or `"rest"`.
+#' @param api_root Character. REST API root. Required for REST sources.
 #' @param hex_col Character. Column name in the parquet carrying the
 #'   H3 cell index string.
 #' @param vars Named list of `pti_hex_var` objects keyed by canonical
@@ -156,14 +185,27 @@ pti_hex_var <- function(
 #' @seealso [pti_hex_var()].
 #'
 #' @noRd
-pti_hex_source <- function(label, path, hex_col, vars, pop_var = NULL) {
+pti_hex_source <- function(label, path = NA_character_, hex_col, vars,
+                           pop_var = NULL, backend = c("parquet", "rest"),
+                           api_root = NA_character_) {
+  backend <- match.arg(backend)
+
   if (!is.character(label) || length(label) != 1L || is.na(label) ||
         !nzchar(label)) {
     stop("'label' must be a single non-empty character.", call. = FALSE)
   }
-  if (!is.character(path) || length(path) != 1L || is.na(path) ||
-        !nzchar(path)) {
-    stop("'path' must be a single non-empty character.", call. = FALSE)
+  if (identical(backend, "parquet")) {
+    if (!is.character(path) || length(path) != 1L || is.na(path) ||
+          !nzchar(path)) {
+      stop("'path' must be a non-empty character for parquet sources.",
+           call. = FALSE)
+    }
+  } else {
+    if (!is.character(api_root) || length(api_root) != 1L ||
+          is.na(api_root) || !nzchar(api_root)) {
+      stop("'api_root' must be a non-empty character for REST sources.",
+           call. = FALSE)
+    }
   }
   if (!is.character(hex_col) || length(hex_col) != 1L || is.na(hex_col) ||
         !nzchar(hex_col)) {
@@ -188,7 +230,9 @@ pti_hex_source <- function(label, path, hex_col, vars, pop_var = NULL) {
   structure(
     list(
       label = label,
+      backend = backend,
       path = path,
+      api_root = api_root,
       hex_col = hex_col,
       vars = vars,
       pop_var = pop_var

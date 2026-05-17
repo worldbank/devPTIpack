@@ -1001,7 +1001,7 @@ collections at H3 Level 6). Spec:
       YAML field designed for wide-format temporal columns (e.g.
       `sum_viirs_ntl_{year}`). Updated dependency: B–E now depend on F
       (not just A), because the REST dispatch path must land first.
-- [ ] arch-12 §F — Add REST backend (`backend: "rest"`) + `source_col_template`
+- [x] arch-12 §F — Add REST backend (`backend: "rest"`) + `source_col_template`
       + climate static columns (code PR; issue
       [#139](https://github.com/worldbank/devPTIpack/issues/139); depends
       on #134). New `backend` / `api_root` YAML fields; new
@@ -1009,7 +1009,7 @@ collections at H3 Level 6). Spec:
       dispatch in `hex_fetch_source()`; new `hex_fetch_source_rest()`;
       REST `get_available_years()` path. Adds drought/cyclone/landslide/fires
       static columns under one `wb_space2stats_api` source.
-      `pillar_name: "Climate hazards"`.
+      `pillar_name: "Climate hazards"`. PR [#TBD](https://github.com/worldbank/devPTIpack/pull/TBD).
 - [ ] arch-12 §B — Add population + age/sex pyramid vars to `wb_space2stats_api`
       (YAML-only PR; issue
       [#135](https://github.com/worldbank/devPTIpack/issues/135);
@@ -1031,8 +1031,8 @@ collections at H3 Level 6). Spec:
       issue [#140](https://github.com/worldbank/devPTIpack/issues/140);
       depends on #139). SPI timeseries field TBD from `/timeseries_by_hexids`.
 
-**Execution order:** A complete. F next (only code PR; unblocks B–E and G
-in parallel after it lands).
+**Execution order:** A complete. F in progress (PR open). B–E and G can
+proceed in parallel once F merges.
 
 **DoD:** `list_hex_vars()` returns ≥ 100 variables; Rwanda pipeline run
 fetching one variable from each new collection completes without warnings;

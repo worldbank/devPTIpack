@@ -187,3 +187,66 @@ test_that("make_safe_label: lowercases + collapses non-alphanumerics to _", {
     "trim_collapse"
   )
 })
+
+test_that("read_hex_registry: wb_space2stats_api source has backend = 'rest'", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_false(is.null(src))
+  expect_identical(src$backend, "rest")
+})
+
+test_that("read_hex_registry: REST source carries api_root", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_identical(src$api_root, "https://space2stats.ds.io")
+})
+
+test_that("read_hex_registry: REST source path slot is NA (no parquet path)", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_true(is.na(src$path))
+})
+
+test_that("read_hex_registry: REST source variables have source_col set", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_true("fires_density"            %in% names(src$vars))
+  expect_true("cyclone_frequency"        %in% names(src$vars))
+  expect_true("landslide_susceptibility" %in% names(src$vars))
+  expect_true("drought_spei"             %in% names(src$vars))
+  expect_identical(src$vars$fires_density$source_col, "fires_density_mean")
+})
+
+test_that("pti_hex_var: source_col_template slot validates {year} placeholder", {
+  expect_error(
+    devPTIpack:::pti_hex_var(source_col_template = "no_placeholder",
+                             canonical_name = "x", var_name = "X"),
+    regexp = "\\{year\\}"
+  )
+})
+
+test_that("pti_hex_var: exactly one of source_col / source_col_template required", {
+  expect_error(
+    devPTIpack:::pti_hex_var(canonical_name = "x", var_name = "X"),
+    regexp = "Exactly one"
+  )
+  expect_error(
+    devPTIpack:::pti_hex_var(source_col = "col",
+                             source_col_template = "tmpl_{year}",
+                             canonical_name = "x", var_name = "X"),
+    regexp = "Exactly one"
+  )
+})
+
+test_that("use_hex_vars: REST variable gets backend and api_root stamped on it", {
+  v <- use_hex_vars("fires_density")
+  fires <- v$fires_density
+  expect_identical(fires$backend, "rest")
+  expect_identical(fires$api_root, "https://space2stats.ds.io")
+})
+
+test_that("list_hex_vars: includes REST source variables", {
+  res <- list_hex_vars()
+  expect_true("fires_density" %in% res$canonical_name)
+  expect_true("drought_spei"  %in% res$canonical_name)
+})

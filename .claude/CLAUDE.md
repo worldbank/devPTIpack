@@ -18,6 +18,8 @@ A golem-based Shiny R package for computing, visualizing, and exploring Project 
 - `.github/docs/arch-03-testing.md` — three-tier testing strategy
 - `.github/docs/arch-04-workspace.md` — vignettes & pkgdown plan
 - `.github/docs/arch-05-hex-ingestion.md` — hex (H3) ingestion design
+- `.github/docs/arch-12-hex-catalog-expansion.md` — Space2Stats catalog expansion (hex registry §B–G)
+- `.github/docs/arch-13-data-pipeline-redesign.md` — Eduard's deployer-facing pipeline redesign (#149)
 - `.claude/rules/roxygen-documentation.md` — roxygen2 standards
 
 ## Key conventions

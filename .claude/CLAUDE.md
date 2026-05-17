@@ -30,6 +30,7 @@ A golem-based Shiny R package for computing, visualizing, and exploring Project 
 - Tests use `testthat`. Tier 1 (pure functions) → Tier 2 (`shiny::testServer`) → Tier 3 (manual / `shinytest2`).
 - Tests target only the **permanent** functions in arch-01 — do not test code scheduled for deletion.
 - Do not touch legacy/dead code marked for removal in arch-01 unless executing a cleanup batch.
+- **TDD is mandatory** for any new exported function or substantial (>~20-line) internal helper: invoke `tdd-new-fn` before writing implementation. For YAML-only registry additions, write the failing integration test first, then add the YAML.
 
 ## Branching
 
@@ -44,7 +45,8 @@ Project-scoped tooling under `.claude/`:
 
 | Tool                     | Type      | Purpose                                                                               |
 | ------------------------ | --------- | ------------------------------------------------------------------------------------- |
-| `tdd-permanent-fn`       | skill     | Scaffold Tier-1 tests for a permanent function per arch-03 / arch-02.01               |
+| `tdd-new-fn`             | skill     | **TDD for new code**: ask contract questions → write failing tests (RED) → implement via Codex (GREEN). Invoke before writing any new exported function or substantial (>~20-line) internal helper. Also covers YAML-only registry additions — write the failing integration test first, then add the YAML. |
+| `tdd-permanent-fn`       | skill     | Scaffold Tier-1 tests for a permanent function per arch-03 / arch-02.01 (retrofit case — function already exists) |
 | `cleanup-batch`          | skill     | Execute one arch-01 cleanup batch end-to-end (delete, document, test, check)          |
 | `roxygen-document`       | skill     | Add/upgrade roxygen2 per `.claude/rules/roxygen-documentation.md`                     |
 | `issue-progress-comment` | skill     | Draft a status comment for a GitHub issue from the recent diff/work                   |

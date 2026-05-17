@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-17 (tooling — tdd-new-fn skill)
+
+| Scope | Change |
+| ----- | ------ |
+| Tooling | Created `.claude/skills/tdd-new-fn/SKILL.md`: three-phase TDD skill — AskUserQuestion contract gathering, RED test authoring, GREEN Codex implementation — covering new exported functions, substantial internals, and YAML-only registry additions. |
+| Rules | Updated `.claude/CLAUDE.md`: added `tdd-new-fn` to skills table; added mandatory TDD convention requiring `tdd-new-fn` before any new exported function or substantial helper. |
+
+---
+
 ## 2026-05-17 (arch-12 §F — REST backend + httptest2 API contracts)
 
 | Scope | Change |

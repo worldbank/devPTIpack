@@ -31,11 +31,15 @@ read_hex_registry <- function() {
 
   sources <- lapply(names(raw$sources), function(src_id) {
     s <- raw$sources[[src_id]]
+    backend  <- s$backend  %||% "parquet"
+    api_root <- s$api_root %||% NA_character_
+    path_val <- s$path     %||% NA_character_
 
     vars_list <- lapply(names(s$variables), function(canon) {
       v <- s$variables[[canon]]
       pti_hex_var(
-        source_col            = v$source_col,
+        source_col            = v$source_col %||% NA_character_,
+        source_col_template   = v$source_col_template %||% NA_character_,
         canonical_name        = canon,
         var_name              = v$var_name,
         var_description       = v$var_description,
@@ -71,11 +75,13 @@ read_hex_registry <- function() {
     }
 
     pti_hex_source(
-      label   = s$label,
-      path    = s$path,
-      hex_col = s$hex_col,
-      vars    = vars_list,
-      pop_var = pop_var_obj
+      label    = s$label,
+      path     = path_val,
+      hex_col  = s$hex_col,
+      vars     = vars_list,
+      pop_var  = pop_var_obj,
+      backend  = backend,
+      api_root = api_root
     )
   })
   names(sources) <- names(raw$sources)
@@ -273,8 +279,19 @@ use_hex_vars <- function(..., years = NULL) {
       # the internal-injected slot (override the internal=TRUE tag).
       explicit_pop <- pop_var_obj
       explicit_pop$internal <- FALSE
-      explicit_pop$path    <- pop_src$path
-      explicit_pop$hex_col <- pop_src$hex_col
+      explicit_pop$path     <- pop_src$path
+      explicit_pop$hex_col  <- pop_src$hex_col
+      explicit_pop$backend  <- pop_src$backend
+      explicit_pop$api_root <- pop_src$api_root
+      if (!is.na(explicit_pop$source_col_template) &&
+            length(explicit_pop$years) > 0L) {
+        tmpl <- explicit_pop$source_col_template
+        explicit_pop$resolved_cols <- vapply(
+          explicit_pop$years,
+          function(y) gsub("{year}", as.character(y), tmpl, fixed = TRUE),
+          character(1L)
+        )
+      }
       resolved[[name]] <- explicit_pop
       pop_injected <- list()
       next
@@ -292,9 +309,19 @@ use_hex_vars <- function(..., years = NULL) {
     for (entry in occ) {
       src <- sources[[entry$src_id]]
       v <- src$vars[[name]]
-      v$years  <- if (is.null(years)) v$years else years
-      v$path   <- src$path
-      v$hex_col <- src$hex_col
+      v$years    <- if (is.null(years)) v$years else years
+      v$path     <- src$path
+      v$hex_col  <- src$hex_col
+      v$backend  <- src$backend
+      v$api_root <- src$api_root
+      if (!is.na(v$source_col_template) && length(v$years) > 0L) {
+        tmpl <- v$source_col_template
+        v$resolved_cols <- vapply(
+          v$years,
+          function(y) gsub("{year}", as.character(y), tmpl, fixed = TRUE),
+          character(1L)
+        )
+      }
 
       out_name <- if (length(occ) > 1L) {
         paste0(name, "__", make_safe_label(entry$src_label))
@@ -308,8 +335,19 @@ use_hex_vars <- function(..., years = NULL) {
 
   # Embed path/hex_col on the auto-injected population descriptor too.
   if (length(pop_injected) > 0L) {
-    pop_injected[[1L]]$path    <- pop_src$path
-    pop_injected[[1L]]$hex_col <- pop_src$hex_col
+    pop_injected[[1L]]$path     <- pop_src$path
+    pop_injected[[1L]]$hex_col  <- pop_src$hex_col
+    pop_injected[[1L]]$backend  <- pop_src$backend
+    pop_injected[[1L]]$api_root <- pop_src$api_root
+    if (!is.na(pop_injected[[1L]]$source_col_template) &&
+          length(pop_injected[[1L]]$years) > 0L) {
+      tmpl <- pop_injected[[1L]]$source_col_template
+      pop_injected[[1L]]$resolved_cols <- vapply(
+        pop_injected[[1L]]$years,
+        function(y) gsub("{year}", as.character(y), tmpl, fixed = TRUE),
+        character(1L)
+      )
+    }
   }
 
   # Append the auto-injected population if the deployer didn't ask
@@ -394,6 +432,28 @@ get_available_years <- function(var) {
   }
   if (is.null(match_var)) {
     stop("Unknown hex variable: '", canonical, "'.", call. = FALSE)
+  }
+
+  if (identical(match_src$backend, "rest")) {
+    if (is.na(match_var$source_col_template)) return(integer(0))
+    if (!requireNamespace("httr2", quietly = TRUE)) {
+      stop(
+        "Package 'httr2' is required to query REST endpoints. Install it.",
+        call. = FALSE
+      )
+    }
+    tmpl <- match_var$source_col_template
+    prefix <- sub("\\{year\\}.*", "", tmpl)
+    suffix <- sub(".*\\{year\\}", "", tmpl)
+    resp <- httr2::req_perform(
+      httr2::request(paste0(match_src$api_root, "/fields"))
+    )
+    fields <- httr2::resp_body_json(resp, simplifyVector = TRUE)
+    matched <- fields[startsWith(fields, prefix) & endsWith(fields, suffix)]
+    years <- as.integer(
+      sub(paste0("^", prefix, "(\\d+)", suffix, "$"), "\\1", matched)
+    )
+    return(sort(years[!is.na(years)]))
   }
 
   if (is.na(match_var$time_col)) {

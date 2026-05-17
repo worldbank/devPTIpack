@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-05-17 (arch-12 §F — REST backend + httptest2 API contracts)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_hex_source.R`: extended `pti_hex_var()` with `source_col_template` (glue pattern for wide-format temporal columns) and `resolved_cols` slots; made `source_col` optional via mutual-exclusion cross-validation; extended `pti_hex_source()` with `backend` (`"parquet"` / `"rest"`) and `api_root` slots; relaxed `path` validation to allow `NA` for REST sources. |
+| Code | `R/fct_hex_registry.R`: extended `read_hex_registry()` to parse `backend`/`api_root`/`source_col_template` from YAML; extended `use_hex_vars()` to stamp `backend`/`api_root` on resolved vars and compute `resolved_cols` for template variables; added REST branch in `get_available_years()` that calls `<api_root>/fields` and extracts years from matching column names. |
+| Code | `R/fct_hex_fetch.R`: updated `hex_split_by_source()` key to include `backend`; added REST dispatch in `hex_fetch_source()`; new `hex_fetch_source_rest()` — chunked POST (5,000 IDs/batch) to `/summary_by_hexids`, binds response pages, renames to canonical / `<canonical>_<year>` column names. Added `@importFrom httr2` to `fetch_hex_data()` roxygen block. |
+| Data | `inst/hex_vars_registry.yaml`: bumped to v0.2.0; added `wb_space2stats_api` REST source with 4 climate static variables (`fires_density`, `cyclone_frequency`, `landslide_susceptibility`, `drought_spei`) — first concrete entries under the REST backend. |
+| Config | `DESCRIPTION`: added `httr2 (>= 1.0)` to `Imports` for REST HTTP calls. |
+| Tests | `tests/testthat/test-hex-registry.R`: 18 new REST-backend tests (backend/api_root parsing, source_col_template validation, use_hex_vars stamping, list_hex_vars REST coverage). |
+| Tests | New `tests/testthat/test-hex-fetch-rest.R`: 9 network-free mockery tests for `hex_fetch_source_rest()` (static rename, template → `<canonical>_<year>` columns, chunking, row binding) + 3 httptest2 contract tests against recorded real Space2Stats API responses (static fields, NTL template fields, `get_available_years()` REST branch via `GET /fields`). |
+| Tests | `tests/testthat/space2stats.ds.io/`: committed real API response fixtures for `GET /fields` and two `POST /summary_by_hexids` calls (climate static + NTL temporal) recorded from `https://space2stats.ds.io`. |
+| Code | `R/fct_hex_registry.R` `get_available_years()`: moved REST branch before the `time_col` NA early-return (bug — the REST branch was unreachable for template variables since they have `time_col = NA`). |
+| Config | `DESCRIPTION`: added `httptest2 (>= 1.0)` to `Suggests`. |
+| Tests | `tests/testthat/test-hex-fetch-rest.R`: added end-to-end integration test using real YAML canonical names through `use_hex_vars()` → `fetch_hex_data()` (REST + parquet pop join); catches canonical-name mismatches the earlier unit tests missed. |
+
+---
+
 ## 2026-05-17
 
 | Scope | Change |

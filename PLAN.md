@@ -61,6 +61,7 @@ arch-05 and provides the concrete implementation track for
 | Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`) | [`.github/docs/arch-10-step1-shapefiles-enhancement.md`](https://worldbank.github.io/devPTIpack/docs/arch-10-step1-shapefiles-enhancement.md) |
 | Hex data access pipeline (registry, fetch, aggregate, metadata) | [`.github/docs/arch-11-hex-data-access.md`](https://worldbank.github.io/devPTIpack/docs/arch-11-hex-data-access.md) |
 | Hex registry catalog expansion (Space2Stats) | [`.github/docs/arch-12-hex-catalog-expansion.md`](https://worldbank.github.io/devPTIpack/docs/arch-12-hex-catalog-expansion.md) |
+| Deployer-facing pipeline redesign (Eduard’s \#149 epic) | [`.github/docs/arch-13-data-pipeline-redesign.md`](https://worldbank.github.io/devPTIpack/docs/arch-13-data-pipeline-redesign.md) |
 | Per-change log (compulsory) | [`.github/docs/changelog.md`](https://worldbank.github.io/devPTIpack/docs/changelog.md) |
 | Project conventions for AI agents | [`.claude/CLAUDE.md`](https://worldbank.github.io/devPTIpack/.claude/CLAUDE.md) |
 
@@ -83,6 +84,13 @@ Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`) -
 hex data access pipeline (supersedes arch-05/#13) -
 [\#133](https://github.com/worldbank/devPTIpack/issues/133) — arch-12:
 hex registry catalog expansion (Space2Stats, 6 collections) -
+[\#149](https://github.com/worldbank/devPTIpack/issues/149) — arch-13:
+deployer pipeline redesign (master tracker; sub-issues \#145–#148,
+\#150–#165) -
+[\#143](https://github.com/worldbank/devPTIpack/issues/143) — bug:
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
+crashes outside RStudio (fix in PR
+[\#166](https://github.com/worldbank/devPTIpack/pull/166)) -
 [\#5](https://github.com/worldbank/devPTIpack/issues/5),
 [\#7](https://github.com/worldbank/devPTIpack/issues/7),
 [\#6](https://github.com/worldbank/devPTIpack/issues/6),
@@ -1197,6 +1205,63 @@ G in parallel after it lands).
 [`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md)
 returns ≥ 100 variables; Rwanda pipeline run fetching one variable from
 each new collection completes without warnings; `R CMD check` 0/0/0.
+
+------------------------------------------------------------------------
+
+## 8c. Phase 7 — Deployer pipeline redesign / arch-13 (#149, parallel to arch-12)
+
+Redesign the `inst/template_pti/` scaffold and associated R helpers so a
+deployer with no existing country data can run the full pipeline with
+minimal manual steps. Spec:
+[`arch-13-data-pipeline-redesign.md`](https://worldbank.github.io/devPTIpack/docs/arch-13-data-pipeline-redesign.md).
+
+**Infrastructure (Eduard’s track — no code ownership from Koichi):** -
+\[ \] arch-13 Inf-1 (#145) — ETL parquets for WB Official Boundaries -
+\[ \] arch-13 Inf-2 (#146) — `inst/wb_shapes_registry.yaml` (schema
+mirrors `hex_vars_registry.yaml`) - \[ \] arch-13 Inf-3 (#147) —
+`list_country_shapes()` - \[ \] arch-13 Inf-4 (#148) —
+`get_country_shapes()` (depends on Inf-1–3)
+
+**Setup:** - \[x\] arch-13 prereq —
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
+platform guard (bug fix \#143, PR
+[\#166](https://github.com/worldbank/devPTIpack/pull/166)) - \[ \]
+arch-13 §A (#152) —
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
+inject `app_name` + next-steps CLI (after \#166 merges) - \[ \] arch-13
+§B (#150) — `CHECKLIST.md` template (after §A)
+
+**Helpers + pipeline steps:** - \[ \] arch-13 §C (#151) —
+`pti_plot_boundaries()`, `pti_plot_histogram()`, `pti_summary_table()`
+(unblocked) - \[ \] arch-13 §D (#155) — `02a-user-zonal-stats.qmd`
+output contract (unblocked) - \[ \] arch-13 §E (#153) — rename
+`03-metadata.qmd` → `03-user-data.qmd`; `pti_patch_admin_sheet()` (after
+§C) - \[ \] arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false`
+guards (after §C; coordinate with arch-12 §B) - \[ \] arch-13 §G (#158)
+— `05-compile.qmd` auto-detect hex metadata + `var_overrides` (after
+§C) - \[ \] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF
+report (after §C) - \[ \] arch-13 §I (#156) — `_quarto.yml` Quarto
+website template (unblocked) - \[ \] arch-13 §J (#159) — `00-master.R`
+APP_URL + render full site (after §C + §I) - \[ \] arch-13 §K (#160) —
+`06-deploy.R` GitHub Pages instructions (after §H + §I + §J) - \[ \]
+arch-13 §L (#162) — `app.R` + `landing-page.md` generic template
+(unblocked)
+
+**Documentation + AI tooling:** - \[ \] arch-13 Doc (#161) — update
+website tutorial vignettes Steps 0–6 (after pipeline stable) - \[ \]
+arch-13 §P (#165) — bundle `CLAUDE.md` + skill with scaffolded project
+(after §A + pipeline stable)
+
+**Standalone:** - \[ \] \#163 — API coordination:
+`pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7) - \[ \]
+\#164 — end-to-end automated pipeline test (Rwanda + Ethiopia) - \[ \]
+\#144 — audit and remove redundant `inst/` artifacts (unblocked)
+
+**DoD:** `source("00-master.R")` on fresh Rwanda project produces
+shapes.rds, metadata.xlsx, pti-metadata.html, docs/index.html;
+`shiny::runApp("app.R")` launches; all tutorial vignettes updated;
+scaffolded project contains `CLAUDE.md` + skill; end-to-end test (#164)
+passes for Rwanda + Ethiopia; `R CMD check` 0/0/0.
 
 ------------------------------------------------------------------------
 

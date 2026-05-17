@@ -434,10 +434,6 @@ get_available_years <- function(var) {
     stop("Unknown hex variable: '", canonical, "'.", call. = FALSE)
   }
 
-  if (is.na(match_var$time_col)) {
-    return(integer(0))
-  }
-
   if (identical(match_src$backend, "rest")) {
     if (is.na(match_var$source_col_template)) return(integer(0))
     if (!requireNamespace("httr2", quietly = TRUE)) {
@@ -458,6 +454,10 @@ get_available_years <- function(var) {
       sub(paste0("^", prefix, "(\\d+)", suffix, "$"), "\\1", matched)
     )
     return(sort(years[!is.na(years)]))
+  }
+
+  if (is.na(match_var$time_col)) {
+    return(integer(0))
   }
 
   if (!requireNamespace("arrow", quietly = TRUE)) {

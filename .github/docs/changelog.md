@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-05-17
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_create_new_pti.R`: replaced `rstudioapi::isAvailable()` guards with `rstudioapi::hasFun("initializeProject")` / `hasFun("openProject")` so the function works in Positron, VSCode, and headless R; added `cli_inform()` fallback for non-RStudio environments; removed dead variable assignments (`rproj_path`, `copied_files`). Fixes #143 (PR [#166](https://github.com/worldbank/devPTIpack/pull/166)). |
+| Tests | New `tests/testthat/test-create-new-pti.R`: 7 test cases (12 expectations) using `mockery::stub()` to cover headless scaffold, no `.Rproj` outside RStudio, cli message vs error, rstudioapi calls in RStudio, `open=FALSE`, overwrite-decline, and full skeleton copy. |
+| Config | `DESCRIPTION`: added `mockery (>= 0.4.4)` to `Suggests` (required for the new test mocks). |
+
+---
+
 ## 2026-05-14 (arch-12 §A — Space2Stats field discovery, PR #142)
 
 | Scope | Change |

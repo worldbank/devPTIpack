@@ -48,11 +48,15 @@ Other data-input:
 
 ``` r
 list_hex_vars()
-#> # A tibble: 2 × 10
-#>   source_id         source_label      canonical_name var_name var_units time_col
-#>   <chr>             <chr>             <chr>          <chr>    <chr>     <chr>   
-#> 1 wb_flood_exposure WB Space2Stats F… population     Populat… count     NA      
-#> 2 wb_flood_exposure WB Space2Stats F… flood_exposur… Flood E… count     NA      
+#> # A tibble: 6 × 10
+#>   source_id          source_label     canonical_name var_name var_units time_col
+#>   <chr>              <chr>            <chr>          <chr>    <chr>     <chr>   
+#> 1 wb_flood_exposure  WB Space2Stats … population     Populat… count     NA      
+#> 2 wb_flood_exposure  WB Space2Stats … flood_exposur… Flood E… count     NA      
+#> 3 wb_space2stats_api WB Space2Stats … fires_density  Fire De… fires/km2 NA      
+#> 4 wb_space2stats_api WB Space2Stats … cyclone_frequ… Cyclone… events/y… NA      
+#> 5 wb_space2stats_api WB Space2Stats … landslide_sus… Landsli… index     NA      
+#> 6 wb_space2stats_api WB Space2Stats … drought_spei   Drought… SPEI ind… NA      
 #> # ℹ 4 more variables: available_years <list>, weight <chr>, fun <chr>,
 #> #   is_population <lgl>
 ```

@@ -1171,7 +1171,8 @@ arch-12 §F — Add REST backend (`backend: "rest"`) +
 dispatch in `hex_fetch_source()`; new `hex_fetch_source_rest()`; REST
 [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md)
 path. Adds drought/cyclone/landslide/fires static columns under one
-`wb_space2stats_api` source. `pillar_name: "Climate hazards"`.
+`wb_space2stats_api` source. `pillar_name: "Climate hazards"`. PR
+[\#169](https://github.com/worldbank/devPTIpack/pull/169).
 
 arch-12 §B — Add population + age/sex pyramid vars to
 `wb_space2stats_api` (YAML-only PR; issue
@@ -1198,8 +1199,8 @@ arch-12 §G — Add climate time-series (SPI) via REST (YAML-only PR; issue
 [\#140](https://github.com/worldbank/devPTIpack/issues/140); depends on
 \#139). SPI timeseries field TBD from `/timeseries_by_hexids`.
 
-**Execution order:** A complete. F next (only code PR; unblocks B–E and
-G in parallel after it lands).
+**Execution order:** A complete. F in progress (PR open). B–E and G can
+proceed in parallel once F merges.
 
 **DoD:**
 [`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md)

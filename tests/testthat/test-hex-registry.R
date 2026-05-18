@@ -277,3 +277,31 @@ test_that("use_hex_vars: pop_male_2025 (static) is resolvable", {
   v <- use_hex_vars("pop_male_2025")
   expect_identical(v$pop_male_2025$source_col, "sum_m_2025")
 })
+
+# arch-12 §C — GHS-SMOD urbanization (Space2Stats REST) ----------------------
+
+test_that("use_hex_vars: ghs_total_pop is resolvable via REST", {
+  v <- use_hex_vars("ghs_total_pop")
+  expect_s3_class(v$ghs_total_pop, "pti_hex_var")
+  expect_identical(v$ghs_total_pop$backend, "rest")
+  expect_identical(v$ghs_total_pop[["source_col"]], "ghs_total_pop")
+})
+
+test_that("use_hex_vars: ghs_total_count is resolvable via REST", {
+  v <- use_hex_vars("ghs_total_count")
+  expect_identical(v$ghs_total_count[["source_col"]], "ghs_total_count")
+})
+
+test_that("use_hex_vars: ghs_30_pop (urban centre population) is resolvable", {
+  v <- use_hex_vars("ghs_30_pop")
+  expect_identical(v$ghs_30_pop[["source_col"]], "ghs_30_pop")
+})
+
+test_that("list_hex_vars: includes GHS-SMOD urbanization variables", {
+  tbl <- list_hex_vars()
+  ghs_names <- tbl$canonical_name[startsWith(tbl$canonical_name, "ghs_")]
+  expect_gte(length(ghs_names), 8L)
+  expect_true("ghs_total_pop"   %in% ghs_names)
+  expect_true("ghs_total_count" %in% ghs_names)
+  expect_true("ghs_30_pop"      %in% ghs_names)
+})

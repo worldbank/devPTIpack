@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-18 (arch-12 §C — GHS-SMOD urbanization in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added 14 GHS-SMOD urbanization variables (`ghs_11_count` through `ghs_30_pop` + totals) under `wb_space2stats_api`; bumped `registry_version` to `"0.4.0"`. All variables are static REST fields at `pillar_name: "Urbanization"`. |
+| Tests | `tests/testthat/test-hex-registry.R`: 4 new Tier-1 tests for GHS-SMOD resolvability (`ghs_total_pop`, `ghs_total_count`, `ghs_30_pop`, and `list_hex_vars()` count ≥ 8). |
+
+---
+
 ## 2026-05-18 (arch-12 §B — population demographics in hex registry)
 
 | Scope | Change |

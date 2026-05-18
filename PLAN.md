@@ -1232,21 +1232,24 @@ arch-13 §A (#152) —
 inject `app_name` + next-steps CLI (after \#166 merges) - \[ \] arch-13
 §B (#150) — `CHECKLIST.md` template (after §A)
 
-**Helpers + pipeline steps:** - \[ \] arch-13 §C (#151) —
-`pti_plot_boundaries()`, `pti_plot_histogram()`, `pti_summary_table()`
-(unblocked) - \[ \] arch-13 §D (#155) — `02a-user-zonal-stats.qmd`
-output contract (unblocked) - \[ \] arch-13 §E (#153) — rename
-`03-metadata.qmd` → `03-user-data.qmd`; `pti_patch_admin_sheet()` (after
-§C) - \[ \] arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false`
-guards (after §C; coordinate with arch-12 §B) - \[ \] arch-13 §G (#158)
-— `05-compile.qmd` auto-detect hex metadata + `var_overrides` (after
-§C) - \[ \] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF
-report (after §C) - \[ \] arch-13 §I (#156) — `_quarto.yml` Quarto
-website template (unblocked) - \[ \] arch-13 §J (#159) — `00-master.R`
-APP_URL + render full site (after §C + §I) - \[ \] arch-13 §K (#160) —
-`06-deploy.R` GitHub Pages instructions (after §H + §I + §J) - \[ \]
-arch-13 §L (#162) — `app.R` + `landing-page.md` generic template
-(unblocked)
+**Helpers + pipeline steps:** - \[x\] arch-13 §C (#151) —
+[`pti_plot_boundaries()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_boundaries.md),
+[`pti_plot_histogram()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_histogram.md),
+[`pti_summary_table()`](https://worldbank.github.io/devPTIpack/reference/pti_summary_table.md)
+— new `R/fct_pti_report_helpers.R`; 15 Tier-1 tests; `reactable` added
+to Suggests (branch `tooling/tdd-new-fn`, to be PR’d) - \[ \] arch-13 §D
+(#155) — `02a-user-zonal-stats.qmd` output contract (unblocked) - \[ \]
+arch-13 §E (#153) — rename `03-metadata.qmd` → `03-user-data.qmd`;
+`pti_patch_admin_sheet()` (after §C) - \[ \] arch-13 §F (#154) —
+`04-hex-data.qmd` remove `eval: false` guards (after §C; coordinate with
+arch-12 §B) - \[ \] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex
+metadata + `var_overrides` (after §C) - \[ \] arch-13 §H (#157) —
+`05-compile-report.qmd` new HTML/PDF report (after §C) - \[ \] arch-13
+§I (#156) — `_quarto.yml` Quarto website template (unblocked) - \[ \]
+arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C +
+§I) - \[ \] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions
+(after §H + §I + §J) - \[ \] arch-13 §L (#162) — `app.R` +
+`landing-page.md` generic template (unblocked)
 
 **Documentation + AI tooling:** - \[ \] arch-13 Doc (#161) — update
 website tutorial vignettes Steps 0–6 (after pipeline stable) - \[ \]

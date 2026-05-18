@@ -95,6 +95,18 @@ Structural and visual checks on shapes and metadata inputs.
 - [`validate_read_shp()`](https://worldbank.github.io/devPTIpack/reference/validate_read_shp.md)
   : Validate a shapes \`.rds\` file in isolation
 
+## Report helpers
+
+ggplot2 and reactable helpers for the deployer-facing pipeline report
+(arch-13 §C).
+
+- [`pti_plot_boundaries()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_boundaries.md)
+  : Plot administrative boundary layers by level
+- [`pti_plot_histogram()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_histogram.md)
+  : Plot a histogram for a PTI variable
+- [`pti_summary_table()`](https://worldbank.github.io/devPTIpack/reference/pti_summary_table.md)
+  : Summarise PTI variables in a reactable table
+
 ## Visualisation helpers
 
 ggplot2-based map builders shared by the dashboard and the PDF render.

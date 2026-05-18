@@ -55,7 +55,7 @@ new_app <- file.path(tempdir(), "demo_pti")
 create_new_pti(new_app, open = FALSE)
 #> ── Creating dir ────────────────────────────────────────────────────────────────
 #> • Created package directory
-#> ✔ Project scaffolded at /tmp/RtmpQdbBVI/demo_pti
+#> ✔ Project scaffolded at /tmp/Rtmp0ZHvEX/demo_pti
 #> ℹ Open this folder as a new project in your IDE to get started.
 #> ── Copying package skeleton ────────────────────────────────────────────────────
 #> • Copied app skeleton

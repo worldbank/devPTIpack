@@ -1189,12 +1189,12 @@ arch-12 §C — Add GHS-SMOD urbanisation vars (YAML-only PR; issue
 arch-12 §D — Add nighttime lights vars (YAML-only PR; issue
 [\#137](https://github.com/worldbank/devPTIpack/issues/137)).
 `nighttime_lights` with `source_col_template: "sum_viirs_ntl_{year}"`,
-years 2012–2024. `pillar_name: "Economic activity"`. PR \#TBD.
+years 2012–2024. `pillar_name: "Economic activity"`. PR \#175.
 
 arch-12 §E — Add built-up area vars (YAML-only PR; issue
-[\#138](https://github.com/worldbank/devPTIpack/issues/138); depends on
-\#139). `sum_built_area_m_{year}` template, decadal 1975–2030.
-`pillar_name: "Infrastructure"`.
+[\#138](https://github.com/worldbank/devPTIpack/issues/138)).
+`builtup_area` with `source_col_template: "sum_built_area_m_{year}"`,
+decadal 1975–2030. `pillar_name: "Infrastructure"`. PR \#TBD.
 
 arch-12 §G — Add climate time-series (SPI) via REST (YAML-only PR; issue
 [\#140](https://github.com/worldbank/devPTIpack/issues/140); depends on

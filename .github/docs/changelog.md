@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-18 (arch-13 §L — generic app.R + landing-page.md template)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/landing-page.md`: replaced hardcoded Rwanda/WB boilerplate with generic `{{APP_NAME}}` template; contact updated to Nga Thi Viet Nguyen; clearly marked sections prompt deployer to fill in country context. |
+| Data | `inst/template_pti/app.R`: un-commented `pti_landing_page = "./landing-page.md"`; updated `mtdtpdf_path` from `pti-metadata.pdf` → `pti-metadata.html` to match §H's HTML report output. |
+
+---
+
 ## 2026-05-18 (arch-13 §I — _quarto.yml Quarto website template)
 
 | Scope | Change |

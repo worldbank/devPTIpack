@@ -52,7 +52,7 @@
 #                               composite PTI score by default
 #                               (display-only).
 
-registry_version: "0.4.0"
+registry_version: "0.5.0"
 
 sources:
 
@@ -456,4 +456,23 @@ sources:
         available_years: ~
         weight: "none"
         fun: "sum"
+        fltr_exclude_pti: false
+      # --- §D Nighttime Lights (VIIRS via Space2Stats REST) ---
+      nighttime_lights:
+        source_col_template: "sum_viirs_ntl_{year}"
+        var_name: "Nighttime Lights ({year})"
+        var_description: |
+          Sum of VIIRS nighttime light radiance per H3-6 cell, annual
+          composites 2012-2024, accessed via the WB Space2Stats REST API.
+          Higher values indicate greater economic activity and
+          electrification.
+        var_units: "nanoWatts/cm2/sr"
+        pillar_group: ~
+        pillar_name: "Economic activity"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: [2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                          2019, 2020, 2021, 2022, 2023, 2024]
+        weight: "area"
+        fun: "mean"
         fltr_exclude_pti: false

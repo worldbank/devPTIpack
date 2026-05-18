@@ -305,3 +305,23 @@ test_that("list_hex_vars: includes GHS-SMOD urbanization variables", {
   expect_true("ghs_total_count" %in% ghs_names)
   expect_true("ghs_30_pop"      %in% ghs_names)
 })
+
+# arch-12 §D — nighttime lights (VIIRS via Space2Stats REST) ------------------
+
+test_that("use_hex_vars: nighttime_lights (temporal) is resolvable via REST", {
+  v <- use_hex_vars("nighttime_lights")
+  expect_s3_class(v$nighttime_lights, "pti_hex_var")
+  expect_identical(v$nighttime_lights$backend, "rest")
+  expect_false(is.null(v$nighttime_lights$source_col_template))
+  expect_identical(v$nighttime_lights[["source_col_template"]], "sum_viirs_ntl_{year}")
+})
+
+test_that("use_hex_vars: nighttime_lights available_years covers 2012-2024", {
+  tbl <- list_hex_vars()
+  row <- tbl[tbl$canonical_name == "nighttime_lights", ]
+  expect_equal(nrow(row), 1L)
+  yrs <- unlist(row$available_years)
+  expect_true(2012L %in% yrs)
+  expect_true(2024L %in% yrs)
+  expect_equal(length(yrs), 13L)
+})

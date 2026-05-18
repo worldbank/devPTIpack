@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-18 (arch-12 §D — nighttime lights in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added `nighttime_lights` (`source_col_template: "sum_viirs_ntl_{year}"`, 2012–2024, `pillar_name: "Economic activity"`) under `wb_space2stats_api`; bumped `registry_version` to `"0.5.0"`. |
+| Tests | `tests/testthat/test-hex-registry.R`: 2 new Tier-1 tests (temporal resolvability + available_years 2012–2024 count). |
+
+---
+
 ## 2026-05-18 (arch-12 §C — GHS-SMOD urbanization in hex registry)
 
 | Scope | Change |

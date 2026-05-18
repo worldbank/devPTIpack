@@ -1,0 +1,36 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "{{APP_NAME}}"
+  navbar: false
+  sidebar:
+    style: "docked"
+    search: false
+    contents:
+      - section: "Data pipeline"
+        contents:
+          - href: 01-shapes.qmd
+            text: "Step 1 — Shapefiles"
+          - href: 02a-user-zonal-stats.qmd
+            text: "Step 2 — Zonal stats (optional)"
+          - href: 03-user-data.qmd
+            text: "Step 3 — User data"
+          - href: 04-hex-data.qmd
+            text: "Step 4 — HEX data"
+          - href: 05-compile.qmd
+            text: "Step 5 — Compile"
+      - section: "Reports"
+        contents:
+          - href: app-data/pti-metadata.html
+            text: "Metadata report"
+      - section: "App"
+        contents:
+          - href: app-page.qmd
+            text: "Live app"
+
+format:
+  html:
+    theme: cosmo
+    toc: true

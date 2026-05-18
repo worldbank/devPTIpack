@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-18 (arch-13 §I — _quarto.yml Quarto website template)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/_quarto.yml`: added Quarto website config (docked sidebar, `docs/` output, `{{APP_NAME}}` title placeholder) with sections for Data pipeline steps, Metadata report, and Live app iframe page. |
+| Data | `inst/template_pti/app-page.qmd`: added new scaffolded page that embeds the deployed app via `<iframe>`; shows "not yet deployed" message when `PTI_APP_URL` env var is unset. |
+
+---
+
 ## 2026-05-18 (arch-13 §B — CHECKLIST.md template)
 
 | Scope | Change |

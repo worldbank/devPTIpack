@@ -1249,11 +1249,12 @@ arch-13 §D (#155) — `02a-user-zonal-stats.qmd` output contract
 §F (#154) — `04-hex-data.qmd` remove `eval: false` guards (after §C;
 coordinate with arch-12 §B) - \[ \] arch-13 §G (#158) — `05-compile.qmd`
 auto-detect hex metadata + `var_overrides` (after §C) - \[ \] arch-13 §H
-(#157) — `05-compile-report.qmd` new HTML/PDF report (after §C) - \[ \]
-arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked) -
-\[ \] arch-13 §J (#159) — `00-master.R` APP_URL + render full site
-(after §C + §I) - \[ \] arch-13 §K (#160) — `06-deploy.R` GitHub Pages
-instructions (after §H + §I + §J) - \[ \] arch-13 §L (#162) — `app.R` +
+(#157) — `05-compile-report.qmd` new HTML/PDF report (after §C) - \[x\]
+arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked)
+(PR [\#178](https://github.com/worldbank/devPTIpack/pull/178)) - \[ \]
+arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C +
+§I) - \[ \] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions
+(after §H + §I + §J) - \[ \] arch-13 §L (#162) — `app.R` +
 `landing-page.md` generic template (unblocked)
 
 **Documentation + AI tooling:** - \[ \] arch-13 Doc (#161) — update
@@ -1800,6 +1801,14 @@ Added `.x`/`.y` suffix detection via
 suffix, admin column rename sync, general first-file-wins, weights_table
 multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub
 issue \#117. \|
+
+[\#178](https://github.com/worldbank/devPTIpack/pull/178) \| 2026-05-18
+\| **arch-13 §I (#156): `_quarto.yml` + `app-page.qmd` Quarto website
+template** \| Added `_quarto.yml` (docked sidebar nav: pipeline steps /
+metadata report / live app iframe) and `app-page.qmd` (iframe embed with
+`PTI_APP_URL` env var guard). `{{APP_NAME}}` placeholder replaced by
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md).
+Closes \#156. \|
 
 [\#177](https://github.com/worldbank/devPTIpack/pull/177) \| 2026-05-18
 \| **arch-13 §B (#150): `CHECKLIST.md` template** \| Added

@@ -1254,8 +1254,9 @@ arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked)
 (PR [\#178](https://github.com/worldbank/devPTIpack/pull/178)) - \[ \]
 arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C +
 §I) - \[ \] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions
-(after §H + §I + §J) - \[ \] arch-13 §L (#162) — `app.R` +
-`landing-page.md` generic template (unblocked)
+(after §H + §I + §J) - \[x\] arch-13 §L (#162) — `app.R` +
+`landing-page.md` generic template (unblocked) (PR
+[\#179](https://github.com/worldbank/devPTIpack/pull/179))
 
 **Documentation + AI tooling:** - \[ \] arch-13 Doc (#161) — update
 website tutorial vignettes Steps 0–6 (after pipeline stable) - \[ \]
@@ -1801,6 +1802,14 @@ Added `.x`/`.y` suffix detection via
 suffix, admin column rename sync, general first-file-wins, weights_table
 multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub
 issue \#117. \|
+
+[\#179](https://github.com/worldbank/devPTIpack/pull/179) \| 2026-05-18
+\| **arch-13 §L (#162): generic `app.R` + `landing-page.md` template**
+\| Updated `landing-page.md`: replaced hardcoded Rwanda/WB boilerplate
+with generic `{{APP_NAME}}` template; contact updated to Nga Thi Viet
+Nguyen; deployer-fill sections clearly marked. Updated `app.R`:
+un-commented `pti_landing_page = "./landing-page.md"`; updated
+`mtdtpdf_path` from `.pdf` → `.html`. Closes \#162. \|
 
 [\#178](https://github.com/worldbank/devPTIpack/pull/178) \| 2026-05-18
 \| **arch-13 §I (#156): `_quarto.yml` + `app-page.qmd` Quarto website

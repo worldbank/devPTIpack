@@ -48,18 +48,20 @@ Other data-input:
 
 ``` r
 list_hex_vars()
-#> # A tibble: 9 × 10
-#>   source_id          source_label     canonical_name var_name var_units time_col
-#>   <chr>              <chr>            <chr>          <chr>    <chr>     <chr>   
-#> 1 wb_flood_exposure  WB Space2Stats … population     Populat… count     NA      
-#> 2 wb_flood_exposure  WB Space2Stats … flood_exposur… Flood E… count     NA      
-#> 3 wb_space2stats_api WB Space2Stats … fires_density  Fire De… fires/km2 NA      
-#> 4 wb_space2stats_api WB Space2Stats … cyclone_frequ… Cyclone… events/y… NA      
-#> 5 wb_space2stats_api WB Space2Stats … landslide_sus… Landsli… index     NA      
-#> 6 wb_space2stats_api WB Space2Stats … drought_spei   Drought… SPEI ind… NA      
-#> 7 wb_space2stats_api WB Space2Stats … pop_total      Populat… count     NA      
-#> 8 wb_space2stats_api WB Space2Stats … pop_female_20… Female … count     NA      
-#> 9 wb_space2stats_api WB Space2Stats … pop_male_2025  Male Po… count     NA      
+#> # A tibble: 25 × 10
+#>    source_id          source_label    canonical_name var_name var_units time_col
+#>    <chr>              <chr>           <chr>          <chr>    <chr>     <chr>   
+#>  1 wb_flood_exposure  WB Space2Stats… population     Populat… count     NA      
+#>  2 wb_flood_exposure  WB Space2Stats… flood_exposur… Flood E… count     NA      
+#>  3 wb_space2stats_api WB Space2Stats… fires_density  Fire De… fires/km2 NA      
+#>  4 wb_space2stats_api WB Space2Stats… cyclone_frequ… Cyclone… events/y… NA      
+#>  5 wb_space2stats_api WB Space2Stats… landslide_sus… Landsli… index     NA      
+#>  6 wb_space2stats_api WB Space2Stats… drought_spei   Drought… SPEI ind… NA      
+#>  7 wb_space2stats_api WB Space2Stats… pop_total      Populat… count     NA      
+#>  8 wb_space2stats_api WB Space2Stats… pop_female_20… Female … count     NA      
+#>  9 wb_space2stats_api WB Space2Stats… pop_male_2025  Male Po… count     NA      
+#> 10 wb_space2stats_api WB Space2Stats… ghs_total_cou… Total U… cells     NA      
+#> # ℹ 15 more rows
 #> # ℹ 4 more variables: available_years <list>, weight <chr>, fun <chr>,
 #> #   is_population <lgl>
 ```

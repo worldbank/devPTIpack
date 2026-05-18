@@ -1182,9 +1182,9 @@ Also fixed partial-match bug in `fct_hex_registry.R` (`$` → `[[`). PR
 \#TBD.
 
 arch-12 §C — Add GHS-SMOD urbanisation vars (YAML-only PR; issue
-[\#136](https://github.com/worldbank/devPTIpack/issues/136); depends on
-\#139). `ghs_*_count` / `ghs_*_pop` columns.
-`pillar_name: "Urbanization"`.
+[\#136](https://github.com/worldbank/devPTIpack/issues/136)). All 14
+`ghs_*_count` / `ghs_*_pop` columns (classes 11–30 + totals) under
+`wb_space2stats_api`. `pillar_name: "Urbanization"`. PR \#TBD.
 
 arch-12 §D — Add nighttime lights vars (YAML-only PR; issue
 [\#137](https://github.com/worldbank/devPTIpack/issues/137); depends on

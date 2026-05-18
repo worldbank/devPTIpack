@@ -1,10 +1,25 @@
+# {{APP_NAME}}
 
-Given limited fiscal space and implementation capacity, it is critical to ensure that the World Bank portfolio be well targeted both among intervention areas and to geographic locations with the greatest potential to achieve the Bank's aims. Accordingly, using evidence to inform the spatial allocation of Bank projects can increase their cost effectiveness in achieving the Bank's objectives.
+Given limited fiscal space and implementation capacity, it is critical to ensure
+that development portfolios be well targeted to geographic locations with the
+greatest potential for impact. A Project Targeting Index (PTI) provides an
+evidence-based, data-driven approach to spatial prioritisation.
 
-One way to guide the geographic prioritization of Bank interventions is through a composite, geographic targeting index called the Project Targeting Index (PTI). A PTI can be used to better understand which locations within a given country or region may need to be prioritized (and de-prioritized) given certain objective, data-driven criteria. A composite index combines indicators of a number of criteria in a transparent manner to highlight where potential impact or need is greatest.
+This portal provides an interactive tool for exploring the {{APP_NAME}} PTI —
+a composite index combining indicators across multiple pillars to identify
+where needs and potential impact are greatest.
 
-This online geospatial portal offers a user-friendly tool for the construction of the PTI based on a wide range of indicators related to poverty, human capital, labor, etc.
+---
 
-__In case you have suggestions and feedback for this PTI dashboard, please contact Arden Finn at [afinn1@worldbank.org](mailto:afinn1@worldbank.org") or Taka Masaki at [tmasaki@worldbank.org](mailto:tmasaki@worldbank.org)__
+**About this app**
 
+<!-- Replace this section with a 2–3 sentence description of your specific
+     country context, the program or portfolio this PTI supports, and any
+     methodological notes relevant to your audience. -->
 
+**Contact**
+
+For questions, feedback, or data requests, contact:
+Nga Thi Viet Nguyen — [nnguyen3@worldbank.org](mailto:nnguyen3@worldbank.org)
+
+<!-- Update the contact above with the relevant task team member. -->

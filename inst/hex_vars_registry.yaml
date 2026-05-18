@@ -52,7 +52,7 @@
 #                               composite PTI score by default
 #                               (display-only).
 
-registry_version: "0.2.0"
+registry_version: "0.3.0"
 
 sources:
 
@@ -165,4 +165,50 @@ sources:
         available_years: ~
         weight: "area"
         fun: "mean"
+        fltr_exclude_pti: false
+      # --- §B Demographics (WorldPop via Space2Stats REST) ---
+      pop_total:
+        source_col_template: "sum_pop_{year}"
+        var_name: "Population ({year})"
+        var_description: |
+          Total population per H3-6 cell, WorldPop annual projections
+          2015-2030, accessed via the WB Space2Stats REST API.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Demographics"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: [2015, 2016, 2017, 2018, 2019, 2020,
+                          2021, 2022, 2023, 2024, 2025, 2026,
+                          2027, 2028, 2029, 2030]
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: true
+      pop_female_2025:
+        source_col: "sum_f_2025"
+        var_name: "Female Population (2025)"
+        var_description: |
+          Total female population per H3-6 cell, WorldPop 2025 estimate.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Demographics"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      pop_male_2025:
+        source_col: "sum_m_2025"
+        var_name: "Male Population (2025)"
+        var_description: |
+          Total male population per H3-6 cell, WorldPop 2025 estimate.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Demographics"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
         fltr_exclude_pti: false

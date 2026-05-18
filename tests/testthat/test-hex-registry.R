@@ -250,3 +250,30 @@ test_that("list_hex_vars: includes REST source variables", {
   expect_true("fires_density" %in% res$canonical_name)
   expect_true("drought_spei"  %in% res$canonical_name)
 })
+
+# arch-12 §B — population demographics (WorldPop via Space2Stats REST) --------
+
+test_that("use_hex_vars: pop_total (temporal) is resolvable", {
+  v <- use_hex_vars("pop_total")
+  expect_s3_class(v$pop_total, "pti_hex_var")
+  expect_identical(v$pop_total$backend, "rest")
+  expect_false(is.null(v$pop_total$source_col_template))
+})
+
+test_that("use_hex_vars: pop_total available_years covers 2015-2030", {
+  tbl <- list_hex_vars()
+  row <- tbl[tbl$canonical_name == "pop_total", ]
+  expect_equal(nrow(row), 1L)
+  expect_true(2020L %in% unlist(row$available_years))
+  expect_true(2030L %in% unlist(row$available_years))
+})
+
+test_that("use_hex_vars: pop_female_2025 (static) is resolvable", {
+  v <- use_hex_vars("pop_female_2025")
+  expect_identical(v$pop_female_2025$source_col, "sum_f_2025")
+})
+
+test_that("use_hex_vars: pop_male_2025 (static) is resolvable", {
+  v <- use_hex_vars("pop_male_2025")
+  expect_identical(v$pop_male_2025$source_col, "sum_m_2025")
+})

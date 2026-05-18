@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-05-18 (arch-12 §B — population demographics in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added `pop_total` (temporal, 2015–2030, `source_col_template: "sum_pop_{year}"`), `pop_female_2025` (`sum_f_2025`), and `pop_male_2025` (`sum_m_2025`) under `wb_space2stats_api`; bumped `registry_version` to `"0.3.0"`. |
+| Code | `R/fct_hex_registry.R`: fixed latent R partial-match bug — `v$source_col` and `v$source_col_template` replaced with `v[["source_col"]]` / `v[["source_col_template"]]` to prevent `$source_col` from partially matching `source_col_template` when only the template field is present. |
+| Tests | `tests/testthat/test-hex-registry.R`: 4 new Tier-1 tests for the §B population variables (temporal resolvability, available_years coverage, static female/male source_col). |
+
+---
+
 ## 2026-05-18 (tooling — post-merge issue tracker hook)
 
 | Scope | Change |

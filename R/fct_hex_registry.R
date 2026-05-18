@@ -38,8 +38,8 @@ read_hex_registry <- function() {
     vars_list <- lapply(names(s$variables), function(canon) {
       v <- s$variables[[canon]]
       pti_hex_var(
-        source_col            = v$source_col %||% NA_character_,
-        source_col_template   = v$source_col_template %||% NA_character_,
+        source_col            = v[["source_col"]] %||% NA_character_,
+        source_col_template   = v[["source_col_template"]] %||% NA_character_,
         canonical_name        = canon,
         var_name              = v$var_name,
         var_description       = v$var_description,

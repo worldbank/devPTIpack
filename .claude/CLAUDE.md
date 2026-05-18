@@ -140,6 +140,24 @@ when the PR's scope intersects a tracked item.
 PRs that *don't* touch PLAN-tracked work (pure infra fixes, typo
 corrections, dependency bumps) need no PLAN.md edit.
 
+## Post-merge issue tracking (automatic)
+
+A second Stop hook (`.claude/hooks/post-merge-issues.sh`) activates whenever
+`worldbank/main` advances (i.e. after `git pull` or `git fetch` following a merge).
+It is **silent** when nothing has changed.
+
+When it fires, it:
+1. Identifies newly merged PRs from `git log --merges`.
+2. Checks each referenced issue (`Closes #N` / `Fixes #N` / `Resolves #N`)
+   — reports **OPEN** ones (GitHub's auto-close may have missed them) and
+   suggests running the `close-issue-on-merge` skill.
+3. Prints the full open-issue backlog so the next task is always visible.
+
+**Does NOT auto-close** — only reports. Closing is done explicitly via the
+`close-issue-on-merge` skill to avoid silently closing the wrong issue.
+
+State file: `.claude/.last-main-sha` (gitignored, machine-local).
+
 ## Change Logging (COMPULSORY)
 
 Every code/doc change must be logged to `.github/docs/changelog.md`.

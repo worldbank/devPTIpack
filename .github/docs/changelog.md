@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-05-18 (tooling — post-merge issue tracker hook)
+
+| Scope | Change |
+| ----- | ------ |
+| Tooling | New `.claude/hooks/post-merge-issues.sh` Stop hook: detects when `worldbank/main` advances, reports any still-OPEN issues referenced by the merged PR(s), and prints the open-issue backlog — does not auto-close, only reports, so Claude can decide whether to invoke `close-issue-on-merge`. |
+| Config | `.claude/settings.json`: registered `post-merge-issues.sh` as a second Stop hook alongside `auto-changelog.sh`. |
+| Config | `.gitignore`: added `.claude/.last-main-sha` (machine-local SHA state file used by the hook). |
+| Rules | `.claude/CLAUDE.md`: added "Post-merge issue tracking" section documenting hook behaviour, safety design (report-only), and state file location. |
+
+---
+
 ## 2026-05-18 (arch-13 §A — `create_new_pti()` token replacement + open prompt)
 
 | Scope | Change |

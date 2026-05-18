@@ -1019,10 +1019,10 @@ collections at H3 Level 6). Spec:
       issue [#136](https://github.com/worldbank/devPTIpack/issues/136)).
       All 14 `ghs_*_count` / `ghs_*_pop` columns (classes 11–30 + totals)
       under `wb_space2stats_api`. `pillar_name: "Urbanization"`. PR #TBD.
-- [ ] arch-12 §D — Add nighttime lights vars (YAML-only PR;
-      issue [#137](https://github.com/worldbank/devPTIpack/issues/137);
-      depends on #139). `sum_viirs_ntl_{year}` template, years 2012–2024.
-      `pillar_name: "Economic activity"`.
+- [x] arch-12 §D — Add nighttime lights vars (YAML-only PR;
+      issue [#137](https://github.com/worldbank/devPTIpack/issues/137)).
+      `nighttime_lights` with `source_col_template: "sum_viirs_ntl_{year}"`,
+      years 2012–2024. `pillar_name: "Economic activity"`. PR #TBD.
 - [ ] arch-12 §E — Add built-up area vars (YAML-only PR;
       issue [#138](https://github.com/worldbank/devPTIpack/issues/138);
       depends on #139). `sum_built_area_m_{year}` template, decadal

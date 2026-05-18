@@ -1015,10 +1015,10 @@ collections at H3 Level 6). Spec:
       [#135](https://github.com/worldbank/devPTIpack/issues/135)).
       Added `pop_total` (temporal, 2015–2030), `pop_female_2025`, `pop_male_2025`.
       Also fixed partial-match bug in `fct_hex_registry.R` (`$` → `[[`). PR #TBD.
-- [ ] arch-12 §C — Add GHS-SMOD urbanisation vars (YAML-only PR;
-      issue [#136](https://github.com/worldbank/devPTIpack/issues/136);
-      depends on #139). `ghs_*_count` / `ghs_*_pop` columns.
-      `pillar_name: "Urbanization"`.
+- [x] arch-12 §C — Add GHS-SMOD urbanisation vars (YAML-only PR;
+      issue [#136](https://github.com/worldbank/devPTIpack/issues/136)).
+      All 14 `ghs_*_count` / `ghs_*_pop` columns (classes 11–30 + totals)
+      under `wb_space2stats_api`. `pillar_name: "Urbanization"`. PR #TBD.
 - [ ] arch-12 §D — Add nighttime lights vars (YAML-only PR;
       issue [#137](https://github.com/worldbank/devPTIpack/issues/137);
       depends on #139). `sum_viirs_ntl_{year}` template, years 2012–2024.

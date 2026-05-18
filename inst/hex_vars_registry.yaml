@@ -52,7 +52,7 @@
 #                               composite PTI score by default
 #                               (display-only).
 
-registry_version: "0.3.0"
+registry_version: "0.4.0"
 
 sources:
 
@@ -206,6 +206,251 @@ sources:
         var_units: "count"
         pillar_group: ~
         pillar_name: "Demographics"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      # --- §C Urbanization (GHS-SMOD via Space2Stats REST) ---
+      # GHS-SMOD DEGURBA L2 codes: 30=Urban Centre, 23=Dense Town,
+      # 22=Semi-dense Town, 21=Suburban/Peri-urban, 13=Rural Cluster,
+      # 12=Low-density Rural, 11=Very Low-density Rural.
+      # _count = number of H3-6 sub-cells in class; _pop = population.
+      ghs_total_count:
+        source_col: "ghs_total_count"
+        var_name: "Total Urban Cells (GHS-SMOD)"
+        var_description: |
+          Total number of H3-6 sub-cells classified by GHS-SMOD degree
+          of urbanisation (all classes combined).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: true
+      ghs_total_pop:
+        source_col: "ghs_total_pop"
+        var_name: "Total Population — GHS-SMOD (2020)"
+        var_description: |
+          Total population across all GHS-SMOD classes per H3-6 cell,
+          sourced from the WB Space2Stats urbanization layer.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: true
+      ghs_30_count:
+        source_col: "ghs_30_count"
+        var_name: "Urban Centre Cells (GHS-SMOD class 30)"
+        var_description: |
+          Number of H3-6 sub-cells classified as Urban Centre
+          (GHS-SMOD DEGURBA L2 class 30).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_30_pop:
+        source_col: "ghs_30_pop"
+        var_name: "Urban Centre Population (GHS-SMOD class 30)"
+        var_description: |
+          Population in Urban Centre class (GHS-SMOD DEGURBA L2 class 30)
+          per H3-6 cell.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_23_count:
+        source_col: "ghs_23_count"
+        var_name: "Dense Town Cells (GHS-SMOD class 23)"
+        var_description: |
+          Number of H3-6 sub-cells classified as Dense Town
+          (GHS-SMOD DEGURBA L2 class 23).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_23_pop:
+        source_col: "ghs_23_pop"
+        var_name: "Dense Town Population (GHS-SMOD class 23)"
+        var_description: |
+          Population in Dense Town class (GHS-SMOD DEGURBA L2 class 23)
+          per H3-6 cell.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_22_count:
+        source_col: "ghs_22_count"
+        var_name: "Semi-dense Town Cells (GHS-SMOD class 22)"
+        var_description: |
+          Number of H3-6 sub-cells classified as Semi-dense Town
+          (GHS-SMOD DEGURBA L2 class 22).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_22_pop:
+        source_col: "ghs_22_pop"
+        var_name: "Semi-dense Town Population (GHS-SMOD class 22)"
+        var_description: |
+          Population in Semi-dense Town class (GHS-SMOD DEGURBA L2 class 22)
+          per H3-6 cell.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_21_count:
+        source_col: "ghs_21_count"
+        var_name: "Suburban/Peri-urban Cells (GHS-SMOD class 21)"
+        var_description: |
+          Number of H3-6 sub-cells classified as Suburban or Peri-urban
+          (GHS-SMOD DEGURBA L2 class 21).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_21_pop:
+        source_col: "ghs_21_pop"
+        var_name: "Suburban/Peri-urban Population (GHS-SMOD class 21)"
+        var_description: |
+          Population in Suburban/Peri-urban class (GHS-SMOD DEGURBA L2 class 21)
+          per H3-6 cell.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_13_count:
+        source_col: "ghs_13_count"
+        var_name: "Rural Cluster Cells (GHS-SMOD class 13)"
+        var_description: |
+          Number of H3-6 sub-cells classified as Rural Cluster
+          (GHS-SMOD DEGURBA L2 class 13).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_13_pop:
+        source_col: "ghs_13_pop"
+        var_name: "Rural Cluster Population (GHS-SMOD class 13)"
+        var_description: |
+          Population in Rural Cluster class (GHS-SMOD DEGURBA L2 class 13)
+          per H3-6 cell.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_12_count:
+        source_col: "ghs_12_count"
+        var_name: "Low-density Rural Cells (GHS-SMOD class 12)"
+        var_description: |
+          Number of H3-6 sub-cells classified as Low-density Rural
+          (GHS-SMOD DEGURBA L2 class 12).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_12_pop:
+        source_col: "ghs_12_pop"
+        var_name: "Low-density Rural Population (GHS-SMOD class 12)"
+        var_description: |
+          Population in Low-density Rural class (GHS-SMOD DEGURBA L2 class 12)
+          per H3-6 cell.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_11_count:
+        source_col: "ghs_11_count"
+        var_name: "Very Low-density Rural Cells (GHS-SMOD class 11)"
+        var_description: |
+          Number of H3-6 sub-cells classified as Very Low-density Rural
+          (GHS-SMOD DEGURBA L2 class 11).
+        var_units: "cells"
+        pillar_group: ~
+        pillar_name: "Urbanization"
+        legend_revert_colours: false
+        time_col: ~
+        available_years: ~
+        weight: "none"
+        fun: "sum"
+        fltr_exclude_pti: false
+      ghs_11_pop:
+        source_col: "ghs_11_pop"
+        var_name: "Very Low-density Rural Population (GHS-SMOD class 11)"
+        var_description: |
+          Population in Very Low-density Rural class (GHS-SMOD DEGURBA L2 class 11)
+          per H3-6 cell.
+        var_units: "count"
+        pillar_group: ~
+        pillar_name: "Urbanization"
         legend_revert_colours: false
         time_col: ~
         available_years: ~

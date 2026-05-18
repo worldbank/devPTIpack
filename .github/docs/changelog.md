@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-05-17 (arch-13 §C — report helper functions)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | New `R/fct_pti_report_helpers.R`: three exported helpers (`@family pti-report`) — `pti_plot_boundaries()` (faceted ggplot of all admin levels, optional accent highlight), `pti_plot_histogram()` (histogram + percentile vlines, character `var` arg), `pti_summary_table()` (reactable widget; type="overview" from `fct_template_reader()` output with per-variable stats; type="hex" from `fetch_hex_data()` tibble with non-missing count + coverage %). |
+| Config | `DESCRIPTION`: added `reactable` to `Suggests` for the `pti_summary_table()` widget dependency. |
+| Tests | New `tests/testthat/test-pti-report-helpers.R`: 15 Tier-1 tests covering return type, panel count, highlight_level, bad-input errors, vline count, NULL percentiles, overview row/column contract, hex coverage % arithmetic, and match.arg rejection. |
+
+---
+
 ## 2026-05-17 (tooling — tdd-new-fn skill)
 
 | Scope | Change |

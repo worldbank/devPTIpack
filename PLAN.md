@@ -1058,7 +1058,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [ ] arch-13 §B (#150) — `CHECKLIST.md` template (after §A)
 
 **Helpers + pipeline steps:**
-- [ ] arch-13 §C (#151) — `pti_plot_boundaries()`, `pti_plot_histogram()`, `pti_summary_table()` (unblocked)
+- [x] arch-13 §C (#151) — `pti_plot_boundaries()`, `pti_plot_histogram()`, `pti_summary_table()` — new `R/fct_pti_report_helpers.R`; 15 Tier-1 tests; `reactable` added to Suggests (branch `tooling/tdd-new-fn`, to be PR'd)
 - [ ] arch-13 §D (#155) — `02a-user-zonal-stats.qmd` output contract (unblocked)
 - [ ] arch-13 §E (#153) — rename `03-metadata.qmd` → `03-user-data.qmd`; `pti_patch_admin_sheet()` (after §C)
 - [ ] arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false` guards (after §C; coordinate with arch-12 §B)

@@ -12,12 +12,36 @@ statistics from raster data (e.g. satellite imagery, gridded
 population) before building your metadata Excel in Step 3. It is
 **not** sourced by `00-master.R` -- run it manually as needed.
 
-This file ships as a stub; populate the chunks below with your own
-extraction code, write the resulting indicator columns into a CSV /
-Excel keyed by `admin<N>Pcod`, and feed that file into Step 3.
-
 Add `02b-...qmd`, `02c-...qmd`, etc. for additional zonal-stats
 extractions.
+:::
+
+## What this step produces
+
+This step extracts indicator values from raster data and writes a
+tabular file (CSV or Excel) with one row per polygon and one column per
+indicator. That file is then merged into your metadata workbook by
+`pti_patch_admin_sheet()` in Step 3 -- you never manually copy data
+into the Excel.
+
+Files produced here are **inputs**, not outputs: save them into
+`sample-data/`, not `app-data/`.
+
+::: {.callout-important}
+## Required output format — feed into Step 3
+
+Your zonal stats output must be a data frame with:
+
+| Column | Required | Notes |
+|---|---|---|
+| `admin2Pcod` | ✔ | Must match Pcod values in `app-data/shapes.rds` |
+| `my_indicator_1` | ✔ | Column name = `var_code` in your metadata sheet |
+| `my_indicator_2` | ✔ | One column per indicator |
+
+- One row per polygon at the admin level you extracted stats for
+- No geometry column — plain tabular data
+- Save as CSV or `.xlsx` into `sample-data/`
+- Step 3 will merge this into your metadata workbook automatically
 :::
 
 ## When you need zonal stats
@@ -35,28 +59,37 @@ Typical use cases:
 - [`terra::extract()`](https://rspatial.github.io/terra/reference/extract.html)
   -- general-purpose raster sampling.
 
-## Output format
+## Code skeleton
 
-One column per indicator, keyed by `admin<N>Pcod`. The output of this
-step becomes one of the indicator-value sheets you load into your
-metadata Excel in Step 3 (see [Data preparation reference](
-https://worldbank.github.io/devPTIpack/articles/dataprep.html)
-for the column contract).
+Replace the paths and column names below with your own raster and
+indicator definitions. The output file name should be descriptive
+(admin level + indicator group).
 
 ```{r}
 #| eval: false
-# Example skeleton -- replace with your own raster + admin layer.
-# library(sf)
-# library(terra)
-# library(exactextractr)
-#
-# adm2 <- sf::read_sf("sample-data/rwa_adm2.geojson")
-# r    <- terra::rast("path/to/your-raster.tif")
-# adm2$mean_value <- exactextractr::exact_extract(r, adm2, fun = "mean")
-#
-# # Write a tidy table for Step 3.
-# adm2 |>
-#   sf::st_drop_geometry() |>
-#   dplyr::transmute(admin2Pcod = shapeID, my_indicator = mean_value) |>
-#   writexl::write_xlsx("sample-data/my-zonal-stats-adm2.xlsx")
+library(sf)
+library(terra)
+library(exactextractr)
+library(dplyr)
+library(writexl)
+
+adm2 <- sf::read_sf("sample-data/rwa_adm2.geojson")
+r    <- terra::rast("path/to/your-raster.tif")
+
+zonal_stats <- adm2 |>
+  dplyr::mutate(my_indicator_1 = exactextractr::exact_extract(r, adm2, fun = "mean")) |>
+  sf::st_drop_geometry() |>
+  dplyr::transmute(
+    admin2Pcod    = shapeID,         # must match shapes.rds Pcod column
+    my_indicator_1 = my_indicator_1  # var_code from your metadata sheet
+  )
+
+# Save to sample-data/ — Step 3 will read and merge this file.
+writexl::write_xlsx(zonal_stats, "sample-data/zonal-stats-adm2.xlsx")
 ```
+
+## Next step
+
+Once you have saved your output to `sample-data/`, open
+`03-user-data.qmd` and point `pti_patch_admin_sheet()` at your file to
+merge the new indicator columns into the metadata workbook.

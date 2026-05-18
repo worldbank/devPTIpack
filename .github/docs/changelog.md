@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-05-18 (arch-13 §D — 02a-user-zonal-stats.qmd output contract)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/02a-user-zonal-stats.qmd`: rewrote stub to document the Step 2 → Step 3 contract; added "What this step produces" prose, a `callout-important` output schema table (Pcod key + var_code columns, no geometry, save to `sample-data/`), an updated code skeleton writing `sample-data/zonal-stats-adm2.xlsx`, and a "Next step" footer pointing to `pti_patch_admin_sheet()` in `03-user-data.qmd`. |
+
+---
+
 ## 2026-05-18 (arch-13 §L — generic app.R + landing-page.md template)
 
 | Scope | Change |

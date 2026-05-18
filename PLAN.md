@@ -1232,8 +1232,9 @@ arch-13 §A (#152) —
 [`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
 inject `app_name` + next-steps CLI; token replacement + yesno
 open-prompt (PR
-[\#172](https://github.com/worldbank/devPTIpack/pull/172)) - \[ \]
-arch-13 §B (#150) — `CHECKLIST.md` template (after §A)
+[\#172](https://github.com/worldbank/devPTIpack/pull/172)) - \[x\]
+arch-13 §B (#150) — `CHECKLIST.md` template (after §A) (PR
+[\#177](https://github.com/worldbank/devPTIpack/pull/177))
 
 **Helpers + pipeline steps:** - \[x\] arch-13 §C (#151) —
 [`pti_plot_boundaries()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_boundaries.md),
@@ -1799,6 +1800,15 @@ Added `.x`/`.y` suffix detection via
 suffix, admin column rename sync, general first-file-wins, weights_table
 multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub
 issue \#117. \|
+
+[\#177](https://github.com/worldbank/devPTIpack/pull/177) \| 2026-05-18
+\| **arch-13 §B (#150): `CHECKLIST.md` template** \| Added
+`inst/template_pti/CHECKLIST.md` — two-phase GitHub-flavoured markdown
+checklist (Before first run / Before deployment) with `{{APP_NAME}}`
+placeholder for
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
+token replacement. Content follows the issue \#150 spec. Closes \#150.
+\|
 
 [\#172](https://github.com/worldbank/devPTIpack/pull/172) \| 2026-05-18
 \| **arch-13 §A (#152):

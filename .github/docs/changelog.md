@@ -5,6 +5,18 @@
 
 ---
 
+## 2026-05-18 (arch-13 §A — `create_new_pti()` token replacement + open prompt)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | Rewrote `create_new_pti()` in `R/fct_create_new_pti.R`: after `fs::dir_copy()`, scans all `.R/.md/.qmd/.yml/.yaml/.txt` files in the new project dir and replaces `{{COUNTRY NAME}}` and `{{APP_NAME}}` tokens with `app_name` via `readLines`/`writeLines`. |
+| Code | Replaced noisy `cli::cat_rule()` / `cli::cat_bullet()` calls with a single compact `cli::cli_inform()` 5-item banner (directory created → skeleton copied → tokens replaced → open app.R → run 00-master.R). |
+| Code | Added `yesno::yesno()` prompt before `rstudioapi::openProject()` when `open = TRUE` + RStudio active; `open = FALSE` or headless skips the prompt entirely. `tryCatch` ensures non-interactive environments (CI, tests) default to `TRUE`. |
+| Config | Removed stale `importFrom(cli, cat_bullet)` and `importFrom(cli, cat_rule)` from `NAMESPACE` (functions no longer called anywhere in `R/`). |
+| Tests | Added 9 new Tier-1 tests to `tests/testthat/test-create-new-pti.R` covering token replacement (3), `{{APP_NAME}}` mechanism, open-prompt yesno called once, yesno NO blocks open, no prompt on `open=FALSE`, no prompt when headless. Suite: 21 PASS / 0 FAIL. |
+
+---
+
 ## 2026-05-17 (arch-13 §C — report helper functions)
 
 | Scope | Change |
@@ -661,3 +673,9 @@ R CMD check stays at 0 errors / 0 warnings / 3 notes (same baseline as PR #99 / 
 | Docs  | Post-sprint reconciliation: corrected a `PR #12` typo in PLAN.md §1 status-snapshot prose (line 29) to `PR #70` -- the parenthetical describes the new Tier-1 test file added in PR #70 (`test-gg-admin-list.R`, 2 test_that blocks / 8 expectations covering the missing-`mt` error and the bundled-data success path), not GitHub issue #12 (Phase 4 / pkgdown). Pure-docs change; no R/, tests/, or roxygen touched. |
 | Tooling | Updated `.claude/skills/grill-me/SKILL.md` (auto-drafted — please refine). <!-- AUTODRAFT:.claude/skills/grill-me/SKILL.md --> |
 | Other  | Updated `man/devPTIpack-package.Rd` (auto-drafted — please refine). <!-- AUTODRAFT:man/devPTIpack-package.Rd --> |
+
+## 2026-05-18
+
+| Scope  | Change                                  |
+| ------ | --------------------------------------- |
+| Docs   | Updated `PLAN.md` (auto-drafted — please refine). <!-- AUTODRAFT:PLAN.md --> |

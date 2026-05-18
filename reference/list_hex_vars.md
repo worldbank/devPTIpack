@@ -48,7 +48,7 @@ Other data-input:
 
 ``` r
 list_hex_vars()
-#> # A tibble: 25 × 10
+#> # A tibble: 26 × 10
 #>    source_id          source_label    canonical_name var_name var_units time_col
 #>    <chr>              <chr>           <chr>          <chr>    <chr>     <chr>   
 #>  1 wb_flood_exposure  WB Space2Stats… population     Populat… count     NA      
@@ -61,7 +61,7 @@ list_hex_vars()
 #>  8 wb_space2stats_api WB Space2Stats… pop_female_20… Female … count     NA      
 #>  9 wb_space2stats_api WB Space2Stats… pop_male_2025  Male Po… count     NA      
 #> 10 wb_space2stats_api WB Space2Stats… ghs_total_cou… Total U… cells     NA      
-#> # ℹ 15 more rows
+#> # ℹ 16 more rows
 #> # ℹ 4 more variables: available_years <list>, weight <chr>, fun <chr>,
 #> #   is_population <lgl>
 ```

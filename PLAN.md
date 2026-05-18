@@ -1176,9 +1176,10 @@ path. Adds drought/cyclone/landslide/fires static columns under one
 
 arch-12 §B — Add population + age/sex pyramid vars to
 `wb_space2stats_api` (YAML-only PR; issue
-[\#135](https://github.com/worldbank/devPTIpack/issues/135); depends on
-\#139). `sum_pop_2020`, `sum_f_2025`, `sum_m_2025`, and representative
-age brackets. `pillar_name: "Demographics"`.
+[\#135](https://github.com/worldbank/devPTIpack/issues/135)). Added
+`pop_total` (temporal, 2015–2030), `pop_female_2025`, `pop_male_2025`.
+Also fixed partial-match bug in `fct_hex_registry.R` (`$` → `[[`). PR
+\#TBD.
 
 arch-12 §C — Add GHS-SMOD urbanisation vars (YAML-only PR; issue
 [\#136](https://github.com/worldbank/devPTIpack/issues/136); depends on

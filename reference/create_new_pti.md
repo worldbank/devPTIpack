@@ -24,15 +24,16 @@ create_new_pti(path, open = TRUE, app_name = basename(path))
 
 - open:
 
-  Logical. If \`TRUE\` (default) and RStudio is active, opens the new
-  project in a new RStudio window after scaffolding. In other
-  environments (Positron, VSCode, headless R) the project path is
+  Logical. If \`TRUE\` (default) and RStudio is active, the user is
+  prompted before the project is opened in a new RStudio window. In
+  other environments (Positron, VSCode, headless R) the project path is
   printed and no auto-open is attempted.
 
 - app_name:
 
-  Character. Display name for the project, used for the RStudio project
-  file. Defaults to the basename of \`path\`.
+  Character. Display name for the project; replaces \`COUNTRY NAME\` and
+  \`APP_NAME\` tokens in scaffolded files. Defaults to the basename of
+  \`path\`.
 
 ## Value
 
@@ -53,14 +54,13 @@ Other pti-launch:
 # rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.
 new_app <- file.path(tempdir(), "demo_pti")
 create_new_pti(new_app, open = FALSE)
-#> ── Creating dir ────────────────────────────────────────────────────────────────
-#> • Created package directory
-#> ✔ Project scaffolded at /tmp/Rtmp0ZHvEX/demo_pti
+#> ✔ Project scaffolded at /tmp/Rtmp7CsrQu/demo_pti
 #> ℹ Open this folder as a new project in your IDE to get started.
-#> ── Copying package skeleton ────────────────────────────────────────────────────
-#> • Copied app skeleton
-#> ── Setting the default config ──────────────────────────────────────────────────
-#> • Configured app
+#> ✔ Project directory created
+#> ✔ Skeleton files copied
+#> ✔ Template tokens replaced (app_name = "demo_pti")
+#> ℹ Open app.R and set your data paths
+#> ℹ Run source('00-master.R') to build the app data
 list.files(new_app)
 #>  [1] "00-master.R"              "01-shapes.qmd"           
 #>  [3] "02a-user-zonal-stats.qmd" "03-metadata.qmd"         

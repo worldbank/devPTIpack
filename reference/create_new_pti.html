@@ -101,14 +101,16 @@ directory.</p></dd>
 
 <dt id="arg-open">open<a class="anchor" aria-label="anchor" href="#arg-open"></a></dt>
 <dd><p>Logical. If `TRUE` (default) and RStudio is active,
-opens the new project in a new RStudio window after scaffolding.
-In other environments (Positron, VSCode, headless R) the project
-path is printed and no auto-open is attempted.</p></dd>
+the user is prompted before the project is opened in a new
+RStudio window. In other environments (Positron, VSCode,
+headless R) the project path is printed and no auto-open is
+attempted.</p></dd>
 
 
 <dt id="arg-app-name">app_name<a class="anchor" aria-label="anchor" href="#arg-app-name"></a></dt>
-<dd><p>Character. Display name for the project, used for
-the RStudio project file. Defaults to the basename of `path`.</p></dd>
+<dd><p>Character. Display name for the project; replaces
+`COUNTRY NAME` and `APP_NAME` tokens in scaffolded files.
+Defaults to the basename of `path`.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -130,14 +132,13 @@ the RStudio project file. Defaults to the basename of `path`.</p></dd>
 <span class="r-in"><span><span class="co"># rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.</span></span></span>
 <span class="r-in"><span><span class="va">new_app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"demo_pti"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">create_new_pti</span><span class="op">(</span><span class="va">new_app</span>, open <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── Creating dir ────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Created package directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Project scaffolded at <span style="color: #0000BB;">/tmp/Rtmp0ZHvEX/demo_pti</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Project scaffolded at <span style="color: #0000BB;">/tmp/Rtmp7CsrQu/demo_pti</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Open this folder as a new project in your IDE to get started.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── Copying package skeleton ────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Copied app skeleton</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── Setting the default config ──────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Configured app</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Project directory created</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Skeleton files copied</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Template tokens replaced (app_name = "demo_pti")</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Open app.R and set your data paths</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Run source('00-master.R') to build the app data</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">new_app</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "00-master.R"              "01-shapes.qmd"           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "02a-user-zonal-stats.qmd" "03-metadata.qmd"         </span>

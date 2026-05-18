@@ -1226,29 +1226,32 @@ mirrors `hex_vars_registry.yaml`) - \[ \] arch-13 Inf-3 (#147) —
 **Setup:** - \[x\] arch-13 prereq —
 [`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
 platform guard (bug fix \#143, PR
-[\#166](https://github.com/worldbank/devPTIpack/pull/166)) - \[ \]
+[\#166](https://github.com/worldbank/devPTIpack/pull/166)) - \[x\]
 arch-13 §A (#152) —
 [`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
-inject `app_name` + next-steps CLI (after \#166 merges) - \[ \] arch-13
-§B (#150) — `CHECKLIST.md` template (after §A)
+inject `app_name` + next-steps CLI; token replacement + yesno
+open-prompt (PR
+[\#172](https://github.com/worldbank/devPTIpack/pull/172)) - \[ \]
+arch-13 §B (#150) — `CHECKLIST.md` template (after §A)
 
 **Helpers + pipeline steps:** - \[x\] arch-13 §C (#151) —
 [`pti_plot_boundaries()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_boundaries.md),
 [`pti_plot_histogram()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_histogram.md),
 [`pti_summary_table()`](https://worldbank.github.io/devPTIpack/reference/pti_summary_table.md)
 — new `R/fct_pti_report_helpers.R`; 15 Tier-1 tests; `reactable` added
-to Suggests (branch `tooling/tdd-new-fn`, to be PR’d) - \[ \] arch-13 §D
-(#155) — `02a-user-zonal-stats.qmd` output contract (unblocked) - \[ \]
-arch-13 §E (#153) — rename `03-metadata.qmd` → `03-user-data.qmd`;
-`pti_patch_admin_sheet()` (after §C) - \[ \] arch-13 §F (#154) —
-`04-hex-data.qmd` remove `eval: false` guards (after §C; coordinate with
-arch-12 §B) - \[ \] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex
-metadata + `var_overrides` (after §C) - \[ \] arch-13 §H (#157) —
-`05-compile-report.qmd` new HTML/PDF report (after §C) - \[ \] arch-13
-§I (#156) — `_quarto.yml` Quarto website template (unblocked) - \[ \]
-arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C +
-§I) - \[ \] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions
-(after §H + §I + §J) - \[ \] arch-13 §L (#162) — `app.R` +
+to Suggests (PR
+[\#171](https://github.com/worldbank/devPTIpack/pull/171)) - \[ \]
+arch-13 §D (#155) — `02a-user-zonal-stats.qmd` output contract
+(unblocked) - \[ \] arch-13 §E (#153) — rename `03-metadata.qmd` →
+`03-user-data.qmd`; `pti_patch_admin_sheet()` (after §C) - \[ \] arch-13
+§F (#154) — `04-hex-data.qmd` remove `eval: false` guards (after §C;
+coordinate with arch-12 §B) - \[ \] arch-13 §G (#158) — `05-compile.qmd`
+auto-detect hex metadata + `var_overrides` (after §C) - \[ \] arch-13 §H
+(#157) — `05-compile-report.qmd` new HTML/PDF report (after §C) - \[ \]
+arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked) -
+\[ \] arch-13 §J (#159) — `00-master.R` APP_URL + render full site
+(after §C + §I) - \[ \] arch-13 §K (#160) — `06-deploy.R` GitHub Pages
+instructions (after §H + §I + §J) - \[ \] arch-13 §L (#162) — `app.R` +
 `landing-page.md` generic template (unblocked)
 
 **Documentation + AI tooling:** - \[ \] arch-13 Doc (#161) — update
@@ -1795,6 +1798,22 @@ Added `.x`/`.y` suffix detection via
 suffix, admin column rename sync, general first-file-wins, weights_table
 multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub
 issue \#117. \|
+
+[\#172](https://github.com/worldbank/devPTIpack/pull/172) \| 2026-05-18
+\| **arch-13 §A (#152):
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md)
+token replacement + open prompt** \| Rewrote
+[`create_new_pti()`](https://worldbank.github.io/devPTIpack/reference/create_new_pti.md):
+(1) after [`fs::dir_copy()`](https://fs.r-lib.org/reference/copy.html),
+replaces `{{COUNTRY NAME}}` and `{{APP_NAME}}` tokens in all text files
+(`.R/.md/.qmd/.yml/.yaml/.txt`) with `app_name`; (2) compact
+`cli_inform()` 5-step banner replaces noisy `cat_rule`/`cat_bullet`
+calls; (3) `open=TRUE` + RStudio now prompts
+[`yesno::yesno()`](https://poissonconsulting.github.io/yesno/reference/yesno.html)
+before calling `openProject`, `open=FALSE` skips prompt. Removed stale
+`importFrom(cli, cat_bullet/cat_rule)` from NAMESPACE. Added 9 new
+Tier-1 tests covering all 3 contracts. 21 PASS / 0 FAIL. Closes \#152.
+\|
 
 [\#166](https://github.com/worldbank/devPTIpack/pull/166) \| 2026-05-17
 \| **Bug fix:

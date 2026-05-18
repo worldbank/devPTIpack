@@ -104,3 +104,132 @@ testthat::test_that("create_new_pti copies all skeleton files", {
 
   testthat::expect_setequal(actual, expected)
 })
+
+# --- arch-13 §A contracts ------------------------------------------------
+
+testthat::test_that("create_new_pti replaces {{COUNTRY NAME}} in app.R with app_name", {
+  path <- file.path(withr::local_tempdir(), "my-pti")
+  subject <- devPTIpack::create_new_pti
+  mockery::stub(subject, "rstudioapi::hasFun", function(name) FALSE)
+
+  subject(path, open = FALSE, app_name = "Rwanda PTI")
+
+  lines <- readLines(file.path(path, "app.R"))
+  testthat::expect_false(
+    any(grepl("{{COUNTRY NAME}}", lines, fixed = TRUE)),
+    label = "{{COUNTRY NAME}} token must be replaced after scaffold"
+  )
+  testthat::expect_true(
+    any(grepl("Rwanda PTI", lines, fixed = TRUE)),
+    label = "app_name value must appear in scaffolded app.R"
+  )
+})
+
+testthat::test_that("create_new_pti token replacement uses app_name default (basename of path)", {
+  path <- file.path(withr::local_tempdir(), "angola-pti")
+  subject <- devPTIpack::create_new_pti
+  mockery::stub(subject, "rstudioapi::hasFun", function(name) FALSE)
+
+  subject(path, open = FALSE)
+
+  lines <- readLines(file.path(path, "app.R"))
+  testthat::expect_false(
+    any(grepl("{{COUNTRY NAME}}", lines, fixed = TRUE)),
+    label = "{{COUNTRY NAME}} must be gone even when app_name uses default"
+  )
+  testthat::expect_true(
+    any(grepl("angola-pti", lines, fixed = TRUE)),
+    label = "basename of path used as default app_name in scaffolded app.R"
+  )
+})
+
+testthat::test_that("create_new_pti replaces {{APP_NAME}} tokens wherever they appear in scaffolded files", {
+  path <- file.path(withr::local_tempdir(), "my-pti")
+  subject <- devPTIpack::create_new_pti
+  mockery::stub(subject, "rstudioapi::hasFun", function(name) FALSE)
+
+  subject(path, open = FALSE, app_name = "My PTI App")
+
+  text_exts <- c("\\.R$", "\\.md$", "\\.qmd$", "\\.yml$", "\\.yaml$", "\\.txt$")
+  all_files <- list.files(path, recursive = TRUE, all.files = TRUE, full.names = TRUE)
+  text_files <- all_files[grepl(paste(text_exts, collapse = "|"), all_files)]
+
+  has_token <- vapply(text_files, function(f) {
+    any(grepl("{{APP_NAME}}", readLines(f, warn = FALSE), fixed = TRUE))
+  }, logical(1L))
+
+  testthat::expect_false(
+    any(has_token),
+    label = "No scaffolded text file should contain unreplaced {{APP_NAME}} after scaffold"
+  )
+})
+
+testthat::test_that("create_new_pti prompts yesno before opening in RStudio (open = TRUE)", {
+  path <- file.path(withr::local_tempdir(), "pti-app")
+  yesno_calls <- 0L
+
+  subject <- devPTIpack::create_new_pti
+  mockery::stub(subject, "rstudioapi::hasFun", function(name) TRUE)
+  mockery::stub(subject, "rstudioapi::initializeProject", function(path) invisible(TRUE))
+  mockery::stub(subject, "yesno::yesno", function(...) {
+    yesno_calls <<- yesno_calls + 1L
+    TRUE
+  })
+  mockery::stub(subject, "rstudioapi::openProject", function(path) invisible(TRUE))
+
+  subject(path, open = TRUE)
+
+  testthat::expect_equal(yesno_calls, 1L)
+})
+
+testthat::test_that("create_new_pti skips openProject when yesno returns FALSE (open = TRUE)", {
+  path <- file.path(withr::local_tempdir(), "pti-app")
+  open_calls <- 0L
+
+  subject <- devPTIpack::create_new_pti
+  mockery::stub(subject, "rstudioapi::hasFun", function(name) TRUE)
+  mockery::stub(subject, "rstudioapi::initializeProject", function(path) invisible(TRUE))
+  mockery::stub(subject, "yesno::yesno", function(...) FALSE)
+  mockery::stub(subject, "rstudioapi::openProject", function(path) {
+    open_calls <<- open_calls + 1L
+    invisible(TRUE)
+  })
+
+  subject(path, open = TRUE)
+
+  testthat::expect_equal(open_calls, 0L)
+})
+
+testthat::test_that("create_new_pti does not prompt yesno for open when open = FALSE (RStudio)", {
+  path <- file.path(withr::local_tempdir(), "pti-app")
+  yesno_calls <- 0L
+
+  subject <- devPTIpack::create_new_pti
+  mockery::stub(subject, "rstudioapi::hasFun", function(name) TRUE)
+  mockery::stub(subject, "rstudioapi::initializeProject", function(path) invisible(TRUE))
+  mockery::stub(subject, "yesno::yesno", function(...) {
+    yesno_calls <<- yesno_calls + 1L
+    TRUE
+  })
+  mockery::stub(subject, "rstudioapi::openProject", function(path) invisible(TRUE))
+
+  subject(path, open = FALSE)
+
+  testthat::expect_equal(yesno_calls, 0L)
+})
+
+testthat::test_that("create_new_pti does not prompt yesno for open when headless (open = TRUE)", {
+  path <- file.path(withr::local_tempdir(), "pti-app")
+  yesno_calls <- 0L
+
+  subject <- devPTIpack::create_new_pti
+  mockery::stub(subject, "rstudioapi::hasFun", function(name) FALSE)
+  mockery::stub(subject, "yesno::yesno", function(...) {
+    yesno_calls <<- yesno_calls + 1L
+    TRUE
+  })
+
+  subject(path, open = TRUE)
+
+  testthat::expect_equal(yesno_calls, 0L)
+})

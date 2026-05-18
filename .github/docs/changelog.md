@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-05-18 (arch-13 §B — CHECKLIST.md template)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/CHECKLIST.md`: added two-phase deployer checklist ("Before first run" / "Before deployment") with `{{APP_NAME}}` placeholder; covers boundary replacement, pipeline run, data quality review, and Posit Connect + GitHub Pages deployment steps. |
+
+---
+
 ## 2026-05-18 (arch-12 §E — built-up area in hex registry)
 
 | Scope | Change |

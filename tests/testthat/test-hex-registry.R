@@ -325,3 +325,22 @@ test_that("use_hex_vars: nighttime_lights available_years covers 2012-2024", {
   expect_true(2024L %in% yrs)
   expect_equal(length(yrs), 13L)
 })
+
+# arch-12 §E — built-up area (GHSL via Space2Stats REST) ---------------------
+
+test_that("use_hex_vars: builtup_area (temporal) is resolvable via REST", {
+  v <- use_hex_vars("builtup_area")
+  expect_s3_class(v$builtup_area, "pti_hex_var")
+  expect_identical(v$builtup_area$backend, "rest")
+  expect_identical(v$builtup_area[["source_col_template"]], "sum_built_area_m_{year}")
+})
+
+test_that("use_hex_vars: builtup_area available_years covers 1975-2030 decadal", {
+  tbl <- list_hex_vars()
+  row <- tbl[tbl$canonical_name == "builtup_area", ]
+  expect_equal(nrow(row), 1L)
+  yrs <- unlist(row$available_years)
+  expect_true(1975L %in% yrs)
+  expect_true(2030L %in% yrs)
+  expect_equal(length(yrs), 12L)
+})

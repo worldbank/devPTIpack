@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-18 (arch-12 §E — built-up area in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added `builtup_area` (`source_col_template: "sum_built_area_m_{year}"`, decadal 1975–2030, `pillar_name: "Infrastructure"`) under `wb_space2stats_api`; bumped `registry_version` to `"0.6.0"` (after §D landed at `0.5.0`). |
+| Tests | `tests/testthat/test-hex-registry.R`: 2 new Tier-1 tests (temporal resolvability + available_years 1975–2030, 12 entries). |
+
+---
+
 ## 2026-05-18 (arch-12 §D — nighttime lights in hex registry)
 
 | Scope | Change |

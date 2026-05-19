@@ -125,6 +125,9 @@ Read shapes and metadata workbooks from disk.
   : Build the parent-child P-code cascade for a shapefile list
 - [`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md)
   : Build an H3 hexagonal grid covering a country boundary
+- [`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md)
+  : Patch an administrative metadata sheet with supplied indicator
+  values
 - [`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
   : Resolve hex variable names against the registry
 

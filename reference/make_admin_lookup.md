@@ -82,6 +82,7 @@ Other data-input:
 [`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md),
 [`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md),
 [`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md),
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md),
 [`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
 
 ## Examples

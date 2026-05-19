@@ -1245,14 +1245,17 @@ to Suggests (PR
 [\#171](https://github.com/worldbank/devPTIpack/pull/171)) - \[x\]
 arch-13 §D (#155) — `02a-user-zonal-stats.qmd` output contract
 (unblocked) (PR
-[\#180](https://github.com/worldbank/devPTIpack/pull/180)) - \[ \]
+[\#180](https://github.com/worldbank/devPTIpack/pull/180)) - \[x\]
 arch-13 §E (#153) — rename `03-metadata.qmd` → `03-user-data.qmd`;
-`pti_patch_admin_sheet()` (after §C) - \[ \] arch-13 §F (#154) —
-`04-hex-data.qmd` remove `eval: false` guards (after §C; coordinate with
-arch-12 §B) - \[ \] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex
-metadata + `var_overrides` (after §C) - \[ \] arch-13 §H (#157) —
-`05-compile-report.qmd` new HTML/PDF report (after §C) - \[x\] arch-13
-§I (#156) — `_quarto.yml` Quarto website template (unblocked) (PR
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md)
+(after §C) (PR
+[\#181](https://github.com/worldbank/devPTIpack/pull/181)) - \[ \]
+arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false` guards (after
+§C; coordinate with arch-12 §B) - \[ \] arch-13 §G (#158) —
+`05-compile.qmd` auto-detect hex metadata + `var_overrides` (after §C) -
+\[ \] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF report
+(after §C) - \[x\] arch-13 §I (#156) — `_quarto.yml` Quarto website
+template (unblocked) (PR
 [\#178](https://github.com/worldbank/devPTIpack/pull/178)) - \[ \]
 arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C +
 §I) - \[ \] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions
@@ -1266,9 +1269,10 @@ arch-13 §P (#165) — bundle `CLAUDE.md` + skill with scaffolded project
 (after §A + pipeline stable)
 
 **Standalone:** - \[ \] \#163 — API coordination:
-`pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7) - \[ \]
-\#164 — end-to-end automated pipeline test (Rwanda + Ethiopia) - \[ \]
-\#144 — audit and remove redundant `inst/` artifacts (unblocked)
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md)
+vs `generate_metadata_from_csv()` (#7) - \[ \] \#164 — end-to-end
+automated pipeline test (Rwanda + Ethiopia) - \[ \] \#144 — audit and
+remove redundant `inst/` artifacts (unblocked)
 
 **DoD:** `source("00-master.R")` on fresh Rwanda project produces
 shapes.rds, metadata.xlsx, pti-metadata.html, docs/index.html;
@@ -1805,13 +1809,26 @@ suffix, admin column rename sync, general first-file-wins, weights_table
 multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub
 issue \#117. \|
 
+[\#181](https://github.com/worldbank/devPTIpack/pull/181) \| 2026-05-18
+\| **arch-13 §E (#153):
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md) +
+rename `03-user-data.qmd`** \| New exported
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md):
+validates non-Pcod columns against `var_code`, left-joins values onto
+admin sheet (NA for missing), preserves other sheets, returns
+`invisible(output_path)`. 8 tests / 14 expectations. Renamed
+`03-metadata.qmd` → `03-user-data.qmd`; rewrote opening with two-block
+contract explanation; updated `00-master.R`, `README.md`,
+`test-template-integration.R`. 1248 PASS / 0 FAIL. Closes \#153. \|
+
 [\#180](https://github.com/worldbank/devPTIpack/pull/180) \| 2026-05-18
 \| **arch-13 §D (#155): `02a-user-zonal-stats.qmd` output contract** \|
 Rewrote stub: added “What this step produces” prose, `callout-important`
 output schema table (Pcod key + var_code columns, no geometry, save to
 `sample-data/`), updated code skeleton writing
 `sample-data/zonal-stats-adm2.xlsx`, and “Next step” footer pointing to
-`pti_patch_admin_sheet()` in `03-user-data.qmd`. Closes \#155. \|
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md)
+in `03-user-data.qmd`. Closes \#155. \|
 
 [\#179](https://github.com/worldbank/devPTIpack/pull/179) \| 2026-05-18
 \| **arch-13 §L (#162): generic `app.R` + `landing-page.md` template**

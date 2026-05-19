@@ -70,6 +70,7 @@ Other data-input:
 [`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md),
 [`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md),
 [`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md),
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md),
 [`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
 
 ## Examples

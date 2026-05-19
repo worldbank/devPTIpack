@@ -54,7 +54,7 @@ Other pti-launch:
 # rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.
 new_app <- file.path(tempdir(), "demo_pti")
 create_new_pti(new_app, open = FALSE)
-#> ✔ Project scaffolded at /tmp/RtmppIEXnx/demo_pti
+#> ✔ Project scaffolded at /tmp/Rtmp6DFbO5/demo_pti
 #> ℹ Open this folder as a new project in your IDE to get started.
 #> ✔ Project directory created
 #> ✔ Skeleton files copied
@@ -63,7 +63,7 @@ create_new_pti(new_app, open = FALSE)
 #> ℹ Run source('00-master.R') to build the app data
 list.files(new_app)
 #>  [1] "00-master.R"              "01-shapes.qmd"           
-#>  [3] "02a-user-zonal-stats.qmd" "03-metadata.qmd"         
+#>  [3] "02a-user-zonal-stats.qmd" "03-user-data.qmd"        
 #>  [5] "04-hex-data.qmd"          "05-compile.qmd"          
 #>  [7] "06-deploy.R"              "CHECKLIST.md"            
 #>  [9] "R"                        "README.md"               

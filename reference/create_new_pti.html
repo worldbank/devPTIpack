@@ -17,7 +17,7 @@ own shapes and metadata."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">devPTIpack</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.998</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9981</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,17 +100,14 @@ directory.</p></dd>
 
 
 <dt id="arg-open">open<a class="anchor" aria-label="anchor" href="#arg-open"></a></dt>
-<dd><p>Logical. If `TRUE` (default) and RStudio is active,
-the user is prompted before the project is opened in a new
-RStudio window. In other environments (Positron, VSCode,
-headless R) the project path is printed and no auto-open is
-attempted.</p></dd>
+<dd><p>Logical. If `TRUE` (default) and an RStudio session is
+active, opens the new project in a new RStudio window after
+scaffolding. Ignored outside RStudio.</p></dd>
 
 
 <dt id="arg-app-name">app_name<a class="anchor" aria-label="anchor" href="#arg-app-name"></a></dt>
-<dd><p>Character. Display name for the project; replaces
-`COUNTRY NAME` and `APP_NAME` tokens in scaffolded files.
-Defaults to the basename of `path`.</p></dd>
+<dd><p>Character. Display name for the project, used for
+the RStudio project file. Defaults to the basename of `path`.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -129,25 +126,23 @@ Defaults to the basename of `path`.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Scaffold into a temporary directory; works headlessly because</span></span></span>
-<span class="r-in"><span><span class="co"># rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.</span></span></span>
+<span class="r-in"><span><span class="co"># rstudioapi::isAvailable() is FALSE outside RStudio.</span></span></span>
 <span class="r-in"><span><span class="va">new_app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"demo_pti"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">create_new_pti</span><span class="op">(</span><span class="va">new_app</span>, open <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Project scaffolded at <span style="color: #0000BB;">/tmp/Rtmprd06N3/demo_pti</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Open this folder as a new project in your IDE to get started.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Project directory created</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Skeleton files copied</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Template tokens replaced (app_name = "demo_pti")</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Open app.R and set your data paths</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Run source('00-master.R') to build the app data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Creating dir ────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Created package directory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Copying package skeleton ────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Copied app skeleton</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Setting the default config ──────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Configured app</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">new_app</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "00-master.R"              "01-shapes.qmd"           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "02a-user-zonal-stats.qmd" "03-user-data.qmd"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "02a-user-zonal-stats.qmd" "03-metadata.qmd"         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "04-hex-data.qmd"          "05-compile.qmd"          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "06-deploy.R"              "CHECKLIST.md"            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "R"                        "README.md"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "_quarto.yml"              "app-page.qmd"            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "app.R"                    "data-raw"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "landing-page.md"          "sample-data"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "06-deploy.R"              "R"                       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "README.md"                "app.R"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "data-raw"                 "landing-page.md"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "sample-data"             </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">new_app</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

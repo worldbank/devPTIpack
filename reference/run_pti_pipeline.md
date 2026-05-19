@@ -86,7 +86,7 @@ result <- run_pti_pipeline(
   shp_dta       = rwa_shp
 )
 names(result)
-#> [1] "admin0" "admin1" "admin2" "admin9"
+#> [1] "admin0" "admin1" "admin2"
 names(result[[1]])
 #> [1] "pti_data"    "pti_codes"   "admin_level"
 ```

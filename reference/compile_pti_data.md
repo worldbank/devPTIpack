@@ -25,7 +25,7 @@ compile_pti_data(shp_path, metadata_paths, output_dir, error_on_fail = TRUE)
 
 - metadata_paths:
 
-  Character vector of length 1 or more – filesystem paths to
+  Character vector of length 1 or more — filesystem paths to
   intermediate metadata Excel files (typically the Step 3 output
   \`metadata-user.xlsx\` and / or the Step 4 output
   \`metadata-hex.xlsx\`). Each must be readable by
@@ -48,12 +48,12 @@ compile_pti_data(shp_path, metadata_paths, output_dir, error_on_fail = TRUE)
 ## Value
 
 Invisibly, a list with the same shape as the existing validators: -
-\`status\` – \`"pass"\` / \`"warn"\` / \`"fail"\`, the worse of the two
-underlying validators' statuses. - \`summary\` – character vector of
-free-text summary lines. - \`issues\` – list of all validation issues
+\`status\` — \`"pass"\` / \`"warn"\` / \`"fail"\`, the worse of the two
+underlying validators' statuses. - \`summary\` — character vector of
+free-text summary lines. - \`issues\` — list of all validation issues
 (concatenation of the two validators' \`issues\`). Plus three extra
-fields: - \`metadata_path\` – path to the canonical merged xlsx. -
-\`shapefiles_path\` – path to the shapefiles zip. - \`pdf_path\` – path
+fields: - \`metadata_path\` — path to the canonical merged xlsx. -
+\`shapefiles_path\` — path to the shapefiles zip. - \`pdf_path\` — path
 to the rendered PDF, or \`NA_character\_\` if PDF rendering was skipped.
 
 ## Details
@@ -81,12 +81,12 @@ emitted if multiple).
 
 \## Output files (in \`output_dir\`)
 
-\- \`metadata.xlsx\` – canonical merged metadata workbook, readable by
-\[fct_template_reader()\]. - \`shapefiles.zip\` – one GeoJSON per admin
+\- \`metadata.xlsx\` — canonical merged metadata workbook, readable by
+\[fct_template_reader()\]. - \`shapefiles.zip\` — one GeoJSON per admin
 level (filename = slot name, e.g. \`admin1_Province.geojson\`). -
-\`pti-metadata.pdf\` – rendered from the bundled \`inst/metadata.Rmd\`
+\`pti-metadata.pdf\` — rendered from the bundled \`inst/metadata.Rmd\`
 template; one choropleth map per indicator. Skipped (with a warning)
-when LaTeX is not available – the rest of the artefacts still produced.
+when LaTeX is not available — the rest of the artefacts still produced.
 
 ## See also
 

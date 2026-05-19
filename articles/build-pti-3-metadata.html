@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">devPTIpack</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.998</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9981</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -157,13 +157,6 @@
 </tbody>
 </table>
 <p>The admin-sheet name is a foreign key — <code>admin1_Province</code> here must equal <code>admin1_Province</code> in your <code>shapes.rds</code>. Mismatches drop indicators silently. See <a href="dataprep.html">§2.1</a> for the full inventory.</p>
-<div>
-<blockquote>
-<p><strong>Hex layer requires a matching metadata sheet</strong></p>
-<p>If Step 1 built an <code>admin9_Hexagon</code> layer (Step 1 §F), the metadata workbook <strong>must</strong> contain a sheet named <code>admin9_Hexagon</code> for any indicator with <code>spatial_level = "admin9_Hexagon"</code>. Step 4 (HEX data, covered by <a href="build-pti-4-hex.html"><code>build-pti-4-hex</code></a>) is the canonical way to produce this sheet via the registry-driven pipeline; the output <code>app-data/metadata-hex.xlsx</code> is one of the inputs Step 5 merges into the final <code>metadata.xlsx</code>.</p>
-<p>If your project doesn’t ship hex-level indicators, you can omit the <code>admin9_Hexagon</code> sheet entirely from your user metadata workbook – the hex layer in <code>shapes.rds</code> is then used for spatial-join machinery only, not as a <code>spatial_level</code> target.</p>
-</blockquote>
-</div>
 </section><section class="level2"><h2 id="condensed-column-reference-metadata-sheet">Condensed column reference — <code>metadata</code> sheet<a class="anchor" aria-label="anchor" href="#condensed-column-reference-metadata-sheet"></a>
 </h2>
 <p>Every row in <code>metadata</code> has these 14 columns. Required unless noted:</p>
@@ -350,7 +343,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">inp_dta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "general" "metadata" "admin1_Province" "admin2_District" "weights_clean"</span></span></code></pre></div>
 <p>Notice that both <code>admin1_Province</code> and <code>admin2_District</code> carry the indicator columns — the pipeline will use Adm2 (because <code>spatial_level = "admin2_District"</code>) but the Adm1 sheet remains useful for the Data Explorer tab.</p>
-<p>The cascade rule applies here too: every row in <code>admin2_District</code> must have an <code>admin1Pcod</code> value that exists in <code>admin1_Province</code>’s <code>admin1Pcod</code> column. If you populated the cascade in Step 1 via <a href="../reference/make_admin_lookup.html"><code>make_admin_lookup()</code></a> (see <a href="build-pti-1-shapefiles.html#sec-advanced-multi-level">Step 1 §E</a>), the workbook should already inherit those parent P-codes — but <code><a href="../reference/validate_metadata.html">validate_metadata()</a></code> re-verifies.</p>
+<p>The cascade rule applies here too: every row in <code>admin2_District</code> must have an <code>admin1Pcod</code> value that exists in <code>admin1_Province</code>’s <code>admin1Pcod</code> column. If you generated the Adm2 layer with a centroid-in-polygon join (see <a href="build-pti-1-shapefiles.html#sec-advanced-multi-level">Step 1 §E</a>), the workbook should already inherit those parent P-codes — but <code><a href="../reference/validate_metadata.html">validate_metadata()</a></code> re-verifies.</p>
 </section><section class="level2"><h2 id="validate">Validate<a class="anchor" aria-label="anchor" href="#validate"></a>
 </h2>
 <p>There are two complementary validators:</p>

@@ -105,31 +105,11 @@ Compute scores, label outputs, and compile deployment artefacts.
 
 Read shapes and metadata workbooks from disk.
 
-- [`aggregate_hex_to_shapes()`](https://worldbank.github.io/devPTIpack/reference/aggregate_hex_to_shapes.md)
-  : Aggregate hex-level indicator data to administrative shapes
-- [`build_hex_metadata()`](https://worldbank.github.io/devPTIpack/reference/build_hex_metadata.md)
-  : Build the hex-pipeline metadata Excel workbook
 - [`fct_template_reader()`](https://worldbank.github.io/devPTIpack/reference/fct_template_reader.md)
   : Read a PTI metadata Excel template into the package's
   list-of-tibbles format
-- [`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md)
-  : Fetch hex-level indicator data from registry parquet endpoints
-- [`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md)
-  : Query a parquet endpoint for the actual available years of a
-  variable
 - [`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md)
   : Load admin-level shape data for a PTI app
-- [`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md)
-  : List the bundled hex variables available for the PTI pipeline
-- [`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md)
-  : Build the parent-child P-code cascade for a shapefile list
-- [`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md)
-  : Build an H3 hexagonal grid covering a country boundary
-- [`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md)
-  : Patch an administrative metadata sheet with supplied indicator
-  values
-- [`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
-  : Resolve hex variable names against the registry
 
 ## Weighting schemes
 
@@ -174,18 +154,6 @@ Structural and visual checks on shapes and metadata inputs.
   : Validate a metadata \`.xlsx\` file in isolation
 - [`validate_read_shp()`](https://worldbank.github.io/devPTIpack/reference/validate_read_shp.md)
   : Validate a shapes \`.rds\` file in isolation
-
-## Report helpers
-
-ggplot2 and reactable helpers for the deployer-facing pipeline report
-(arch-13 §C).
-
-- [`pti_plot_boundaries()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_boundaries.md)
-  : Plot administrative boundary layers by level
-- [`pti_plot_histogram()`](https://worldbank.github.io/devPTIpack/reference/pti_plot_histogram.md)
-  : Plot a histogram for a PTI variable
-- [`pti_summary_table()`](https://worldbank.github.io/devPTIpack/reference/pti_summary_table.md)
-  : Summarise PTI variables in a reactable table
 
 ## Visualisation helpers
 

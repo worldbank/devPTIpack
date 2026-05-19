@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">devPTIpack</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9981</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.998</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,7 +124,7 @@
 <p>Both produce one numeric column per indicator, indexed by polygon position; you’ll attach the result to the polygon’s <code>admin&lt;N&gt;Pcod</code>.</p>
 </section><section class="level2"><h2 id="output-format">Output format<a class="anchor" aria-label="anchor" href="#output-format"></a>
 </h2>
-<p>The output of this step is a tidy table — one row per polygon, one column per indicator — keyed by <code>admin&lt;N&gt;Pcod</code>:</p>
+<p>The output of this step is a tidy table — one row per polygon, one column per indicator — keyed by <code>admin&lt;N&gt;Pcod</code>. <strong>Load the admin layer from <code>app-data/shapes.rds</code></strong> (the Step 1 output), not from the raw GeoJSON — the <code>.rds</code> carries the validated <code>admin&lt;N&gt;Pcod</code> + the full parent cascade, so your zonal output will join cleanly back to every other PTI input.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
@@ -132,8 +132,9 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ropensci.r-universe.dev/writexl" class="external-link">writexl</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Load the admin layer the indicator should attach to.</span></span>
-<span><span class="va">adm2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"sample-data/rwa_adm2.geojson"</span><span class="op">)</span></span>
+<span><span class="co"># Load the cleaned admin layer from Step 1's output.</span></span>
+<span><span class="va">my_shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"app-data/shapes.rds"</span><span class="op">)</span></span>
+<span><span class="va">adm2</span>   <span class="op">&lt;-</span> <span class="va">my_shp</span><span class="op">$</span><span class="va">admin2_District</span></span>
 <span></span>
 <span><span class="co"># Load the raster you want to summarise.</span></span>
 <span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"path/to/your-raster.tif"</span><span class="op">)</span></span>
@@ -145,13 +146,28 @@
 <span><span class="va">my_zonal</span> <span class="op">&lt;-</span> <span class="va">adm2</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span></span>
-<span>    admin2Pcod   <span class="op">=</span> <span class="va">shapeID</span>,           <span class="co"># adapt to your P-code source</span></span>
+<span>    admin2Pcod   <span class="op">=</span> <span class="va">admin2Pcod</span>,</span>
 <span>    my_indicator <span class="op">=</span> <span class="va">mean_value</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Save next to the rest of your raw inputs so Step 3 can pick it up.</span></span>
 <span><span class="fu"><a href="https://docs.ropensci.org/writexl//reference/write_xlsx.html" class="external-link">write_xlsx</a></span><span class="op">(</span><span class="va">my_zonal</span>, <span class="st">"sample-data/my-zonal-stats-adm2.xlsx"</span><span class="op">)</span></span></code></pre></div>
 <p>The package convention is one Excel sheet per admin level; if you produce multiple admin levels in this step, write each into its own sheet before Step 3 ingests them.</p>
+</section><section class="level2"><h2 id="hex-level-extraction-optional">Hex-level extraction (optional)<a class="anchor" aria-label="anchor" href="#hex-level-extraction-optional"></a>
+</h2>
+<p>If your Step 1 produced an <code>admin9_Hexagon</code> layer (Step 1 §F), zonal extraction works the same way — the hex cells are just another admin layer with <code>admin9Pcod</code> as the key:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="va">adm9</span> <span class="op">&lt;-</span> <span class="va">my_shp</span><span class="op">$</span><span class="va">admin9_Hexagon</span></span>
+<span><span class="va">adm9</span><span class="op">$</span><span class="va">mean_value</span> <span class="op">&lt;-</span> <span class="fu">exact_extract</span><span class="op">(</span><span class="va">r</span>, <span class="va">adm9</span>, fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">my_zonal_hex</span> <span class="op">&lt;-</span> <span class="va">adm9</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span></span>
+<span>    admin9Pcod   <span class="op">=</span> <span class="va">admin9Pcod</span>,</span>
+<span>    my_indicator <span class="op">=</span> <span class="va">mean_value</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>A note on choice of summary function for hex cells: H3-6 cells have near-uniform area (~36 km²), so the <em>area-weighted</em> mean differs little from a plain <code>"mean"</code>. <strong>Population-weighted</strong> aggregation differs more substantially and is usually what you want for human-development indicators (poverty, literacy). Pick the <code>fun</code> argument deliberately — <code>exact_extract()</code> accepts a <code>weights</code> raster for population weighting.</p>
 </section><section class="level2"><h2 id="how-the-output-feeds-into-step-3">How the output feeds into Step 3<a class="anchor" aria-label="anchor" href="#how-the-output-feeds-into-step-3"></a>
 </h2>
 <p>Step 3 (the metadata workbook) expects one sheet per admin level — <code>admin&lt;N&gt;_&lt;HumanName&gt;</code> — containing the indicator columns referenced by the <code>metadata</code> sheet. The output of this step is one of those sheets (or one input that feeds into one of them).</p>

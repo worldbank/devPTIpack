@@ -24,14 +24,16 @@ create_new_pti(path, open = TRUE, app_name = basename(path))
 
 - open:
 
-  Logical. If \`TRUE\` (default) and an RStudio session is active, opens
-  the new project in a new RStudio window after scaffolding. Ignored
-  outside RStudio.
+  Logical. If \`TRUE\` (default) and RStudio is active, the user is
+  prompted before the project is opened in a new RStudio window. In
+  other environments (Positron, VSCode, headless R) the project path is
+  printed and no auto-open is attempted.
 
 - app_name:
 
-  Character. Display name for the project, used for the RStudio project
-  file. Defaults to the basename of \`path\`.
+  Character. Display name for the project; replaces \`COUNTRY NAME\` and
+  \`APP_NAME\` tokens in scaffolded files. Defaults to the basename of
+  \`path\`.
 
 ## Value
 
@@ -49,22 +51,24 @@ Other pti-launch:
 
 ``` r
 # Scaffold into a temporary directory; works headlessly because
-# rstudioapi::isAvailable() is FALSE outside RStudio.
+# rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.
 new_app <- file.path(tempdir(), "demo_pti")
 create_new_pti(new_app, open = FALSE)
-#> ── Creating dir ────────────────────────────────────────────────────────────────
-#> • Created package directory
-#> ── Copying package skeleton ────────────────────────────────────────────────────
-#> • Copied app skeleton
-#> ── Setting the default config ──────────────────────────────────────────────────
-#> • Configured app
+#> ✔ Project scaffolded at /tmp/RtmpNVEl9J/demo_pti
+#> ℹ Open this folder as a new project in your IDE to get started.
+#> ✔ Project directory created
+#> ✔ Skeleton files copied
+#> ✔ Template tokens replaced (app_name = "demo_pti")
+#> ℹ Open app.R and set your data paths
+#> ℹ Run source('00-master.R') to build the app data
 list.files(new_app)
 #>  [1] "00-master.R"              "01-shapes.qmd"           
-#>  [3] "02a-user-zonal-stats.qmd" "03-metadata.qmd"         
+#>  [3] "02a-user-zonal-stats.qmd" "03-user-data.qmd"        
 #>  [5] "04-hex-data.qmd"          "05-compile.qmd"          
-#>  [7] "06-deploy.R"              "R"                       
-#>  [9] "README.md"                "app.R"                   
-#> [11] "data-raw"                 "landing-page.md"         
-#> [13] "sample-data"             
+#>  [7] "06-deploy.R"              "CHECKLIST.md"            
+#>  [9] "R"                        "README.md"               
+#> [11] "_quarto.yml"              "app-page.qmd"            
+#> [13] "app.R"                    "data-raw"                
+#> [15] "landing-page.md"          "sample-data"             
 unlink(new_app, recursive = TRUE)
 ```

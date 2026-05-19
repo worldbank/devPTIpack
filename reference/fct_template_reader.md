@@ -38,7 +38,16 @@ slot when the input contains a \`weights_table\` sheet.
 ## See also
 
 Other data-input:
-[`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md)
+[`aggregate_hex_to_shapes()`](https://worldbank.github.io/devPTIpack/reference/aggregate_hex_to_shapes.md),
+[`build_hex_metadata()`](https://worldbank.github.io/devPTIpack/reference/build_hex_metadata.md),
+[`fetch_hex_data()`](https://worldbank.github.io/devPTIpack/reference/fetch_hex_data.md),
+[`get_available_years()`](https://worldbank.github.io/devPTIpack/reference/get_available_years.md),
+[`get_shape()`](https://worldbank.github.io/devPTIpack/reference/get_shape.md),
+[`list_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/list_hex_vars.md),
+[`make_admin_lookup()`](https://worldbank.github.io/devPTIpack/reference/make_admin_lookup.md),
+[`make_hex_grid()`](https://worldbank.github.io/devPTIpack/reference/make_hex_grid.md),
+[`pti_patch_admin_sheet()`](https://worldbank.github.io/devPTIpack/reference/pti_patch_admin_sheet.md),
+[`use_hex_vars()`](https://worldbank.github.io/devPTIpack/reference/use_hex_vars.md)
 
 ## Examples
 

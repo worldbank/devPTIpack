@@ -1061,7 +1061,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [x] arch-13 §C (#151) — `pti_plot_boundaries()`, `pti_plot_histogram()`, `pti_summary_table()` — new `R/fct_pti_report_helpers.R`; 15 Tier-1 tests; `reactable` added to Suggests (PR [#171](https://github.com/worldbank/devPTIpack/pull/171))
 - [x] arch-13 §D (#155) — `02a-user-zonal-stats.qmd` output contract (unblocked) (PR [#180](https://github.com/worldbank/devPTIpack/pull/180))
 - [x] arch-13 §E (#153) — rename `03-metadata.qmd` → `03-user-data.qmd`; `pti_patch_admin_sheet()` (after §C) (PR [#181](https://github.com/worldbank/devPTIpack/pull/181))
-- [ ] arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false` guards (after §C; coordinate with arch-12 §B)
+- [x] arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false` guards; Section B as customisation point; `pti_summary_table(type = "hex")` summary; offline callout (PR [#182](https://github.com/worldbank/devPTIpack/pull/182))
 - [ ] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex metadata + `var_overrides` (after §C)
 - [ ] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF report (after §C)
 - [x] arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked) (PR [#178](https://github.com/worldbank/devPTIpack/pull/178))

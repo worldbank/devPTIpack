@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-05-19 (arch-13 §F — 04-hex-data.qmd executable by default)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/04-hex-data.qmd`: removed `eval: false` from all Rwanda-pipeline chunks so the step runs by default under `source("00-master.R")`; the C′ local-parquet escape hatch retains `eval: false` since the chunk references files that exist only when a deployer opts in. |
+| Data | `inst/template_pti/04-hex-data.qmd`: rewrote Section B as the explicit hex-variable customisation point (`flood_exposure_15cm_1in100` as Rwanda default; commented examples for `nighttime_lights`, `builtup_area`, and the shared `years` arg) with a "do not edit the registry YAML or output Excel directly" reminder; replaced placeholder `nightlights` / `poverty_rate` names with real registry entries. |
+| Data | `inst/template_pti/04-hex-data.qmd`: added Section F calling `pti_summary_table(hex_data, type = "hex")` so the rendered Step 4 page shows a reactable of fetched hex variables (non-missing cell count + coverage %); added top-level `callout-note` flagging the internet-access requirement and the `00-master.R` opt-out. |
+
+---
+
 ## 2026-05-18 (arch-13 §E — pti_patch_admin_sheet() + rename 03-user-data.qmd)
 
 | Scope | Change |

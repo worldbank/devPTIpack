@@ -37,7 +37,6 @@
 #' list.files(new_app)
 #' unlink(new_app, recursive = TRUE)
 create_new_pti <- function(path, open = TRUE, app_name = basename(path)) {
-
   path <- fs::path_expand(path)
 
   if (path == "." & app_name == fs::path_file(path)) {
@@ -55,7 +54,7 @@ create_new_pti <- function(path, open = TRUE, app_name = basename(path)) {
   fs::dir_create(path, recurse = TRUE)
   cli::cat_bullet("Created package directory")
 
-  if (rstudioapi::isAvailable()) {
+  if (rstudioapi::hasFun("initializeProject")) {
     cli::cat_rule("Rstudio project initialisation")
     rproj_path <- rstudioapi::initializeProject(path = path)
   }
@@ -66,17 +65,25 @@ create_new_pti <- function(path, open = TRUE, app_name = basename(path)) {
 
   fs::dir_copy(path = from, new_path = path, overwrite = TRUE)
 
-  copied_files <- list.files(path = from, full.names = FALSE,
-                             all.files = TRUE, recursive = TRUE)
+  copied_files <- list.files(
+    path = from,
+    full.names = FALSE,
+    all.files = TRUE,
+    recursive = TRUE
+  )
 
   cli::cat_bullet("Copied app skeleton")
   cli::cat_rule("Setting the default config")
 
   cli::cat_bullet("Configured app")
-  if (open & rstudioapi::isAvailable()) {
+  if (open && rstudioapi::hasFun("openProject")) {
     rstudioapi::openProject(path = path)
+  } else {
+    cli::cli_inform(c(
+      "v" = "Project scaffolded at {.path {fs::path_abs(path)}}",
+      "i" = "Open this folder as a new project in your IDE to get started."
+    ))
   }
 
   return(invisible(fs::path_abs(path)))
-
 }

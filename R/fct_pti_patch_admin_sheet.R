@@ -19,6 +19,7 @@
 #' @importFrom purrr map set_names
 #' @importFrom readxl excel_sheets read_xlsx
 #' @importFrom writexl write_xlsx
+#' @family data-input
 #' @export
 #'
 #' @examples

@@ -12,7 +12,7 @@
 # Step state:
 #   01  Shapes              -- working (Rwanda data + validate_geometries)
 #   02a Zonal stats         -- optional stub; user runs manually if needed
-#   03  User metadata Excel -- working (Rwanda synthetic data + validate_metadata)
+#   03  User data             -- working (pti_patch_admin_sheet + validate_metadata)
 #   04  HEX data            -- stub (blocked by HEX API; not rendered here)
 #   05  Compile             -- working (compile_pti_data merges + validates + renders)
 #   06  Deploy              -- manual; see 06-deploy.R
@@ -38,7 +38,7 @@ INCLUDE_HEX_IN_APP <- FALSE
 
 quarto::quarto_render("01-shapes.qmd")
 # quarto::quarto_render("02a-user-zonal-stats.qmd")  # optional
-quarto::quarto_render("03-metadata.qmd")
+quarto::quarto_render("03-user-data.qmd")
 # quarto::quarto_render("04-hex-data.qmd")           # stub, blocked by HEX API
 quarto::quarto_render("05-compile.qmd")
 

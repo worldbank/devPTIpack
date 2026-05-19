@@ -14,7 +14,7 @@ The numbered files form the data-prep pipeline:
 | `00-master.R`              | Pipeline orchestrator                 | Renders the step `.qmd` files top-to-bottom into `app-data/`.    |
 | `01-shapes.qmd`            | Step 1 -- Shapefiles                  | Load + validate boundary GeoJSONs, save `app-data/shapes.rds`.   |
 | `02a-user-zonal-stats.qmd` | Step 2 -- Zonal stats (optional)      | Stub. Extract raster zonal stats. Run manually if needed.       |
-| `03-metadata.qmd`          | Step 3 -- Metadata Excel              | Read + validate the indicator workbook, stage `metadata-user.xlsx`. |
+| `03-user-data.qmd`         | Step 3 -- User data                   | Merge indicator data into the metadata workbook via `pti_patch_admin_sheet()`, validate, stage `metadata-user.xlsx`. |
 | `04-hex-data.qmd`          | Step 4 -- HEX data                    | Stub. Blocked by the HEX API -- coming in a later release.       |
 | `05-compile.qmd`           | Step 5 -- Compile and finalise        | Merges intermediates into `metadata.xlsx` + `pti-metadata.pdf` + `shapefiles.zip`. |
 | `06-deploy.R`              | Step 6 -- Deploy                      | Plain R script with `rsconnect::deployApp()` boilerplate.       |
@@ -36,7 +36,7 @@ tutorial. The tutorials live at:
 - Step 0 -- Setup -- <https://worldbank.github.io/devPTIpack/articles/build-pti-0-setup.html>
 - Step 1 -- Shapefiles -- <https://worldbank.github.io/devPTIpack/articles/build-pti-1-shapefiles.html>
 - Step 2 -- Zonal stats (optional) -- <https://worldbank.github.io/devPTIpack/articles/build-pti-2-zonal-stats.html>
-- Step 3 -- Metadata Excel -- <https://worldbank.github.io/devPTIpack/articles/build-pti-3-metadata.html>
+- Step 3 -- User data -- <https://worldbank.github.io/devPTIpack/articles/build-pti-3-metadata.html>
 - Step 4 -- HEX data -- <https://worldbank.github.io/devPTIpack/articles/build-pti-4-hex.html>
 - Step 5 -- Compile -- <https://worldbank.github.io/devPTIpack/articles/build-pti-5-compile.html>
 - Step 6 -- Deploy -- <https://worldbank.github.io/devPTIpack/articles/build-pti-6-deploy.html>

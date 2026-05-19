@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-05-18 (arch-13 §E — pti_patch_admin_sheet() + rename 03-user-data.qmd)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_pti_patch_admin_sheet.R`: new exported function `pti_patch_admin_sheet(mtdt_path, admin_level, values, pcod_col, output_path)` — reads all sheets from skeleton xlsx, validates non-Pcod columns against `var_code` (aborts on extras), left-joins values onto existing admin sheet (missing var_codes → NA), writes all sheets back; returns `invisible(output_path)`. |
+| Tests | `tests/testthat/test-pti-patch-admin-sheet.R`: 8 Tier-1 tests (14 expectations) covering complete patch, partial patch (NA fill), return value, sheet preservation, extra-column abort, missing-file abort, missing-sheet abort, missing-pcod-col abort. |
+| Data | `inst/template_pti/03-metadata.qmd` → `03-user-data.qmd`: renamed; rewrote opening with "What this step does" + "Required data structure" blocks; added `pti_patch_admin_sheet()` code pattern; preserved validate + stage sections. |
+| Data | `inst/template_pti/00-master.R`: updated `quarto_render` call and step-state comment to reference `03-user-data.qmd`. |
+| Data | `inst/template_pti/README.md`: updated file table and tutorial link for Step 3 rename. |
+| Tests | `tests/testthat/test-template-integration.R`: updated scaffolded-file list to `03-user-data.qmd`. |
+
+---
+
 ## 2026-05-18 (arch-13 §D — 02a-user-zonal-stats.qmd output contract)
 
 | Scope | Change |
@@ -761,3 +774,6 @@ R CMD check stays at 0 errors / 0 warnings / 3 notes (same baseline as PR #99 / 
 | Scope  | Change                                  |
 | ------ | --------------------------------------- |
 | Docs   | Updated `PLAN.md` (auto-drafted — please refine). <!-- AUTODRAFT:PLAN.md --> |
+| Config | Updated `NAMESPACE` (auto-drafted — please refine). <!-- AUTODRAFT:NAMESPACE --> |
+| Code   | Updated `R/fct_pti_patch_admin_sheet.R` (auto-drafted — please refine). <!-- AUTODRAFT:R/fct_pti_patch_admin_sheet.R --> |
+| Tests  | Updated `tests/testthat/test-pti-patch-admin-sheet.R` (auto-drafted — please refine). <!-- AUTODRAFT:tests/testthat/test-pti-patch-admin-sheet.R --> |

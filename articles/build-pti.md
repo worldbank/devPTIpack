@@ -2,9 +2,9 @@
 
 A **Project Targeting Index (PTI)** is a composite map ranking
 sub-national administrative units against a set of weighted indicators —
-useful for guiding the spatial allocation of programmes and investments.
-`devPTIpack` is the toolkit that turns your country’s shapes + indicator
-data into a deployed Shiny dashboard.
+useful for guiding the spatial allocation of programs and investments.
+`devPTIpack` is the toolkit that turns your country’s boundaries
+(shapes) + indicators (data) into a deployed Shiny dashboard.
 
 This page is the **journey map**. Each step is a focused tutorial; this
 overview tells you which one to read when, and how the pieces fit
@@ -27,7 +27,7 @@ Two inputs are mandatory; one is optional:
 The full column contract for both lives in [Data preparation
 reference](https://worldbank.github.io/devPTIpack/articles/dataprep.md).
 
-## Reproducible quickstart — the bundled Rwanda app in \< 5 lines
+## Reproducible quick start — the bundled Rwanda app in \< 5 lines
 
 The fastest way to see a working PTI app is the Rwanda template that
 ships with the package:

@@ -10,8 +10,6 @@ front-end coding required.
 ➡ **[Start here — Build a
 PTI](https://worldbank.github.io/devPTIpack/articles/build-pti.html)**
 
-------------------------------------------------------------------------
-
 ## Quick-start contents
 
 | Step | What you do | Guide |
@@ -46,8 +44,6 @@ launch_pti_onepage(
 )
 ```
 
-------------------------------------------------------------------------
-
 ## PTI methodology
 
 | Resource | Description |
@@ -56,8 +52,6 @@ launch_pti_onepage(
 | [Overview paper](https://worldbank.github.io/devPTIpack/articles/overview-paper.html) | High-level conceptual overview of the PTI framework |
 | [Past projects](https://worldbank.github.io/devPTIpack/articles/past-projects.html) | Country applications and case studies |
 
-------------------------------------------------------------------------
-
 ## Past PTI projects
 
 Deployed PTI applications and country-level repositories are maintained
@@ -65,12 +59,21 @@ under the **wbPTI GitHub organisation**:
 
 <https://github.com/wbpti/>
 
-------------------------------------------------------------------------
-
 ## Get help & contact
 
 - **Bug reports and feature requests** — open an issue on GitHub:  
   <https://github.com/worldbank/devPTIpack/issues/new>
 
 - **General questions** — reach out to the World Bank GeoPov team
-  [geopov/](https://worldbank.github.io/devPTIpack/geopov/)
+  [geopov/](https://worldbankgroup.sharepoint.com/sites/FPG/SitePages/PublishingPages/GeoPov-1778698081562.aspx)
+  on intranet, or reach out to: [Nga Thi Viet
+  Nguyen](mailto:nnguyen3@worldbank.org).
+
+## License
+
+This project is licensed under the MIT License together with the [World
+Bank IGO Rider](https://worldbank.github.io/devPTIpack/WB-IGO-RIDER.md).
+The Rider is purely procedural: it reserves all privileges and
+immunities enjoyed by the World Bank, without adding restrictions to the
+MIT permissions. Please review both files before using, distributing or
+contributing.

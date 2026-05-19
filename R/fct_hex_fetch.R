@@ -45,6 +45,7 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom cli cli_warn cli_abort cli_progress_step cli_progress_done
 #' @importFrom h3jsr get_res get_children
+#' @importFrom httr2 request req_perform req_body_json resp_body_json
 #' @family data-input
 #' @export
 #'
@@ -170,20 +171,34 @@ in {.file 00-master.R}."
 
 # ── Internal helpers ─────────────────────────────────────────────────────────
 
-# Group a vars list by (path, hex_col).
+# Group a vars list by (backend, source root, hex_col).
 hex_split_by_source <- function(vars) {
-  keys <- vapply(vars, function(v) paste0(v$path, "|||", v$hex_col),
-                 character(1L))
+  keys <- vapply(vars, function(v) {
+    backend <- v$backend %||% "parquet"
+    root    <- if (identical(backend, "rest")) v$api_root %||% ""
+               else v$path %||% ""
+    paste0(backend, "|||", root, "|||", v$hex_col)
+  }, character(1L))
   lapply(unique(keys), function(k) {
     grp_vars <- vars[keys == k]
     v1 <- grp_vars[[1L]]
-    list(path = v1$path, hex_col = v1$hex_col, vars = grp_vars)
+    list(
+      backend  = v1$backend %||% "parquet",
+      path     = v1$path,
+      api_root = v1$api_root %||% NA_character_,
+      hex_col  = v1$hex_col,
+      vars     = grp_vars
+    )
   })
 }
 
 
 # Fetch one parquet source and return a wide tibble keyed by hex_id.
 hex_fetch_source <- function(grp, fetch_ids, dataset_loader) {
+  if (identical(grp$backend, "rest")) {
+    return(hex_fetch_source_rest(grp, fetch_ids))
+  }
+
   path    <- grp$path
   hex_col <- grp$hex_col
   gvars   <- grp$vars
@@ -244,6 +259,61 @@ hex_fetch_source <- function(grp, fetch_ids, dataset_loader) {
   }
 
   raw
+}
+
+
+hex_fetch_source_rest <- function(grp, fetch_ids) {
+  if (!requireNamespace("httr2", quietly = TRUE)) {
+    cli::cli_abort(c(
+      "Package {.pkg httr2} is required for REST hex sources.",
+      "i" = "Install it with {.run install.packages('httr2')}."
+    ))
+  }
+  api_root <- grp$api_root
+  hex_col  <- grp$hex_col
+  gvars    <- grp$vars
+  field_map <- list()
+  for (v in gvars) {
+    if (length(v$resolved_cols) > 0L) {
+      tmpl   <- v$source_col_template
+      prefix <- sub("\\{year\\}.*", "", tmpl)
+      for (rc in v$resolved_cols) {
+        year_str <- sub(paste0("^", prefix), "", rc)
+        out_col  <- paste0(v$canonical_name, "_", year_str)
+        field_map[[rc]] <- out_col
+      }
+    } else if (!is.na(v$source_col)) {
+      field_map[[v$source_col]] <- v$canonical_name
+    }
+  }
+  all_fields <- names(field_map)
+  chunk_size <- 5000L
+  n          <- length(fetch_ids)
+  chunks     <- split(fetch_ids, ceiling(seq_len(n) / chunk_size))
+  pages <- lapply(chunks, function(batch) {
+    body <- list(hex_ids = batch, fields = all_fields)
+    resp <- httr2::req_perform(
+      httr2::req_body_json(
+        httr2::request(paste0(api_root, "/summary_by_hexids")),
+        body
+      )
+    )
+    result <- httr2::resp_body_json(resp, simplifyVector = TRUE)
+    if (!is.data.frame(result)) result <- as.data.frame(result)
+    result
+  })
+  raw <- do.call(rbind, pages)
+  if (hex_col != "hex_id" && hex_col %in% names(raw)) {
+    names(raw)[names(raw) == hex_col] <- "hex_id"
+  }
+  for (src_col in names(field_map)) {
+    out_col <- field_map[[src_col]]
+    if (src_col %in% names(raw) && src_col != out_col) {
+      names(raw)[names(raw) == src_col] <- out_col
+    }
+  }
+  keep <- c("hex_id", unname(unlist(field_map)))
+  raw[, intersect(keep, names(raw)), drop = FALSE]
 }
 
 

@@ -18,6 +18,8 @@ A golem-based Shiny R package for computing, visualizing, and exploring Project 
 - `.github/docs/arch-03-testing.md` — three-tier testing strategy
 - `.github/docs/arch-04-workspace.md` — vignettes & pkgdown plan
 - `.github/docs/arch-05-hex-ingestion.md` — hex (H3) ingestion design
+- `.github/docs/arch-12-hex-catalog-expansion.md` — Space2Stats catalog expansion (hex registry §B–G)
+- `.github/docs/arch-13-data-pipeline-redesign.md` — Eduard's deployer-facing pipeline redesign (#149)
 - `.claude/rules/roxygen-documentation.md` — roxygen2 standards
 
 ## Key conventions
@@ -28,6 +30,7 @@ A golem-based Shiny R package for computing, visualizing, and exploring Project 
 - Tests use `testthat`. Tier 1 (pure functions) → Tier 2 (`shiny::testServer`) → Tier 3 (manual / `shinytest2`).
 - Tests target only the **permanent** functions in arch-01 — do not test code scheduled for deletion.
 - Do not touch legacy/dead code marked for removal in arch-01 unless executing a cleanup batch.
+- **TDD is mandatory** for any new exported function or substantial (>~20-line) internal helper: invoke `tdd-new-fn` before writing implementation. For YAML-only registry additions, write the failing integration test first, then add the YAML.
 
 ## Branching
 
@@ -42,7 +45,8 @@ Project-scoped tooling under `.claude/`:
 
 | Tool                     | Type      | Purpose                                                                               |
 | ------------------------ | --------- | ------------------------------------------------------------------------------------- |
-| `tdd-permanent-fn`       | skill     | Scaffold Tier-1 tests for a permanent function per arch-03 / arch-02.01               |
+| `tdd-new-fn`             | skill     | **TDD for new code**: ask contract questions → write failing tests (RED) → implement via Codex (GREEN). Invoke before writing any new exported function or substantial (>~20-line) internal helper. Also covers YAML-only registry additions — write the failing integration test first, then add the YAML. |
+| `tdd-permanent-fn`       | skill     | Scaffold Tier-1 tests for a permanent function per arch-03 / arch-02.01 (retrofit case — function already exists) |
 | `cleanup-batch`          | skill     | Execute one arch-01 cleanup batch end-to-end (delete, document, test, check)          |
 | `roxygen-document`       | skill     | Add/upgrade roxygen2 per `.claude/rules/roxygen-documentation.md`                     |
 | `issue-progress-comment` | skill     | Draft a status comment for a GitHub issue from the recent diff/work                   |
@@ -74,6 +78,45 @@ vignettes, Quarto auto-anchor footgun on cross-page links, package
 data rebuilds) -- defaulting to `REQUIRED` to be safe trains the user
 to ignore the label.
 
+## Codex delegation policy (when /codex is available)
+
+When the `codex:codex-rescue` subagent is available, delegate
+**multi-line code writing** to Codex. Claude retains planning, docs
+(`.md`), config (YAML, JSON), single-line fixes, version bumps, and any
+work where the value is in judgement rather than mechanical typing.
+
+**Default invocation:**
+
+```r
+Agent({ subagent_type: "codex:codex-rescue", prompt: "..." })
+```
+
+Write the prompt as a self-contained brief: file paths, line numbers,
+the change to make, the tests to run. The subagent is write-capable by
+default — no `--ask` gating needed.
+
+**Default model:** `gpt-5.4` with `--effort high`. Override only if the
+brief is unusually small (`gpt-5.4-mini`) or unusually large (`xhigh`).
+State the override explicitly in the prompt.
+
+**Review loop:** after Codex returns, Claude reads the diff and runs the
+same green-light checks it would have run itself (`devtools::test()` on
+the changed area, `R CMD check` if scope warrants). If Codex's output
+is broken, fix it inline — don't waste a second Codex round-trip on a
+typo.
+
+**Boundary on autonomy:** Codex implements *what the plan says*. If the
+brief is ambiguous, Claude tightens it before invoking — never ask Codex
+to make design choices.
+
+**What stays with Claude regardless of Codex availability:**
+- Anything inside `.claude/` (skills, agents, CLAUDE.md, hooks,
+  settings) — the meta-tooling layer.
+- `PLAN.md`, `.github/docs/arch-*.md`, `changelog.md`.
+- PR descriptions, commit messages, issue comments.
+- Reads (`Read`, `Grep`, `Glob`, `Bash` for git/gh queries).
+- Single-line fixes, typos, version bumps.
+
 ## PLAN.md Sync (COMPULSORY)
 
 [`PLAN.md`](../PLAN.md) is the working tracker. It must stay in step with
@@ -96,6 +139,24 @@ when the PR's scope intersects a tracked item.
 
 PRs that *don't* touch PLAN-tracked work (pure infra fixes, typo
 corrections, dependency bumps) need no PLAN.md edit.
+
+## Post-merge issue tracking (automatic)
+
+A second Stop hook (`.claude/hooks/post-merge-issues.sh`) activates whenever
+`worldbank/main` advances (i.e. after `git pull` or `git fetch` following a merge).
+It is **silent** when nothing has changed.
+
+When it fires, it:
+1. Identifies newly merged PRs from `git log --merges`.
+2. Checks each referenced issue (`Closes #N` / `Fixes #N` / `Resolves #N`)
+   — reports **OPEN** ones (GitHub's auto-close may have missed them) and
+   suggests running the `close-issue-on-merge` skill.
+3. Prints the full open-issue backlog so the next task is always visible.
+
+**Does NOT auto-close** — only reports. Closing is done explicitly via the
+`close-issue-on-merge` skill to avoid silently closing the wrong issue.
+
+State file: `.claude/.last-main-sha` (gitignored, machine-local).
 
 ## Change Logging (COMPULSORY)
 

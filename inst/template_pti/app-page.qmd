@@ -1,0 +1,15 @@
+---
+title: "Live App"
+---
+
+<!-- Set APP_URL in 00-master.R to display the deployed app here. -->
+
+```{r}
+#| echo: false
+app_url <- Sys.getenv("PTI_APP_URL", unset = "")
+if (nzchar(app_url)) {
+  htmltools::tags$iframe(src = app_url, width = "100%", height = "800px")
+} else {
+  htmltools::p("App not yet deployed. Set APP_URL in 00-master.R and re-run the pipeline.")
+}
+```

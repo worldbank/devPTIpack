@@ -342,11 +342,19 @@ Issue A  URL discovery + this doc update              ← done (2026-05-14)
                 ├─► C  GHS-SMOD urbanisation vars     (YAML-only, depends on F)
                 ├─► D  nighttime lights vars           (YAML-only, depends on F)
                 ├─► E  built-up area vars              (YAML-only, depends on F)
-                └─► G  SPI time series vars            (YAML-only, depends on F)
+                └─► G  SPI time series vars            (see note below)
 ```
 
-Issues B–E and G can be reviewed in parallel once F lands. F is the
-only PR that modifies R code.
+Issues B–E can be reviewed in parallel once F lands.
+
+> **§G design gap (noted 2026-05-17):** The SPI timeseries endpoint is
+> `/timeseries_by_hexids`, not `/summary_by_hexids`. It likely has a different
+> request/response shape. `hex_fetch_source_rest()` currently only knows how
+> to call `/summary_by_hexids`. §G therefore **cannot** be purely YAML-only —
+> it will require a code change (new endpoint branch or new function) in
+> addition to YAML entries. Reassign §G's classification from "YAML-only" to
+> "code + YAML" and plan a code PR for it once the timeseries endpoint shape
+> is confirmed.
 
 ---
 

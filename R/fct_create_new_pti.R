@@ -12,26 +12,29 @@
 #'   user is prompted (via [yesno::yesno()]) before any files are
 #'   overwritten. `path = "."` writes into the current working
 #'   directory.
-#' @param open Logical. If `TRUE` (default) and an RStudio session is
-#'   active, opens the new project in a new RStudio window after
-#'   scaffolding. Ignored outside RStudio.
-#' @param app_name Character. Display name for the project, used for
-#'   the RStudio project file. Defaults to the basename of `path`.
+#' @param open Logical. If `TRUE` (default) and RStudio is active,
+#'   the user is prompted before the project is opened in a new
+#'   RStudio window. In other environments (Positron, VSCode,
+#'   headless R) the project path is printed and no auto-open is
+#'   attempted.
+#' @param app_name Character. Display name for the project; replaces
+#'   `{{COUNTRY NAME}}` and `{{APP_NAME}}` tokens in scaffolded files.
+#'   Defaults to the basename of `path`.
 #'
 #' @return Invisibly, the absolute path to the scaffolded project
 #'   (as returned by [fs::path_abs()]). Returns `invisible(NULL)` if
 #'   the user declines the overwrite prompt.
 #'
 #' @importFrom fs path_file dir_copy path_expand dir_create path_abs dir_exists
-#' @importFrom cli cat_rule cat_bullet
+#' @importFrom cli cli_inform
 #' @importFrom yesno yesno
-#' @importFrom rstudioapi isAvailable initializeProject openProject
+#' @importFrom rstudioapi hasFun initializeProject openProject
 #' @family pti-launch
 #' @export
 #'
 #' @examples
 #' # Scaffold into a temporary directory; works headlessly because
-#' # rstudioapi::isAvailable() is FALSE outside RStudio.
+#' # rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.
 #' new_app <- file.path(tempdir(), "demo_pti")
 #' create_new_pti(new_app, open = FALSE)
 #' list.files(new_app)
@@ -50,39 +53,58 @@ create_new_pti <- function(path, open = TRUE, app_name = basename(path)) {
     }
   }
 
-  cli::cat_rule("Creating dir")
   fs::dir_create(path, recurse = TRUE)
-  cli::cat_bullet("Created package directory")
 
   if (rstudioapi::hasFun("initializeProject")) {
-    cli::cat_rule("Rstudio project initialisation")
-    rproj_path <- rstudioapi::initializeProject(path = path)
-  }
-
-  cli::cat_rule("Copying package skeleton")
-
-  from <- system.file("template_pti", package = "devPTIpack")
-
-  fs::dir_copy(path = from, new_path = path, overwrite = TRUE)
-
-  copied_files <- list.files(
-    path = from,
-    full.names = FALSE,
-    all.files = TRUE,
-    recursive = TRUE
-  )
-
-  cli::cat_bullet("Copied app skeleton")
-  cli::cat_rule("Setting the default config")
-
-  cli::cat_bullet("Configured app")
-  if (open && rstudioapi::hasFun("openProject")) {
-    rstudioapi::openProject(path = path)
+    rstudioapi::initializeProject(path = path)
   } else {
     cli::cli_inform(c(
-      "v" = "Project scaffolded at {.path {fs::path_abs(path)}}",
+      "v" = "Project scaffolded at {.path {path}}",
       "i" = "Open this folder as a new project in your IDE to get started."
     ))
+  }
+
+  from <- system.file("template_pti", package = "devPTIpack")
+  fs::dir_copy(path = from, new_path = path, overwrite = TRUE)
+
+  # Replace template tokens in all text files
+  text_exts <- c("\\.R$", "\\.md$", "\\.qmd$", "\\.yml$", "\\.yaml$", "\\.txt$")
+  all_files <- list.files(
+    path,
+    recursive = TRUE,
+    all.files = TRUE,
+    full.names = TRUE
+  )
+  text_files <- all_files[grepl(paste(text_exts, collapse = "|"), all_files)]
+
+  for (f in text_files) {
+    lines <- readLines(f, warn = FALSE)
+    if (
+      any(grepl("{{COUNTRY NAME}}", lines, fixed = TRUE)) ||
+        any(grepl("{{APP_NAME}}", lines, fixed = TRUE))
+    ) {
+      lines <- gsub("{{COUNTRY NAME}}", app_name, lines, fixed = TRUE)
+      lines <- gsub("{{APP_NAME}}", app_name, lines, fixed = TRUE)
+      writeLines(lines, f)
+    }
+  }
+
+  cli::cli_inform(c(
+    "v" = "Project directory created",
+    "v" = "Skeleton files copied",
+    "v" = "Template tokens replaced (app_name = \"{app_name}\")",
+    "i" = "Open app.R and set your data paths",
+    "i" = "Run source('00-master.R') to build the app data"
+  ))
+
+  if (open && rstudioapi::hasFun("openProject")) {
+    do_open <- tryCatch(
+      yesno::yesno("Open the project in RStudio now?"),
+      error = function(e) TRUE
+    )
+    if (do_open) rstudioapi::openProject(path = path)
+  } else if (open) {
+    cli::cli_inform(c("i" = "Project path: {.path {path}}"))
   }
 
   return(invisible(fs::path_abs(path)))

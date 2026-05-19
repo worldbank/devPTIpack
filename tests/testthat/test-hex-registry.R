@@ -187,3 +187,160 @@ test_that("make_safe_label: lowercases + collapses non-alphanumerics to _", {
     "trim_collapse"
   )
 })
+
+test_that("read_hex_registry: wb_space2stats_api source has backend = 'rest'", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_false(is.null(src))
+  expect_identical(src$backend, "rest")
+})
+
+test_that("read_hex_registry: REST source carries api_root", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_identical(src$api_root, "https://space2stats.ds.io")
+})
+
+test_that("read_hex_registry: REST source path slot is NA (no parquet path)", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_true(is.na(src$path))
+})
+
+test_that("read_hex_registry: REST source variables have source_col set", {
+  reg <- devPTIpack:::read_hex_registry()
+  src <- reg$wb_space2stats_api
+  expect_true("fires_density"            %in% names(src$vars))
+  expect_true("cyclone_frequency"        %in% names(src$vars))
+  expect_true("landslide_susceptibility" %in% names(src$vars))
+  expect_true("drought_spei"             %in% names(src$vars))
+  expect_identical(src$vars$fires_density$source_col, "fires_density_mean")
+})
+
+test_that("pti_hex_var: source_col_template slot validates {year} placeholder", {
+  expect_error(
+    devPTIpack:::pti_hex_var(source_col_template = "no_placeholder",
+                             canonical_name = "x", var_name = "X"),
+    regexp = "\\{year\\}"
+  )
+})
+
+test_that("pti_hex_var: exactly one of source_col / source_col_template required", {
+  expect_error(
+    devPTIpack:::pti_hex_var(canonical_name = "x", var_name = "X"),
+    regexp = "Exactly one"
+  )
+  expect_error(
+    devPTIpack:::pti_hex_var(source_col = "col",
+                             source_col_template = "tmpl_{year}",
+                             canonical_name = "x", var_name = "X"),
+    regexp = "Exactly one"
+  )
+})
+
+test_that("use_hex_vars: REST variable gets backend and api_root stamped on it", {
+  v <- use_hex_vars("fires_density")
+  fires <- v$fires_density
+  expect_identical(fires$backend, "rest")
+  expect_identical(fires$api_root, "https://space2stats.ds.io")
+})
+
+test_that("list_hex_vars: includes REST source variables", {
+  res <- list_hex_vars()
+  expect_true("fires_density" %in% res$canonical_name)
+  expect_true("drought_spei"  %in% res$canonical_name)
+})
+
+# arch-12 §B — population demographics (WorldPop via Space2Stats REST) --------
+
+test_that("use_hex_vars: pop_total (temporal) is resolvable", {
+  v <- use_hex_vars("pop_total")
+  expect_s3_class(v$pop_total, "pti_hex_var")
+  expect_identical(v$pop_total$backend, "rest")
+  expect_false(is.null(v$pop_total$source_col_template))
+})
+
+test_that("use_hex_vars: pop_total available_years covers 2015-2030", {
+  tbl <- list_hex_vars()
+  row <- tbl[tbl$canonical_name == "pop_total", ]
+  expect_equal(nrow(row), 1L)
+  expect_true(2020L %in% unlist(row$available_years))
+  expect_true(2030L %in% unlist(row$available_years))
+})
+
+test_that("use_hex_vars: pop_female_2025 (static) is resolvable", {
+  v <- use_hex_vars("pop_female_2025")
+  expect_identical(v$pop_female_2025$source_col, "sum_f_2025")
+})
+
+test_that("use_hex_vars: pop_male_2025 (static) is resolvable", {
+  v <- use_hex_vars("pop_male_2025")
+  expect_identical(v$pop_male_2025$source_col, "sum_m_2025")
+})
+
+# arch-12 §C — GHS-SMOD urbanization (Space2Stats REST) ----------------------
+
+test_that("use_hex_vars: ghs_total_pop is resolvable via REST", {
+  v <- use_hex_vars("ghs_total_pop")
+  expect_s3_class(v$ghs_total_pop, "pti_hex_var")
+  expect_identical(v$ghs_total_pop$backend, "rest")
+  expect_identical(v$ghs_total_pop[["source_col"]], "ghs_total_pop")
+})
+
+test_that("use_hex_vars: ghs_total_count is resolvable via REST", {
+  v <- use_hex_vars("ghs_total_count")
+  expect_identical(v$ghs_total_count[["source_col"]], "ghs_total_count")
+})
+
+test_that("use_hex_vars: ghs_30_pop (urban centre population) is resolvable", {
+  v <- use_hex_vars("ghs_30_pop")
+  expect_identical(v$ghs_30_pop[["source_col"]], "ghs_30_pop")
+})
+
+test_that("list_hex_vars: includes GHS-SMOD urbanization variables", {
+  tbl <- list_hex_vars()
+  ghs_names <- tbl$canonical_name[startsWith(tbl$canonical_name, "ghs_")]
+  expect_gte(length(ghs_names), 8L)
+  expect_true("ghs_total_pop"   %in% ghs_names)
+  expect_true("ghs_total_count" %in% ghs_names)
+  expect_true("ghs_30_pop"      %in% ghs_names)
+})
+
+# arch-12 §D — nighttime lights (VIIRS via Space2Stats REST) ------------------
+
+test_that("use_hex_vars: nighttime_lights (temporal) is resolvable via REST", {
+  v <- use_hex_vars("nighttime_lights")
+  expect_s3_class(v$nighttime_lights, "pti_hex_var")
+  expect_identical(v$nighttime_lights$backend, "rest")
+  expect_false(is.null(v$nighttime_lights$source_col_template))
+  expect_identical(v$nighttime_lights[["source_col_template"]], "sum_viirs_ntl_{year}")
+})
+
+test_that("use_hex_vars: nighttime_lights available_years covers 2012-2024", {
+  tbl <- list_hex_vars()
+  row <- tbl[tbl$canonical_name == "nighttime_lights", ]
+  expect_equal(nrow(row), 1L)
+  yrs <- unlist(row$available_years)
+  expect_true(2012L %in% yrs)
+  expect_true(2024L %in% yrs)
+  expect_equal(length(yrs), 13L)
+})
+
+# arch-12 §E — built-up area (GHSL via Space2Stats REST) ---------------------
+
+test_that("use_hex_vars: builtup_area (temporal) is resolvable via REST", {
+  v <- use_hex_vars("builtup_area")
+  expect_s3_class(v$builtup_area, "pti_hex_var")
+  expect_identical(v$builtup_area$backend, "rest")
+  expect_identical(v$builtup_area[["source_col_template"]], "sum_built_area_m_{year}")
+})
+
+test_that("use_hex_vars: builtup_area available_years covers 1975-2030 decadal", {
+  tbl <- list_hex_vars()
+  row <- tbl[tbl$canonical_name == "builtup_area", ]
+  expect_equal(nrow(row), 1L)
+  yrs <- unlist(row$available_years)
+  expect_true(1975L %in% yrs)
+  expect_true(2030L %in% yrs)
+  expect_equal(length(yrs), 12L)
+})

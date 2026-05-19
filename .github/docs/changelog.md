@@ -5,6 +5,176 @@
 
 ---
 
+## 2026-05-19 (arch-13 §F — 04-hex-data.qmd executable by default)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/04-hex-data.qmd`: removed `eval: false` from all Rwanda-pipeline chunks so the step runs by default under `source("00-master.R")`; the C′ local-parquet escape hatch retains `eval: false` since the chunk references files that exist only when a deployer opts in. |
+| Data | `inst/template_pti/04-hex-data.qmd`: rewrote Section B as the explicit hex-variable customisation point (`flood_exposure_15cm_1in100` as Rwanda default; commented examples for `nighttime_lights`, `builtup_area`, and the shared `years` arg) with a "do not edit the registry YAML or output Excel directly" reminder; replaced placeholder `nightlights` / `poverty_rate` names with real registry entries. |
+| Data | `inst/template_pti/04-hex-data.qmd`: added Section F calling `pti_summary_table(hex_data, type = "hex")` so the rendered Step 4 page shows a reactable of fetched hex variables (non-missing cell count + coverage %); added top-level `callout-note` flagging the internet-access requirement and the `00-master.R` opt-out. |
+
+---
+
+## 2026-05-18 (arch-13 §E — pti_patch_admin_sheet() + rename 03-user-data.qmd)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_pti_patch_admin_sheet.R`: new exported function `pti_patch_admin_sheet(mtdt_path, admin_level, values, pcod_col, output_path)` — reads all sheets from skeleton xlsx, validates non-Pcod columns against `var_code` (aborts on extras), left-joins values onto existing admin sheet (missing var_codes → NA), writes all sheets back; returns `invisible(output_path)`. |
+| Tests | `tests/testthat/test-pti-patch-admin-sheet.R`: 8 Tier-1 tests (14 expectations) covering complete patch, partial patch (NA fill), return value, sheet preservation, extra-column abort, missing-file abort, missing-sheet abort, missing-pcod-col abort. |
+| Data | `inst/template_pti/03-metadata.qmd` → `03-user-data.qmd`: renamed; rewrote opening with "What this step does" + "Required data structure" blocks; added `pti_patch_admin_sheet()` code pattern; preserved validate + stage sections. |
+| Data | `inst/template_pti/00-master.R`: updated `quarto_render` call and step-state comment to reference `03-user-data.qmd`. |
+| Data | `inst/template_pti/README.md`: updated file table and tutorial link for Step 3 rename. |
+| Tests | `tests/testthat/test-template-integration.R`: updated scaffolded-file list to `03-user-data.qmd`. |
+
+---
+
+## 2026-05-18 (arch-13 §D — 02a-user-zonal-stats.qmd output contract)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/02a-user-zonal-stats.qmd`: rewrote stub to document the Step 2 → Step 3 contract; added "What this step produces" prose, a `callout-important` output schema table (Pcod key + var_code columns, no geometry, save to `sample-data/`), an updated code skeleton writing `sample-data/zonal-stats-adm2.xlsx`, and a "Next step" footer pointing to `pti_patch_admin_sheet()` in `03-user-data.qmd`. |
+
+---
+
+## 2026-05-18 (arch-13 §L — generic app.R + landing-page.md template)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/landing-page.md`: replaced hardcoded Rwanda/WB boilerplate with generic `{{APP_NAME}}` template; contact updated to Nga Thi Viet Nguyen; clearly marked sections prompt deployer to fill in country context. |
+| Data | `inst/template_pti/app.R`: un-commented `pti_landing_page = "./landing-page.md"`; updated `mtdtpdf_path` from `pti-metadata.pdf` → `pti-metadata.html` to match §H's HTML report output. |
+
+---
+
+## 2026-05-18 (arch-13 §I — _quarto.yml Quarto website template)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/_quarto.yml`: added Quarto website config (docked sidebar, `docs/` output, `{{APP_NAME}}` title placeholder) with sections for Data pipeline steps, Metadata report, and Live app iframe page. |
+| Data | `inst/template_pti/app-page.qmd`: added new scaffolded page that embeds the deployed app via `<iframe>`; shows "not yet deployed" message when `PTI_APP_URL` env var is unset. |
+
+---
+
+## 2026-05-18 (arch-13 §B — CHECKLIST.md template)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/CHECKLIST.md`: added two-phase deployer checklist ("Before first run" / "Before deployment") with `{{APP_NAME}}` placeholder; covers boundary replacement, pipeline run, data quality review, and Posit Connect + GitHub Pages deployment steps. |
+
+---
+
+## 2026-05-18 (arch-12 §E — built-up area in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added `builtup_area` (`source_col_template: "sum_built_area_m_{year}"`, decadal 1975–2030, `pillar_name: "Infrastructure"`) under `wb_space2stats_api`; bumped `registry_version` to `"0.6.0"` (after §D landed at `0.5.0`). |
+| Tests | `tests/testthat/test-hex-registry.R`: 2 new Tier-1 tests (temporal resolvability + available_years 1975–2030, 12 entries). |
+
+---
+
+## 2026-05-18 (arch-12 §D — nighttime lights in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added `nighttime_lights` (`source_col_template: "sum_viirs_ntl_{year}"`, 2012–2024, `pillar_name: "Economic activity"`) under `wb_space2stats_api`; bumped `registry_version` to `"0.5.0"`. |
+| Tests | `tests/testthat/test-hex-registry.R`: 2 new Tier-1 tests (temporal resolvability + available_years 2012–2024 count). |
+
+---
+
+## 2026-05-18 (arch-12 §C — GHS-SMOD urbanization in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added 14 GHS-SMOD urbanization variables (`ghs_11_count` through `ghs_30_pop` + totals) under `wb_space2stats_api`; bumped `registry_version` to `"0.4.0"`. All variables are static REST fields at `pillar_name: "Urbanization"`. |
+| Tests | `tests/testthat/test-hex-registry.R`: 4 new Tier-1 tests for GHS-SMOD resolvability (`ghs_total_pop`, `ghs_total_count`, `ghs_30_pop`, and `list_hex_vars()` count ≥ 8). |
+
+---
+
+## 2026-05-18 (arch-12 §B — population demographics in hex registry)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: added `pop_total` (temporal, 2015–2030, `source_col_template: "sum_pop_{year}"`), `pop_female_2025` (`sum_f_2025`), and `pop_male_2025` (`sum_m_2025`) under `wb_space2stats_api`; bumped `registry_version` to `"0.3.0"`. |
+| Code | `R/fct_hex_registry.R`: fixed latent R partial-match bug — `v$source_col` and `v$source_col_template` replaced with `v[["source_col"]]` / `v[["source_col_template"]]` to prevent `$source_col` from partially matching `source_col_template` when only the template field is present. |
+| Tests | `tests/testthat/test-hex-registry.R`: 4 new Tier-1 tests for the §B population variables (temporal resolvability, available_years coverage, static female/male source_col). |
+
+---
+
+## 2026-05-18 (tooling — post-merge issue tracker hook)
+
+| Scope | Change |
+| ----- | ------ |
+| Tooling | New `.claude/hooks/post-merge-issues.sh` Stop hook: detects when `worldbank/main` advances, reports any still-OPEN issues referenced by the merged PR(s), and prints the open-issue backlog — does not auto-close, only reports, so Claude can decide whether to invoke `close-issue-on-merge`. |
+| Config | `.claude/settings.json`: registered `post-merge-issues.sh` as a second Stop hook alongside `auto-changelog.sh`. |
+| Config | `.gitignore`: added `.claude/.last-main-sha` (machine-local SHA state file used by the hook). |
+| Rules | `.claude/CLAUDE.md`: added "Post-merge issue tracking" section documenting hook behaviour, safety design (report-only), and state file location. |
+
+---
+
+## 2026-05-18 (arch-13 §A — `create_new_pti()` token replacement + open prompt)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | Rewrote `create_new_pti()` in `R/fct_create_new_pti.R`: after `fs::dir_copy()`, scans all `.R/.md/.qmd/.yml/.yaml/.txt` files in the new project dir and replaces `{{COUNTRY NAME}}` and `{{APP_NAME}}` tokens with `app_name` via `readLines`/`writeLines`. |
+| Code | Replaced noisy `cli::cat_rule()` / `cli::cat_bullet()` calls with a single compact `cli::cli_inform()` 5-item banner (directory created → skeleton copied → tokens replaced → open app.R → run 00-master.R). |
+| Code | Added `yesno::yesno()` prompt before `rstudioapi::openProject()` when `open = TRUE` + RStudio active; `open = FALSE` or headless skips the prompt entirely. `tryCatch` ensures non-interactive environments (CI, tests) default to `TRUE`. |
+| Config | Removed stale `importFrom(cli, cat_bullet)` and `importFrom(cli, cat_rule)` from `NAMESPACE` (functions no longer called anywhere in `R/`). |
+| Tests | Added 9 new Tier-1 tests to `tests/testthat/test-create-new-pti.R` covering token replacement (3), `{{APP_NAME}}` mechanism, open-prompt yesno called once, yesno NO blocks open, no prompt on `open=FALSE`, no prompt when headless. Suite: 21 PASS / 0 FAIL. |
+
+---
+
+## 2026-05-17 (arch-13 §C — report helper functions)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | New `R/fct_pti_report_helpers.R`: three exported helpers (`@family pti-report`) — `pti_plot_boundaries()` (faceted ggplot of all admin levels, optional accent highlight), `pti_plot_histogram()` (histogram + percentile vlines, character `var` arg), `pti_summary_table()` (reactable widget; type="overview" from `fct_template_reader()` output with per-variable stats; type="hex" from `fetch_hex_data()` tibble with non-missing count + coverage %). |
+| Config | `DESCRIPTION`: added `reactable` to `Suggests` for the `pti_summary_table()` widget dependency. |
+| Tests | New `tests/testthat/test-pti-report-helpers.R`: 15 Tier-1 tests covering return type, panel count, highlight_level, bad-input errors, vline count, NULL percentiles, overview row/column contract, hex coverage % arithmetic, and match.arg rejection. |
+
+---
+
+## 2026-05-17 (tooling — tdd-new-fn skill)
+
+| Scope | Change |
+| ----- | ------ |
+| Tooling | Created `.claude/skills/tdd-new-fn/SKILL.md`: three-phase TDD skill — AskUserQuestion contract gathering, RED test authoring, GREEN Codex implementation — covering new exported functions, substantial internals, and YAML-only registry additions. |
+| Rules | Updated `.claude/CLAUDE.md`: added `tdd-new-fn` to skills table; added mandatory TDD convention requiring `tdd-new-fn` before any new exported function or substantial helper. |
+
+---
+
+## 2026-05-17 (arch-12 §F — REST backend + httptest2 API contracts)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_hex_source.R`: extended `pti_hex_var()` with `source_col_template` (glue pattern for wide-format temporal columns) and `resolved_cols` slots; made `source_col` optional via mutual-exclusion cross-validation; extended `pti_hex_source()` with `backend` (`"parquet"` / `"rest"`) and `api_root` slots; relaxed `path` validation to allow `NA` for REST sources. |
+| Code | `R/fct_hex_registry.R`: extended `read_hex_registry()` to parse `backend`/`api_root`/`source_col_template` from YAML; extended `use_hex_vars()` to stamp `backend`/`api_root` on resolved vars and compute `resolved_cols` for template variables; added REST branch in `get_available_years()` that calls `<api_root>/fields` and extracts years from matching column names. |
+| Code | `R/fct_hex_fetch.R`: updated `hex_split_by_source()` key to include `backend`; added REST dispatch in `hex_fetch_source()`; new `hex_fetch_source_rest()` — chunked POST (5,000 IDs/batch) to `/summary_by_hexids`, binds response pages, renames to canonical / `<canonical>_<year>` column names. Added `@importFrom httr2` to `fetch_hex_data()` roxygen block. |
+| Data | `inst/hex_vars_registry.yaml`: bumped to v0.2.0; added `wb_space2stats_api` REST source with 4 climate static variables (`fires_density`, `cyclone_frequency`, `landslide_susceptibility`, `drought_spei`) — first concrete entries under the REST backend. |
+| Config | `DESCRIPTION`: added `httr2 (>= 1.0)` to `Imports` for REST HTTP calls. |
+| Tests | `tests/testthat/test-hex-registry.R`: 18 new REST-backend tests (backend/api_root parsing, source_col_template validation, use_hex_vars stamping, list_hex_vars REST coverage). |
+| Tests | New `tests/testthat/test-hex-fetch-rest.R`: 9 network-free mockery tests for `hex_fetch_source_rest()` (static rename, template → `<canonical>_<year>` columns, chunking, row binding) + 3 httptest2 contract tests against recorded real Space2Stats API responses (static fields, NTL template fields, `get_available_years()` REST branch via `GET /fields`). |
+| Tests | `tests/testthat/space2stats.ds.io/`: committed real API response fixtures for `GET /fields` and two `POST /summary_by_hexids` calls (climate static + NTL temporal) recorded from `https://space2stats.ds.io`. |
+| Code | `R/fct_hex_registry.R` `get_available_years()`: moved REST branch before the `time_col` NA early-return (bug — the REST branch was unreachable for template variables since they have `time_col = NA`). |
+| Config | `DESCRIPTION`: added `httptest2 (>= 1.0)` to `Suggests`. |
+| Tests | `tests/testthat/test-hex-fetch-rest.R`: added end-to-end integration test using real YAML canonical names through `use_hex_vars()` → `fetch_hex_data()` (REST + parquet pop join); catches canonical-name mismatches the earlier unit tests missed. |
+
+---
+
+## 2026-05-17
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_create_new_pti.R`: replaced `rstudioapi::isAvailable()` guards with `rstudioapi::hasFun("initializeProject")` / `hasFun("openProject")` so the function works in Positron, VSCode, and headless R; added `cli_inform()` fallback for non-RStudio environments; removed dead variable assignments (`rproj_path`, `copied_files`). Fixes #143 (PR [#166](https://github.com/worldbank/devPTIpack/pull/166)). |
+| Tests | New `tests/testthat/test-create-new-pti.R`: 7 test cases (12 expectations) using `mockery::stub()` to cover headless scaffold, no `.Rproj` outside RStudio, cli message vs error, rstudioapi calls in RStudio, `open=FALSE`, overwrite-decline, and full skeleton copy. |
+| Config | `DESCRIPTION`: added `mockery (>= 0.4.4)` to `Suggests` (required for the new test mocks). |
+| Docs | Created `.github/docs/arch-13-data-pipeline-redesign.md`: full design spec for Eduard's deployer-facing pipeline redesign epic ([#149](https://github.com/worldbank/devPTIpack/issues/149)) — 24 sub-issues inventoried (Infrastructure Inf-1–4, Setup A–B, Helpers C, Pipeline D–L, Docs, AI tooling P, Standalone M/N), dependency graph, schema-overlap note for `wb_shapes_registry.yaml` (#146) vs `hex_vars_registry.yaml`, roadmap positioning relative to arch-12. |
+| Docs | Updated `PLAN.md`: added arch-13 to source-of-truth table + GitHub issues map; new §8c Phase 7 block with all 21 sub-issue checkboxes; ticked #143 prereq as done (PR [#166](https://github.com/worldbank/devPTIpack/pull/166)). |
+| Rules | Updated `.claude/CLAUDE.md` "Source-of-truth docs" list to include arch-12 and arch-13 entries. |
+| Rules | `.claude/CLAUDE.md`: added "Codex delegation policy" section — delegates multi-line code writing to `codex:codex-rescue` (gpt-5.4 + effort high); documents boundary (Claude keeps meta-tooling, docs, config, single-line fixes), invocation pattern, and review loop. |
+| Rules | `.claude/skills/tdd-permanent-fn/SKILL.md`: added "Codex handoff" subsection after step 4 — explains when and how to delegate test authoring to Codex at the point where the case table is ready. |
+| Config | `.claude/settings.local.json`: added `Bash(codex *)` to personal `allow` list so `codex:codex-rescue` spawns without a per-call permission prompt. |
+
+---
+
 ## 2026-05-14 (arch-12 §A — Space2Stats field discovery, PR #142)
 
 | Scope | Change |
@@ -608,3 +778,12 @@ R CMD check stays at 0 errors / 0 warnings / 3 notes (same baseline as PR #99 / 
 | Docs  | Post-sprint reconciliation: corrected a `PR #12` typo in PLAN.md §1 status-snapshot prose (line 29) to `PR #70` -- the parenthetical describes the new Tier-1 test file added in PR #70 (`test-gg-admin-list.R`, 2 test_that blocks / 8 expectations covering the missing-`mt` error and the bundled-data success path), not GitHub issue #12 (Phase 4 / pkgdown). Pure-docs change; no R/, tests/, or roxygen touched. |
 | Tooling | Updated `.claude/skills/grill-me/SKILL.md` (auto-drafted — please refine). <!-- AUTODRAFT:.claude/skills/grill-me/SKILL.md --> |
 | Other  | Updated `man/devPTIpack-package.Rd` (auto-drafted — please refine). <!-- AUTODRAFT:man/devPTIpack-package.Rd --> |
+
+## 2026-05-18
+
+| Scope  | Change                                  |
+| ------ | --------------------------------------- |
+| Docs   | Updated `PLAN.md` (auto-drafted — please refine). <!-- AUTODRAFT:PLAN.md --> |
+| Config | Updated `NAMESPACE` (auto-drafted — please refine). <!-- AUTODRAFT:NAMESPACE --> |
+| Code   | Updated `R/fct_pti_patch_admin_sheet.R` (auto-drafted — please refine). <!-- AUTODRAFT:R/fct_pti_patch_admin_sheet.R --> |
+| Tests  | Updated `tests/testthat/test-pti-patch-admin-sheet.R` (auto-drafted — please refine). <!-- AUTODRAFT:tests/testthat/test-pti-patch-admin-sheet.R --> |

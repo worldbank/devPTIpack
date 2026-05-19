@@ -37,7 +37,7 @@ test_that("create_new_pti() copies the full arch-09 §5 tree", {
 
   expected <- c(
     "00-master.R",
-    "01-shapes.qmd", "02a-user-zonal-stats.qmd", "03-metadata.qmd",
+    "01-shapes.qmd", "02a-user-zonal-stats.qmd", "03-user-data.qmd",
     "04-hex-data.qmd", "05-compile.qmd", "06-deploy.R",
     "app.R", "landing-page.md", "README.md",
     "sample-data/rwa_adm0.geojson",

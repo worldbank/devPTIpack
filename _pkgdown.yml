@@ -143,6 +143,7 @@ reference:
     desc: Read shapes and metadata workbooks from disk.
     contents:
       - has_concept("data-input")
+      - pti_patch_admin_sheet
   - title: Weighting schemes
     desc: Build weight sets passed to the calculation pipeline.
     contents:
@@ -155,6 +156,10 @@ reference:
     desc: Structural and visual checks on shapes and metadata inputs.
     contents:
       - has_concept("validation")
+  - title: Report helpers
+    desc: ggplot2 and reactable helpers for the deployer-facing pipeline report (arch-13 §C).
+    contents:
+      - has_concept("pti-report")
   - title: Visualisation helpers
     desc: ggplot2-based map builders shared by the dashboard and the PDF render.
     contents:

@@ -56,6 +56,7 @@ supersedes arch-05 and provides the concrete implementation track for
 | Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`) | [`.github/docs/arch-10-step1-shapefiles-enhancement.md`](.github/docs/arch-10-step1-shapefiles-enhancement.md) |
 | Hex data access pipeline (registry, fetch, aggregate, metadata) | [`.github/docs/arch-11-hex-data-access.md`](.github/docs/arch-11-hex-data-access.md) |
 | Hex registry catalog expansion (Space2Stats) | [`.github/docs/arch-12-hex-catalog-expansion.md`](.github/docs/arch-12-hex-catalog-expansion.md) |
+| Deployer-facing pipeline redesign (Eduard's #149 epic) | [`.github/docs/arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-redesign.md) |
 | Per-change log (compulsory) | [`.github/docs/changelog.md`](.github/docs/changelog.md) |
 | Project conventions for AI agents | [`.claude/CLAUDE.md`](.claude/CLAUDE.md) |
 
@@ -69,6 +70,8 @@ GitHub issues map:
 - [#104](https://github.com/worldbank/devPTIpack/issues/104) — arch-10: Step 1 shapefiles enhancement (`make_hex_grid`, `make_admin_lookup`)
 - [#107](https://github.com/worldbank/devPTIpack/issues/107) — arch-11: hex data access pipeline (supersedes arch-05/#13)
 - [#133](https://github.com/worldbank/devPTIpack/issues/133) — arch-12: hex registry catalog expansion (Space2Stats, 6 collections)
+- [#149](https://github.com/worldbank/devPTIpack/issues/149) — arch-13: deployer pipeline redesign (master tracker; sub-issues #145–#148, #150–#165)
+- [#143](https://github.com/worldbank/devPTIpack/issues/143) — bug: `create_new_pti()` crashes outside RStudio (fix in PR [#166](https://github.com/worldbank/devPTIpack/pull/166))
 - [#5](https://github.com/worldbank/devPTIpack/issues/5), [#7](https://github.com/worldbank/devPTIpack/issues/7), [#6](https://github.com/worldbank/devPTIpack/issues/6), [#1](https://github.com/worldbank/devPTIpack/issues/1) — relate to upstream/global DB and validation; partially superseded by #9 sub-issues, see arch-00 § "Relationship to Pre-Existing Issues"
 
 ---
@@ -998,7 +1001,7 @@ collections at H3 Level 6). Spec:
       YAML field designed for wide-format temporal columns (e.g.
       `sum_viirs_ntl_{year}`). Updated dependency: B–E now depend on F
       (not just A), because the REST dispatch path must land first.
-- [ ] arch-12 §F — Add REST backend (`backend: "rest"`) + `source_col_template`
+- [x] arch-12 §F — Add REST backend (`backend: "rest"`) + `source_col_template`
       + climate static columns (code PR; issue
       [#139](https://github.com/worldbank/devPTIpack/issues/139); depends
       on #134). New `backend` / `api_root` YAML fields; new
@@ -1006,34 +1009,79 @@ collections at H3 Level 6). Spec:
       dispatch in `hex_fetch_source()`; new `hex_fetch_source_rest()`;
       REST `get_available_years()` path. Adds drought/cyclone/landslide/fires
       static columns under one `wb_space2stats_api` source.
-      `pillar_name: "Climate hazards"`.
-- [ ] arch-12 §B — Add population + age/sex pyramid vars to `wb_space2stats_api`
+      `pillar_name: "Climate hazards"`. PR [#169](https://github.com/worldbank/devPTIpack/pull/169).
+- [x] arch-12 §B — Add population + age/sex pyramid vars to `wb_space2stats_api`
       (YAML-only PR; issue
-      [#135](https://github.com/worldbank/devPTIpack/issues/135);
-      depends on #139). `sum_pop_2020`, `sum_f_2025`, `sum_m_2025`, and
-      representative age brackets. `pillar_name: "Demographics"`.
-- [ ] arch-12 §C — Add GHS-SMOD urbanisation vars (YAML-only PR;
-      issue [#136](https://github.com/worldbank/devPTIpack/issues/136);
-      depends on #139). `ghs_*_count` / `ghs_*_pop` columns.
-      `pillar_name: "Urbanization"`.
-- [ ] arch-12 §D — Add nighttime lights vars (YAML-only PR;
-      issue [#137](https://github.com/worldbank/devPTIpack/issues/137);
-      depends on #139). `sum_viirs_ntl_{year}` template, years 2012–2024.
-      `pillar_name: "Economic activity"`.
-- [ ] arch-12 §E — Add built-up area vars (YAML-only PR;
-      issue [#138](https://github.com/worldbank/devPTIpack/issues/138);
-      depends on #139). `sum_built_area_m_{year}` template, decadal
-      1975–2030. `pillar_name: "Infrastructure"`.
+      [#135](https://github.com/worldbank/devPTIpack/issues/135)).
+      Added `pop_total` (temporal, 2015–2030), `pop_female_2025`, `pop_male_2025`.
+      Also fixed partial-match bug in `fct_hex_registry.R` (`$` → `[[`). PR #TBD.
+- [x] arch-12 §C — Add GHS-SMOD urbanisation vars (YAML-only PR;
+      issue [#136](https://github.com/worldbank/devPTIpack/issues/136)).
+      All 14 `ghs_*_count` / `ghs_*_pop` columns (classes 11–30 + totals)
+      under `wb_space2stats_api`. `pillar_name: "Urbanization"`. PR #TBD.
+- [x] arch-12 §D — Add nighttime lights vars (YAML-only PR;
+      issue [#137](https://github.com/worldbank/devPTIpack/issues/137)).
+      `nighttime_lights` with `source_col_template: "sum_viirs_ntl_{year}"`,
+      years 2012–2024. `pillar_name: "Economic activity"`. PR #175.
+- [x] arch-12 §E — Add built-up area vars (YAML-only PR;
+      issue [#138](https://github.com/worldbank/devPTIpack/issues/138)).
+      `builtup_area` with `source_col_template: "sum_built_area_m_{year}"`,
+      decadal 1975–2030. `pillar_name: "Infrastructure"`. PR #TBD.
 - [ ] arch-12 §G — Add climate time-series (SPI) via REST (YAML-only PR;
       issue [#140](https://github.com/worldbank/devPTIpack/issues/140);
       depends on #139). SPI timeseries field TBD from `/timeseries_by_hexids`.
 
-**Execution order:** A complete. F next (only code PR; unblocks B–E and G
-in parallel after it lands).
+**Execution order:** A complete. F in progress (PR open). B–E and G can
+proceed in parallel once F merges.
 
 **DoD:** `list_hex_vars()` returns ≥ 100 variables; Rwanda pipeline run
 fetching one variable from each new collection completes without warnings;
 `R CMD check` 0/0/0.
+
+---
+
+## 8c. Phase 7 — Deployer pipeline redesign / arch-13 (#149, parallel to arch-12)
+
+Redesign the `inst/template_pti/` scaffold and associated R helpers so a deployer
+with no existing country data can run the full pipeline with minimal manual steps.
+Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-redesign.md).
+
+**Infrastructure (Eduard's track — no code ownership from Koichi):**
+- [ ] arch-13 Inf-1 (#145) — ETL parquets for WB Official Boundaries
+- [ ] arch-13 Inf-2 (#146) — `inst/wb_shapes_registry.yaml` (schema mirrors `hex_vars_registry.yaml`)
+- [ ] arch-13 Inf-3 (#147) — `list_country_shapes()`
+- [ ] arch-13 Inf-4 (#148) — `get_country_shapes()` (depends on Inf-1–3)
+
+**Setup:**
+- [x] arch-13 prereq — `create_new_pti()` platform guard (bug fix #143, PR [#166](https://github.com/worldbank/devPTIpack/pull/166))
+- [x] arch-13 §A (#152) — `create_new_pti()` inject `app_name` + next-steps CLI; token replacement + yesno open-prompt (PR [#172](https://github.com/worldbank/devPTIpack/pull/172))
+- [x] arch-13 §B (#150) — `CHECKLIST.md` template (after §A) (PR [#177](https://github.com/worldbank/devPTIpack/pull/177))
+
+**Helpers + pipeline steps:**
+- [x] arch-13 §C (#151) — `pti_plot_boundaries()`, `pti_plot_histogram()`, `pti_summary_table()` — new `R/fct_pti_report_helpers.R`; 15 Tier-1 tests; `reactable` added to Suggests (PR [#171](https://github.com/worldbank/devPTIpack/pull/171))
+- [x] arch-13 §D (#155) — `02a-user-zonal-stats.qmd` output contract (unblocked) (PR [#180](https://github.com/worldbank/devPTIpack/pull/180))
+- [x] arch-13 §E (#153) — rename `03-metadata.qmd` → `03-user-data.qmd`; `pti_patch_admin_sheet()` (after §C) (PR [#181](https://github.com/worldbank/devPTIpack/pull/181))
+- [x] arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false` guards; Section B as customisation point; `pti_summary_table(type = "hex")` summary; offline callout (PR [#182](https://github.com/worldbank/devPTIpack/pull/182))
+- [ ] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex metadata + `var_overrides` (after §C)
+- [ ] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF report (after §C)
+- [x] arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked) (PR [#178](https://github.com/worldbank/devPTIpack/pull/178))
+- [ ] arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C + §I)
+- [ ] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions (after §H + §I + §J)
+- [x] arch-13 §L (#162) — `app.R` + `landing-page.md` generic template (unblocked) (PR [#179](https://github.com/worldbank/devPTIpack/pull/179))
+
+**Documentation + AI tooling:**
+- [ ] arch-13 Doc (#161) — update website tutorial vignettes Steps 0–6 (after pipeline stable)
+- [ ] arch-13 §P (#165) — bundle `CLAUDE.md` + skill with scaffolded project (after §A + pipeline stable)
+
+**Standalone:**
+- [ ] #163 — API coordination: `pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7)
+- [ ] #164 — end-to-end automated pipeline test (Rwanda + Ethiopia)
+- [ ] #144 — audit and remove redundant `inst/` artifacts (unblocked)
+
+**DoD:** `source("00-master.R")` on fresh Rwanda project produces shapes.rds, metadata.xlsx,
+pti-metadata.html, docs/index.html; `shiny::runApp("app.R")` launches; all tutorial
+vignettes updated; scaffolded project contains `CLAUDE.md` + skill; end-to-end test
+(#164) passes for Rwanda + Ethiopia; `R CMD check` 0/0/0.
 
 ---
 
@@ -1143,6 +1191,20 @@ Lifted from arch-00 §"End-State Goals":
 | [#130](https://github.com/worldbank/devPTIpack/pull/130) | 2026-05-13 | **arch-11 §"Metadata Excel output" (#115)** | `build_hex_metadata()`. New `R/fct_hex_build_metadata.R`: exported `build_hex_metadata(aggregated, shp_dta, indicator_config, country_name, output_path, include_hex, include_population)` + internal helpers `hex_meta_registry_lookup()`, `hex_meta_user_row()`, `hex_meta_merge()`. Writes `metadata-hex.xlsx` in the Step-3 template format; registry auto-populated from `inst/hex_vars_registry.yaml`; `indicator_config` overrides with warning; temporal `{year}` glue-expansion; `validate_read_metadata()` end-to-end validation. 42 PASS / 0 FAIL in `tests/testthat/test-hex-build-metadata.R`. |
 | [arch-12 planning](https://github.com/worldbank/devPTIpack/issues/133) | 2026-05-14 | **arch-12 roadmap (Space2Stats catalog expansion)** | Wrote `.github/docs/arch-12-hex-catalog-expansion.md`. Opened umbrella tracker [#133](https://github.com/worldbank/devPTIpack/issues/133) and 7 sub-issues ([#134](https://github.com/worldbank/devPTIpack/issues/134) URL discovery, [#135](https://github.com/worldbank/devPTIpack/issues/135) population, [#136](https://github.com/worldbank/devPTIpack/issues/136) urbanization, [#137](https://github.com/worldbank/devPTIpack/issues/137) nighttime lights, [#138](https://github.com/worldbank/devPTIpack/issues/138) built-area, [#139](https://github.com/worldbank/devPTIpack/issues/139) REST backend + climate static, [#140](https://github.com/worldbank/devPTIpack/issues/140) climate time series). Arch-12 Phase 6 block added to PLAN.md. |
 | [#131](https://github.com/worldbank/devPTIpack/pull/131) | 2026-05-14 | **arch-11 §"compile_pti_data() multi-file merge" (GitHub #117)** | Added `.x`/`.y` suffix detection via `cli::cli_warn()` in `compile_merge_metadata()` and 5 new test blocks in `test-compile-pti-data.R` covering: duplicate var_code → `__<source>` suffix, admin column rename sync, general first-file-wins, weights_table multi-file warning, `.x`/`.y` detection. 38 PASS / 0 FAIL. Closes GitHub issue #117. |
+
+| [#181](https://github.com/worldbank/devPTIpack/pull/181) | 2026-05-18 | **arch-13 §E (#153): `pti_patch_admin_sheet()` + rename `03-user-data.qmd`** | New exported `pti_patch_admin_sheet()`: validates non-Pcod columns against `var_code`, left-joins values onto admin sheet (NA for missing), preserves other sheets, returns `invisible(output_path)`. 8 tests / 14 expectations. Renamed `03-metadata.qmd` → `03-user-data.qmd`; rewrote opening with two-block contract explanation; updated `00-master.R`, `README.md`, `test-template-integration.R`. 1248 PASS / 0 FAIL. Closes #153. |
+
+| [#180](https://github.com/worldbank/devPTIpack/pull/180) | 2026-05-18 | **arch-13 §D (#155): `02a-user-zonal-stats.qmd` output contract** | Rewrote stub: added "What this step produces" prose, `callout-important` output schema table (Pcod key + var_code columns, no geometry, save to `sample-data/`), updated code skeleton writing `sample-data/zonal-stats-adm2.xlsx`, and "Next step" footer pointing to `pti_patch_admin_sheet()` in `03-user-data.qmd`. Closes #155. |
+
+| [#179](https://github.com/worldbank/devPTIpack/pull/179) | 2026-05-18 | **arch-13 §L (#162): generic `app.R` + `landing-page.md` template** | Updated `landing-page.md`: replaced hardcoded Rwanda/WB boilerplate with generic `{{APP_NAME}}` template; contact updated to Nga Thi Viet Nguyen; deployer-fill sections clearly marked. Updated `app.R`: un-commented `pti_landing_page = "./landing-page.md"`; updated `mtdtpdf_path` from `.pdf` → `.html`. Closes #162. |
+
+| [#178](https://github.com/worldbank/devPTIpack/pull/178) | 2026-05-18 | **arch-13 §I (#156): `_quarto.yml` + `app-page.qmd` Quarto website template** | Added `_quarto.yml` (docked sidebar nav: pipeline steps / metadata report / live app iframe) and `app-page.qmd` (iframe embed with `PTI_APP_URL` env var guard). `{{APP_NAME}}` placeholder replaced by `create_new_pti()`. Closes #156. |
+
+| [#177](https://github.com/worldbank/devPTIpack/pull/177) | 2026-05-18 | **arch-13 §B (#150): `CHECKLIST.md` template** | Added `inst/template_pti/CHECKLIST.md` — two-phase GitHub-flavoured markdown checklist (Before first run / Before deployment) with `{{APP_NAME}}` placeholder for `create_new_pti()` token replacement. Content follows the issue #150 spec. Closes #150. |
+
+| [#172](https://github.com/worldbank/devPTIpack/pull/172) | 2026-05-18 | **arch-13 §A (#152): `create_new_pti()` token replacement + open prompt** | Rewrote `create_new_pti()`: (1) after `fs::dir_copy()`, replaces `{{COUNTRY NAME}}` and `{{APP_NAME}}` tokens in all text files (`.R/.md/.qmd/.yml/.yaml/.txt`) with `app_name`; (2) compact `cli_inform()` 5-step banner replaces noisy `cat_rule`/`cat_bullet` calls; (3) `open=TRUE` + RStudio now prompts `yesno::yesno()` before calling `openProject`, `open=FALSE` skips prompt. Removed stale `importFrom(cli, cat_bullet/cat_rule)` from NAMESPACE. Added 9 new Tier-1 tests covering all 3 contracts. 21 PASS / 0 FAIL. Closes #152. |
+
+| [#166](https://github.com/worldbank/devPTIpack/pull/166) | 2026-05-17 | **Bug fix: `create_new_pti()` IDE-platform guard (#143)** | Replaced `rstudioapi::isAvailable()` guards with `rstudioapi::hasFun("initializeProject")` / `hasFun("openProject")` so the function works in Positron, VSCode, and headless R — not just RStudio. Added `else` branch emitting a `cli::cli_inform()` message with the project path. Removed two dead variable assignments (`rproj_path`, `copied_files`). Updated `@importFrom` (removed `isAvailable`, added `hasFun` + `cli_inform`). Added `mockery (>= 0.4.4)` to `Suggests`. New `tests/testthat/test-create-new-pti.R`: 7 test cases (12 expectations) covering headless scaffold, no `.Rproj` outside RStudio, cli message on non-RStudio, rstudioapi calls in RStudio, `open=FALSE` suppresses `openProject`, overwrite-decline, all skeleton files copied. 12 PASS / 0 FAIL. |
 
 | [#79-draft](https://github.com/worldbank/devPTIpack/issues/79) | 2026-05-08 | **arch-09 PR #A2 — template scaffold + Rwanda data (draft)** | Issue #79 -- branch `feat/template-scaffold` off `eb-docs-pkgdown`. Built out `inst/template_pti/` per arch-09 §5: downloaded Rwanda GeoJSONs from geoBoundaries (Adm0=1 / Adm1=5 / Adm2=30 polygons, CC-BY 4.0); added `inst/template_pti/data-raw/generate-synthetic-metadata.R` (seeded `set.seed(42)`, deterministic; verified by re-run + `identical()` round-trip); generated `sample-metadata-adm1.xlsx` and `sample-metadata-adm1-adm2.xlsx` (3 indicators: poverty_rate, literacy_rate, road_density). Added template `.qmd` files: `01-shapes.qmd` (working: load GeoJSONs, attach `admin<N>Pcod`/`admin<N>Name`/`area`, centroid spatial-join to derive admin1 parent on admin2, `validate_geometries` -> `app-data/shapes.rds`); `02a-user-zonal-stats.qmd` (optional stub); `03-metadata.qmd` (working: `fct_template_reader` + `validate_metadata` against `app-data/shapes.rds`, copies workbook to `app-data/metadata-user.xlsx`); `04-hex-data.qmd` (HEX-API stub); `05-compile.qmd` (stub pending #83); `06-deploy.R` (manual `rsconnect::deployApp()`). Added `00-master.R` orchestrator (renders 01 + 03 by default; 02a / 04 / 05 / 06 commented). Updated `inst/template_pti/app.R` to load from `app-data/shapes.rds` + `app-data/metadata.xlsx` with the bundled `ukr_*` data shown as commented Option B fallback. Added `README.md` (file order, links to all 7 website tutorials, `app-data/` git-tracking warning, deferred-TODO list). Updated `inst/template_pti/.gitignore` to track `app-data/` + `data-raw/` by default. Added force-include exception in top-level `.gitignore` so `inst/template_pti/data-raw/` ships (overrides the package-wide `data-raw/` ignore). Smoke-tested: `create_new_pti(tempfile())` copies all 19 expected files; `00-master.R` Steps 01+03 render end-to-end via knitr::purl+source fallback (quarto subprocess fails on `library(devPTIpack)` outside an installed package -- documented limitation, not a defect of the template), producing `app-data/shapes.rds` (3.5 MB) + `app-data/metadata-user.xlsx`; `validate_geometries()` and `validate_metadata()` both return `status = "pass"` with 0 failures / 0 warnings on Rwanda inputs. Divergence noted in changelog: validator app calls (`app_validate_shp` in 01, `app_validate_metadata` in 03) commented pending #80 / #81; `compile_pti_data()` in 05-compile.qmd commented pending #83; 00-master.R does not render 04 (HEX API) or 05 by default. NOT pushed; commit on `feat/template-scaffold` only -- per the issue brief, no PR opened. |
 

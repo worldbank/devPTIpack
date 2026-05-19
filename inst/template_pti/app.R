@@ -33,7 +33,7 @@ devPTIpack::launch_pti(
   app_name        = "{{COUNTRY NAME}}",
   show_waiter     = TRUE,
   show_adm_levels = NULL,                       # e.g. c("admin1", "admin2")
-  shapes_path     = "app-data/shapes.rds",
-  mtdtpdf_path    = "app-data/pti-metadata.pdf" # produced by Step 5
-  # pti_landing_page = "./landing-page.md"
+  shapes_path      = "app-data/shapes.rds",
+  mtdtpdf_path     = "app-data/pti-metadata.html", # produced by Step 5
+  pti_landing_page = "./landing-page.md"
 )

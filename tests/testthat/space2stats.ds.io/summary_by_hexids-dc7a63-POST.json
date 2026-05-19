@@ -1,0 +1,16 @@
+[
+    {
+        "hex_id": "866ad8d47ffffff",
+        "fires_density_mean": 0.0731502346965393,
+        "cy_frequency_mean": 0.0,
+        "landslide_susceptibility_mean_2023": 3.9183673469387754,
+        "drought_spei_1_5_rp100_mean": 2.535264015197754
+    },
+    {
+        "hex_id": "866ad8d4fffffff",
+        "fires_density_mean": 0.0176925443972764,
+        "cy_frequency_mean": 0.0,
+        "landslide_susceptibility_mean_2023": 3.739130434782609,
+        "drought_spei_1_5_rp100_mean": 2.4959328174591064
+    }
+]

@@ -99,6 +99,23 @@ validate_geometries(my_shp)
 # app_validate_shp(my_shp)
 ```
 
+## Build hex grid + admin lookup
+
+Add the H3 hex layer that Step 4 (`04-hex-data.qmd`) needs, then run
+`make_admin_lookup()` to populate every parent `admin<k>Pcod` column
+across the layers. `HEX_RESOLUTION` is the same constant defined at
+the top of `00-master.R` — pasting it here keeps Step 1 self-contained
+when re-run interactively.
+
+```{r}
+HEX_RESOLUTION <- 6L
+my_shp$admin9_Hexagon <- make_hex_grid(
+  my_shp$admin0_Country,
+  resolution = HEX_RESOLUTION
+)
+my_shp <- make_admin_lookup(my_shp)
+```
+
 ## Save to app-data/
 
 ```{r}

@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-19 (bug fix #184 — 01-shapes.qmd builds admin9_Hexagon)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/01-shapes.qmd`: added "Build hex grid + admin lookup" section between Validate and Save, calling `make_hex_grid(my_shp$admin0_Country, resolution = HEX_RESOLUTION)` and `make_admin_lookup(my_shp)`. Closes the template gap where Step 1 never produced the `admin9_Hexagon` layer that Step 4 (`fetch_hex_data()`) requires, surfaced during arch-13 §F/§J end-to-end verification. |
+| Tests | `tests/testthat/test-template-integration.R`: extended the "Step 01 produces app-data/shapes.rds" test to assert the saved RDS now contains 4 layers including `admin9_Hexagon`, with non-empty `admin9Pcod` and parent `admin0Pcod` populated by `make_admin_lookup()`. |
+
+---
+
 ## 2026-05-19 (arch-13 §F — 04-hex-data.qmd executable by default)
 
 | Scope | Change |

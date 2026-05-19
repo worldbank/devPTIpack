@@ -74,7 +74,7 @@ under the **wbPTI GitHub organisation**:
 - **Bug reports and feature requests** — open an issue on GitHub:  
   <https://github.com/worldbank/devPTIpack/issues/new>
 
-- **General questions** — reach out to the World Bank GeoPov team [geopov/](geopov/){target="_blank"}
+- **General questions** — reach out to the World Bank GeoPov team [geopov/](https://worldbankgroup.sharepoint.com/sites/FPG/SitePages/PublishingPages/GeoPov-1778698081562.aspx){target="_blank"} on intranet, or reach out to: [Nga Thi Viet Nguyen](mailto:nnguyen3@worldbank.org).
 
 
 ## License

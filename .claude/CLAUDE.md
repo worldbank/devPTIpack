@@ -34,11 +34,12 @@ A golem-based Shiny R package for computing, visualizing, and exploring Project 
 
 ## Branching
 
-- Integration + default branch: `dev`. Release branch: `main`.
-- **All PRs target `dev`.** `dev` is periodically merged into `main` for releases.
+- Integration branch: `dev` — **all PRs target `dev`**. Release branch
+  **and GitHub default branch**: `main`. `dev` is periodically merged
+  into `main` for releases.
 - Sub-branches per phase/batch (e.g. `feat/hex-year-resolver`, `cleanup/batch-1`, `docs/phase-2`) PR'd into `dev`.
 - Each PR must keep `R CMD check` green and update the changelog.
-- Historical note: PRs targeted `main` directly until 2026-05-21, when a `dev` integration branch was introduced and made the GitHub default. (Same day, the entire git history was rewritten to purge a leaked World Bank basemap API key — every pre-2026-05-21 commit SHA is dead; never restore old history.) Earlier still, arch-redesign work lived on `koichi-arch-redesign` / `eb-docs-pkgdown`. Issue [#9](https://github.com/worldbank/devPTIpack/issues/9) tracks the overall redesign; sub-issues are referenced via `Closes #N` on PRs to `dev` (the default branch), which GitHub auto-closes on merge.
+- Historical note: PRs targeted `main` directly until 2026-05-21, when a `dev` integration branch was introduced. (`dev` is *not* the GitHub default branch — that stayed `main`, as nobody on the team has repo-admin rights to change it.) Same day, the entire git history was rewritten to purge a leaked World Bank basemap API key — every pre-2026-05-21 commit SHA is dead; never restore old history. Earlier still, arch-redesign work lived on `koichi-arch-redesign` / `eb-docs-pkgdown`. Issue [#9](https://github.com/worldbank/devPTIpack/issues/9) tracks the overall redesign; sub-issues are referenced via `Closes #N` on PRs to `dev` (see the issue-close workflow below — merges to `dev` do **not** auto-close).
 
 ## Skills & sub-agents
 
@@ -51,19 +52,21 @@ Project-scoped tooling under `.claude/`:
 | `cleanup-batch`          | skill     | Execute one arch-01 cleanup batch end-to-end (delete, document, test, check)          |
 | `roxygen-document`       | skill     | Add/upgrade roxygen2 per `.claude/rules/roxygen-documentation.md`                     |
 | `issue-progress-comment` | skill     | Draft a status comment for a GitHub issue from the recent diff/work                   |
-| `close-issue-on-merge`   | skill     | **Fallback only.** Close issues a merged PR claims to close when GitHub's auto-close didn't fire — e.g. the PR body omitted `Closes #N`, or a parent tracker issue wasn't directly referenced. PRs targeting `dev` with `Closes #N` close on their own. |
+| `close-issue-on-merge`   | skill     | **Routine after every PR merge.** PRs merge into `dev`, which is not the GitHub default branch, so GitHub does *not* auto-close their `Closes #N` issues — close them with this skill after each merge. Also closes parent tracker issues (e.g. #9) not directly referenced. |
 | `pr-manual-verification` | skill     | Classify a PR's manual-verification needs as **None / Optional / REQUIRED** with item-level rationale; produces the `## Verification` markdown block + the chat-text one-liner |
 | `r-package-reviewer`     | sub-agent | Review diffs for R-package conventions (NAMESPACE, exports, examples, no `browser()`) |
 
 Invoke skills via the Skill tool by name. Spawn the sub-agent via the Agent tool with `subagent_type: r-package-reviewer`.
 
-**Issue-close workflow:** PRs target `dev` (the default branch), so
-GitHub auto-closes any issue referenced by `Closes #N` / `Fixes #N` /
-`Resolves #N` in the PR body the moment the merge lands. No manual
-step required in the common case. Invoke the `close-issue-on-merge`
-skill only as a fallback — when the keyword was forgotten, when a
-parent tracker issue (e.g. #9) needs closing alongside the directly
-referenced sub-issue, or when GitHub somehow missed the link.
+**Issue-close workflow:** PRs target `dev`, which is **not** the GitHub
+default branch (`main` is). GitHub only auto-closes a `Closes #N` issue
+when the PR merges into the *default* branch — so merging a PR into
+`dev` does **not** auto-close its referenced issues. After every PR
+merge, close the referenced issues manually with the
+`close-issue-on-merge` skill (still keep the `Closes #N` / `Fixes #N` /
+`Resolves #N` keyword in the PR body — it records the link, and it will
+auto-close once `dev` is later merged into `main`). The same applies to
+parent tracker issues (e.g. #9).
 
 **PR verification convention (compulsory before "ready to merge"):**
 every PR opened on this repo must include a `## Verification` section
@@ -150,8 +153,8 @@ It is **silent** when nothing has changed.
 When it fires, it:
 1. Identifies newly merged PRs from `git log --merges`.
 2. Checks each referenced issue (`Closes #N` / `Fixes #N` / `Resolves #N`)
-   — reports **OPEN** ones (GitHub's auto-close may have missed them) and
-   suggests running the `close-issue-on-merge` skill.
+   — reports **OPEN** ones (merges to `dev` never auto-close, so expect
+   these every time) and suggests running the `close-issue-on-merge` skill.
 3. Prints the full open-issue backlog so the next task is always visible.
 
 **Does NOT auto-close** — only reports. Closing is done explicitly via the

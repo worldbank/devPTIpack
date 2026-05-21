@@ -6,9 +6,9 @@
 # Workflow derived from r-lib/actions examples.
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   workflow_dispatch:
 
 name: tests

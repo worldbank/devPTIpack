@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-21 (workflow — fix CI triggers + issue-close docs for dev branch)
+
+| Scope | Change |
+| ----- | ------ |
+| Config | `.github/workflows/tests.yaml` + `R-CMD-check.yaml`: added `dev` to the `push` and `pull_request` branch filters — they were `[main]`-only, so after the switch to PRs-target-`dev` the `testthat` and `R CMD check` gates silently stopped running on PRs (only `pkgdown` + `test-coverage`, which have no branch filter, still ran). |
+| Rules | `.claude/CLAUDE.md`: corrected the branching docs — `dev` is the integration branch but **not** the GitHub default (`main` is; nobody has repo-admin to change it). Merges to `dev` therefore do **not** auto-close `Closes #N` issues, so the `close-issue-on-merge` skill is now a routine post-merge step, not a fallback. Updated the Branching section, issue-close workflow, skill table, and post-merge hook description. |
+
+---
+
 ## 2026-05-21 (workflow — dev integration branch)
 
 | Scope | Change |

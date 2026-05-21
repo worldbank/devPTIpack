@@ -1,21 +1,29 @@
 # 00-master.R -- pipeline orchestrator.
 #
-# Renders the step `.qmd` files top-to-bottom in their canonical order.
-# Each step writes its output into `app-data/`; downstream steps read
-# from there. Run this script with the project root as the working
-# directory:
+# Renders the step `.qmd` files top-to-bottom in their canonical order
+# and then renders the full Quarto website into `docs/`. Each step
+# writes its output into `app-data/`; downstream steps read from there.
+# Run this script with the project root as the working directory:
 #
 #   source("00-master.R")
 #
-# Comment / uncomment the lines below to skip optional or future steps.
+# Comment / uncomment the individual render lines below to skip
+# optional or future steps.
 #
 # Step state:
 #   01  Shapes              -- working (Rwanda data + validate_geometries)
 #   02a Zonal stats         -- optional stub; user runs manually if needed
-#   03  User data             -- working (pti_patch_admin_sheet + validate_metadata)
-#   04  HEX data            -- stub (blocked by HEX API; not rendered here)
+#   03  User data           -- working (pti_patch_admin_sheet + validate_metadata)
+#   04  HEX data            -- working (live WB parquet; needs internet)
 #   05  Compile             -- working (compile_pti_data merges + validates + renders)
+#   05r Compile report      -- stub pending #157 (compile-report.qmd not yet shipped)
 #   06  Deploy              -- manual; see 06-deploy.R
+
+# ── App URL (set after deploying to Posit Connect / shinyapps.io) ────────────
+# Paste your live app URL here once the app is deployed. This populates
+# the "Live app" page in the data-quality website (`app-page.qmd`).
+# Leave as "" until the app is deployed.
+APP_URL <- ""
 
 # ── Hex grid configuration ───────────────────────────────────────────────────
 # H3 resolution for the hex grid built in Step 1 and used throughout
@@ -36,11 +44,25 @@ HEX_RESOLUTION <- 6L
 # Recommended FALSE when the hex grid exceeds ~5,000 cells.
 INCLUDE_HEX_IN_APP <- FALSE
 
+# ── Pass APP_URL to Quarto so app-page.qmd can embed the live app ────────────
+Sys.setenv(PTI_APP_URL = APP_URL)
+
+# ── Pipeline (individual step renders) ───────────────────────────────────────
 quarto::quarto_render("01-shapes.qmd")
 # quarto::quarto_render("02a-user-zonal-stats.qmd")  # optional
 quarto::quarto_render("03-user-data.qmd")
-# quarto::quarto_render("04-hex-data.qmd")           # stub, blocked by HEX API
+quarto::quarto_render("04-hex-data.qmd")             # needs internet
 quarto::quarto_render("05-compile.qmd")
+# quarto::quarto_render("05-compile-report.qmd")     # pending arch-13 §H (#157)
+
+# ── Render the full data-quality website into docs/ ──────────────────────────
+quarto::quarto_render(input = ".", output_dir = "docs")
+
+cli::cli_inform(c(
+  "v" = "Pipeline complete.",
+  "i" = "Open {.file docs/index.html} to review the data-quality website.",
+  "i" = "Run {.run shiny::runApp('app.R')} to preview the app locally."
+))
 
 # Deployment runs manually:
 # source("06-deploy.R")

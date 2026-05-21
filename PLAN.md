@@ -1065,7 +1065,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [ ] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex metadata + `var_overrides` (after §C)
 - [ ] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF report (after §C)
 - [x] arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked) (PR [#178](https://github.com/worldbank/devPTIpack/pull/178))
-- [ ] arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C + §I)
+- [~] arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C + §I) (PR [#183](https://github.com/worldbank/devPTIpack/pull/183) — partial; `05-compile-report.qmd` render line still commented pending §H #157)
 - [ ] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions (after §H + §I + §J)
 - [x] arch-13 §L (#162) — `app.R` + `landing-page.md` generic template (unblocked) (PR [#179](https://github.com/worldbank/devPTIpack/pull/179))
 
@@ -1077,6 +1077,10 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [ ] #163 — API coordination: `pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7)
 - [ ] #164 — end-to-end automated pipeline test (Rwanda + Ethiopia)
 - [ ] #144 — audit and remove redundant `inst/` artifacts (unblocked)
+
+**Bugs surfaced during §F/§J E2E verification (2026-05-19):**
+- [ ] #184 — `01-shapes.qmd` template never builds `admin9_Hexagon`; Step 4 of scaffolded pipeline fails (PR [#186](https://github.com/worldbank/devPTIpack/pull/186))
+- [ ] #185 — `hex_fetch_source()` passes `https://` URLs to `arrow::open_dataset` which doesn't support https (PR [#187](https://github.com/worldbank/devPTIpack/pull/187))
 
 **DoD:** `source("00-master.R")` on fresh Rwanda project produces shapes.rds, metadata.xlsx,
 pti-metadata.html, docs/index.html; `shiny::runApp("app.R")` launches; all tutorial

@@ -113,12 +113,17 @@ test_that("Step 01 produces app-data/shapes.rds and validate_geometries passes",
   expect_true(file.exists("app-data/shapes.rds"))
 
   shp <- readRDS("app-data/shapes.rds")
-  expect_equal(length(shp), 3L)
+  expect_equal(length(shp), 4L)
   expect_named(
     shp,
-    c("admin0_Country", "admin1_Province", "admin2_District"),
+    c("admin0_Country", "admin1_Province", "admin2_District", "admin9_Hexagon"),
     ignore.order = TRUE
   )
+
+  # #184: Step 1 builds the H3 hex grid + populates parent Pcods.
+  expect_gt(nrow(shp$admin9_Hexagon), 0L)
+  expect_true(all(c("admin9Pcod", "admin0Pcod") %in% names(shp$admin9_Hexagon)))
+  expect_true(all(nzchar(shp$admin9_Hexagon$admin9Pcod)))
 
   diag <- validate_geometries(shp, error_on_fail = FALSE)
   expect_equal(diag$status, "pass")

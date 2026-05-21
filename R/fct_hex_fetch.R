@@ -171,6 +171,24 @@ in {.file 00-master.R}."
 
 # ── Internal helpers ─────────────────────────────────────────────────────────
 
+# Resolve a registry source path to something `arrow::open_dataset()` can
+# open. arrow's `FileSystem$from_uri()` recognises `s3://`, `gs://`,
+# `file://`, `hdfs://`, etc. — but **not** plain `http://` / `https://`.
+# When the registry path is an HTTP(S) URL we download it to a local
+# tempfile first; everything else passes through unchanged. The
+# `downloader` seam exists for tests.
+hex_resolve_path <- function(path, downloader = utils::download.file) {
+  if (is.character(path) &&
+        length(path) == 1L &&
+        (startsWith(path, "http://") || startsWith(path, "https://"))) {
+    tmp <- tempfile(fileext = ".parquet")
+    downloader(path, tmp, mode = "wb", quiet = TRUE)
+    return(tmp)
+  }
+  path
+}
+
+
 # Group a vars list by (backend, source root, hex_col).
 hex_split_by_source <- function(vars) {
   keys <- vapply(vars, function(v) {
@@ -213,8 +231,9 @@ hex_fetch_source <- function(grp, fetch_ids, dataset_loader) {
 
   select_cols <- unique(c(hex_col, static_src_cols, time_cols, temporal_src_cols))
 
-  # Collect from parquet (or mock in tests).
-  ds  <- dataset_loader(path)
+  # Collect from parquet (or mock in tests). HTTP(S) paths are
+  # downloaded to a local tempfile first so arrow can open them.
+  ds  <- dataset_loader(hex_resolve_path(path))
   raw <- ds |>
     dplyr::filter(.data[[hex_col]] %in% fetch_ids) |>
     dplyr::select(dplyr::all_of(select_cols)) |>

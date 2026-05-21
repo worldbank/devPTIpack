@@ -2,9 +2,9 @@
 # §"Registry"). Targets the three exported reader fns + the internal
 # `read_hex_registry()` helper.
 #
-# The bundled `inst/hex_vars_registry.yaml` ships with one source
-# (`wb_flood_exposure`) declaring two variables: `population` (the
-# registry-tagged pop_var) and `flood_exposure_15cm_1in100`.
+# The bundled `inst/hex_vars_registry.yaml` serves its variables via
+# the `wb_space2stats_api` REST source, including `population` (the
+# registry-tagged pop_var) and `flood_exposure_15cm_1in100` (#196).
 
 # ---------------------------------------------------------------------------
 # read_hex_registry() (internal)
@@ -16,14 +16,17 @@ test_that("read_hex_registry: returns named list of pti_hex_source", {
   expect_true(all(vapply(
     reg, inherits, logical(1L), what = "pti_hex_source"
   )))
-  expect_true("wb_flood_exposure" %in% names(reg))
+  expect_true("wb_space2stats_api" %in% names(reg))
 })
 
-test_that("read_hex_registry: bundled wb_flood_exposure source has the verified schema", {
+test_that("read_hex_registry: wb_space2stats_api has population + flood", {
   reg <- devPTIpack:::read_hex_registry()
-  src <- reg$wb_flood_exposure
+  src <- reg$wb_space2stats_api
+  vnames <- names(src$vars)
   expect_identical(src$hex_col, "hex_id")
-  expect_setequal(names(src$vars), c("population", "flood_exposure_15cm_1in100"))
+  expect_identical(src$backend, "rest")
+  expect_true("population" %in% vnames)
+  expect_true("flood_exposure_15cm_1in100" %in% vnames)
   expect_s3_class(src$pop_var, "pti_hex_var")
   expect_identical(src$pop_var$canonical_name, "population")
   expect_true(src$pop_var$internal)
@@ -58,7 +61,7 @@ test_that("list_hex_vars: returns a tibble with the expected columns", {
   )
 })
 
-test_that("list_hex_vars: shows the bundled wb_flood_exposure variables", {
+test_that("list_hex_vars: shows the bundled population + flood variables", {
   res <- list_hex_vars()
   expect_true("flood_exposure_15cm_1in100" %in% res$canonical_name)
   expect_true("population" %in% res$canonical_name)
@@ -145,8 +148,8 @@ test_that("use_hex_vars: errors on non-numeric / NA years", {
 # ---------------------------------------------------------------------------
 
 test_that("get_available_years: non-temporal variable returns integer(0)", {
-  # wb_flood_exposure is a single non-temporal snapshot; arrow is
-  # never called.
+  # flood_exposure is a non-temporal variable, so get_available_years
+  # short-circuits to integer(0) without any API call.
   expect_identical(
     get_available_years("flood_exposure_15cm_1in100"),
     integer(0)
@@ -343,4 +346,28 @@ test_that("use_hex_vars: builtup_area available_years covers 1975-2030 decadal",
   expect_true(1975L %in% yrs)
   expect_true(2030L %in% yrs)
   expect_equal(length(yrs), 12L)
+})
+
+# ---------------------------------------------------------------------------
+# #196 — flood_exposure + population served via Space2Stats REST
+# (the wb_flood_exposure parquet source is dropped; both variables move
+# to the wb_space2stats_api REST source).
+# ---------------------------------------------------------------------------
+
+test_that("registry no longer has a parquet wb_flood_exposure source (#196)", {
+  reg <- devPTIpack:::read_hex_registry()
+  expect_false("wb_flood_exposure" %in% names(reg))
+})
+
+test_that("flood_exposure + population resolve to the REST backend (#196)", {
+  v <- use_hex_vars("flood_exposure_15cm_1in100")
+
+  expect_identical(v$flood_exposure_15cm_1in100$backend, "rest")
+  expect_match(v$flood_exposure_15cm_1in100$api_root, "space2stats")
+  expect_true(is.na(v$flood_exposure_15cm_1in100$path %||% NA_character_))
+
+  # population is auto-injected — it must be REST now too, otherwise
+  # every hex fetch still drags in the parquet download.
+  expect_identical(v$population$backend, "rest")
+  expect_match(v$population$api_root, "space2stats")
 })

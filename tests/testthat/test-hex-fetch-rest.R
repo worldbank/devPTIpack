@@ -227,28 +227,22 @@ test_that("get_available_years: Space2Stats REST fields contract", {
   expect_identical(result, sort(result))
 })
 
-test_that("fetch_hex_data: end-to-end REST + parquet pop with real registry names", {
+test_that("fetch_hex_data: end-to-end REST fetch with real registry names", {
   testthat::skip_if_not_installed("httptest2")
 
   hex_ids <- c("866ad8d47ffffff", "866ad8d4fffffff")
 
-  # use_hex_vars() with real YAML canonical names; auto-injects population
+  # use_hex_vars() with real YAML canonical names; auto-injects
+  # population. Since #196 population is also a Space2Stats REST
+  # variable, so the whole fetch is a single REST request — no
+  # parquet loader needed.
   vars <- devPTIpack::use_hex_vars(
     "fires_density", "cyclone_frequency", "landslide_susceptibility", "drought_spei"
   )
 
-  # Mock the parquet loader so no real download is needed
-  pop_ldr <- function(path) {
-    tibble::tibble(
-      hex_id = c("866ad8d47ffffff", "866ad8d4fffffff"),
-      pop    = c(5000.0, 6000.0)
-    )
-  }
-
   result <- httptest2::with_mock_api(
     devPTIpack::fetch_hex_data(
       hex_ids, vars,
-      dataset_loader        = pop_ldr,
       available_years_lookup = list()
     )
   )

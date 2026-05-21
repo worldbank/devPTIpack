@@ -23,6 +23,16 @@
 
 ---
 
+## 2026-05-19 (arch-13 §J — 00-master.R APP_URL + full-site render to docs/)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/00-master.R`: added `APP_URL <- ""` at the top with explanatory comments (paste a Posit Connect / shinyapps.io URL after deploy), and `Sys.setenv(PTI_APP_URL = APP_URL)` before the renders so `app-page.qmd` can embed the live app via its `htmltools::tags$iframe` block. |
+| Data | `inst/template_pti/00-master.R`: un-commented the `quarto::quarto_render("04-hex-data.qmd")` line (paired with arch-13 §F #154 which removes the chunk-level `eval: false` guards); added a `# pending arch-13 §H (#157)` placeholder for `05-compile-report.qmd` to be un-commented once that issue ships. |
+| Data | `inst/template_pti/00-master.R`: added `quarto::quarto_render(input = ".", output_dir = "docs")` to render the full data-quality website into `docs/`, and a closing `cli::cli_inform()` pointing the deployer at `docs/index.html` and `shiny::runApp("app.R")`. Step-state comment block updated (Step 4 marked working; added Step 5r line). |
+
+---
+
 ## 2026-05-19 (arch-13 §F — 04-hex-data.qmd executable by default)
 
 | Scope | Change |

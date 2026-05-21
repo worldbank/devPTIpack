@@ -40,7 +40,6 @@
 #' list.files(new_app)
 #' unlink(new_app, recursive = TRUE)
 create_new_pti <- function(path, open = TRUE, app_name = basename(path)) {
-
   path <- fs::path_expand(path)
 
   if (path == "." & app_name == fs::path_file(path)) {
@@ -70,13 +69,20 @@ create_new_pti <- function(path, open = TRUE, app_name = basename(path)) {
 
   # Replace template tokens in all text files
   text_exts <- c("\\.R$", "\\.md$", "\\.qmd$", "\\.yml$", "\\.yaml$", "\\.txt$")
-  all_files <- list.files(path, recursive = TRUE, all.files = TRUE, full.names = TRUE)
+  all_files <- list.files(
+    path,
+    recursive = TRUE,
+    all.files = TRUE,
+    full.names = TRUE
+  )
   text_files <- all_files[grepl(paste(text_exts, collapse = "|"), all_files)]
 
   for (f in text_files) {
     lines <- readLines(f, warn = FALSE)
-    if (any(grepl("{{COUNTRY NAME}}", lines, fixed = TRUE)) ||
-        any(grepl("{{APP_NAME}}", lines, fixed = TRUE))) {
+    if (
+      any(grepl("{{COUNTRY NAME}}", lines, fixed = TRUE)) ||
+        any(grepl("{{APP_NAME}}", lines, fixed = TRUE))
+    ) {
       lines <- gsub("{{COUNTRY NAME}}", app_name, lines, fixed = TRUE)
       lines <- gsub("{{APP_NAME}}", app_name, lines, fixed = TRUE)
       writeLines(lines, f)
@@ -102,5 +108,4 @@ create_new_pti <- function(path, open = TRUE, app_name = basename(path)) {
   }
 
   return(invisible(fs::path_abs(path)))
-
 }

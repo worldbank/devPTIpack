@@ -1078,9 +1078,13 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [ ] #164 — end-to-end automated pipeline test (Rwanda + Ethiopia)
 - [ ] #144 — audit and remove redundant `inst/` artifacts (unblocked)
 
-**Bugs surfaced during §F/§J E2E verification (2026-05-19):**
-- [ ] #184 — `01-shapes.qmd` template never builds `admin9_Hexagon`; Step 4 of scaffolded pipeline fails (PR [#186](https://github.com/worldbank/devPTIpack/pull/186))
-- [ ] #185 — `hex_fetch_source()` passes `https://` URLs to `arrow::open_dataset` which doesn't support https (PR [#187](https://github.com/worldbank/devPTIpack/pull/187))
+**Bugs surfaced during §F/§J E2E verification (2026-05-19 – 05-21):**
+- [x] #184 — `01-shapes.qmd` template never builds `admin9_Hexagon`; Step 4 of scaffolded pipeline fails (PR [#186](https://github.com/worldbank/devPTIpack/pull/186))
+- [x] #185 — `hex_fetch_source()` passes `https://` URLs to `arrow::open_dataset` which doesn't support https (PR [#187](https://github.com/worldbank/devPTIpack/pull/187))
+- [x] #190 — hex parquet download fails mid-stream (WB Data Catalog drops large HTTP/2 transfers); needs retry+resume (PR [#193](https://github.com/worldbank/devPTIpack/pull/193))
+- [x] #191 — `04-hex-data.qmd` references `INCLUDE_HEX_IN_APP` not passed into the render; pass via env vars (PR [#193](https://github.com/worldbank/devPTIpack/pull/193))
+- [x] #192 — `00-master.R` passes invalid `output_dir` arg to `quarto::quarto_render()` (PR [#193](https://github.com/worldbank/devPTIpack/pull/193))
+- E2E verified 2026-05-21: fresh Rwanda scaffold → `source("00-master.R")` → `docs/index.html` + full site, `✔ Pipeline complete.`
 
 **DoD:** `source("00-master.R")` on fresh Rwanda project produces shapes.rds, metadata.xlsx,
 pti-metadata.html, docs/index.html; `shiny::runApp("app.R")` launches; all tutorial

@@ -15,15 +15,17 @@ out the `04-hex-data.qmd` line in `00-master.R`.
 ## Configuration
 
 The `HEX_RESOLUTION` and `INCLUDE_HEX_IN_APP` switches are set in
-`00-master.R`. `HEX_RESOLUTION` controls what H3 resolution was used
-to build `admin9_Hexagon` in Step 1 — `fetch_hex_data()` reads it
-automatically from the hex IDs. `INCLUDE_HEX_IN_APP` controls whether
-hex-level polygons are included in the deployed app.
+`00-master.R` and passed in as environment variables. `HEX_RESOLUTION`
+controls what H3 resolution was used to build `admin9_Hexagon` in
+Step 1 — `fetch_hex_data()` reads it automatically from the hex IDs.
+`INCLUDE_HEX_IN_APP` controls whether hex-level polygons are included
+in the deployed app.
 
 ```{r}
-# Inherited from 00-master.R:
-# HEX_RESOLUTION    <- 6L     # 5 = ~252 km², 6 = ~36 km², 7 = ~5 km²
-# INCLUDE_HEX_IN_APP <- FALSE
+# Read config passed by 00-master.R via Sys.setenv(). The defaults
+# below apply when this file is rendered standalone (HEX 6 = ~36 km²).
+HEX_RESOLUTION     <- as.integer(Sys.getenv("PTI_HEX_RESOLUTION", "6"))
+INCLUDE_HEX_IN_APP <- as.logical(Sys.getenv("PTI_INCLUDE_HEX_IN_APP", "FALSE"))
 ```
 
 ## Load shapes and hex layer

@@ -171,13 +171,37 @@ in {.file 00-master.R}."
 
 # ── Internal helpers ─────────────────────────────────────────────────────────
 
+# Robust downloader for hex parquet sources. The WB Data Catalog
+# (`datacatalogfiles.worldbank.org`, Azure blob storage) drops large
+# transfers mid-stream, so a single `download.file()` call truncates.
+# This shells out to `curl` with `-C -` (resume from the partial file)
+# and `--retry`/`--retry-all-errors` (retry the dropped streams); a
+# browser User-Agent is required because the endpoint 403s the default
+# `curl/x.y` agent. See issue #190.
+hex_curl_download <- function(url, destfile, mode = "wb", quiet = TRUE) {
+  utils::download.file(
+    url, destfile,
+    mode   = mode,
+    quiet  = quiet,
+    method = "curl",
+    extra  = c(
+      "-fsSL",                 # fail on HTTP errors, follow redirects, silent
+      "-C", "-",               # resume from whatever is already on disk
+      "--retry", "8",          # retry dropped/transient transfers
+      "--retry-all-errors",    # treat mid-stream drops as retryable
+      "-A", "Mozilla/5.0"      # endpoint 403s the default curl/ user-agent
+    )
+  )
+}
+
 # Resolve a registry source path to something `arrow::open_dataset()` can
 # open. arrow's `FileSystem$from_uri()` recognises `s3://`, `gs://`,
 # `file://`, `hdfs://`, etc. — but **not** plain `http://` / `https://`.
 # When the registry path is an HTTP(S) URL we download it to a local
 # tempfile first; everything else passes through unchanged. The
-# `downloader` seam exists for tests.
-hex_resolve_path <- function(path, downloader = utils::download.file) {
+# `downloader` seam exists for tests; the default is the retry+resume
+# `hex_curl_download()` (issue #190).
+hex_resolve_path <- function(path, downloader = hex_curl_download) {
   if (is.character(path) &&
         length(path) == 1L &&
         (startsWith(path, "http://") || startsWith(path, "https://"))) {

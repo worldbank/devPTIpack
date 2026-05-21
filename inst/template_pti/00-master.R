@@ -44,8 +44,15 @@ HEX_RESOLUTION <- 6L
 # Recommended FALSE when the hex grid exceeds ~5,000 cells.
 INCLUDE_HEX_IN_APP <- FALSE
 
-# ── Pass APP_URL to Quarto so app-page.qmd can embed the live app ────────────
-Sys.setenv(PTI_APP_URL = APP_URL)
+# ── Pass deployer config to Quarto ───────────────────────────────────────────
+# Each `quarto_render()` runs in a fresh R process, so the variables set
+# above do not carry over on their own — export them as environment
+# variables that the step `.qmd` files read back via `Sys.getenv()`.
+Sys.setenv(
+  PTI_APP_URL            = APP_URL,
+  PTI_HEX_RESOLUTION     = HEX_RESOLUTION,
+  PTI_INCLUDE_HEX_IN_APP = INCLUDE_HEX_IN_APP
+)
 
 # ── Pipeline (individual step renders) ───────────────────────────────────────
 quarto::quarto_render("01-shapes.qmd")
@@ -55,8 +62,9 @@ quarto::quarto_render("04-hex-data.qmd")             # needs internet
 quarto::quarto_render("05-compile.qmd")
 # quarto::quarto_render("05-compile-report.qmd")     # pending arch-13 §H (#157)
 
-# ── Render the full data-quality website into docs/ ──────────────────────────
-quarto::quarto_render(input = ".", output_dir = "docs")
+# ── Render the full data-quality website ─────────────────────────────────────
+# Output goes to `docs/` as configured by `output-dir:` in `_quarto.yml`.
+quarto::quarto_render(input = ".")
 
 cli::cli_inform(c(
   "v" = "Pipeline complete.",

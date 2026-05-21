@@ -117,3 +117,39 @@ test_that("hex_fetch_source resolves https path before calling dataset_loader", 
   expect_false(startsWith(captured_loader_path, "https://"))
   expect_match(captured_loader_path, "\\.parquet$")
 })
+
+# ---------------------------------------------------------------------------
+# hex_curl_download() — retry + resume downloader (issue #190)
+
+test_that("hex_resolve_path defaults to the retry+resume curl downloader", {
+  expect_identical(
+    formals(devPTIpack:::hex_resolve_path)$downloader,
+    quote(hex_curl_download)
+  )
+})
+
+test_that("hex_curl_download calls download.file with curl + retry/resume flags", {
+  captured <- list()
+  testthat::local_mocked_bindings(
+    download.file = function(url, destfile, method, extra, ...) {
+      captured$url    <<- url
+      captured$method <<- method
+      captured$extra  <<- extra
+      invisible(0L)
+    },
+    .package = "utils"
+  )
+
+  devPTIpack:::hex_curl_download(
+    "https://datacatalogfiles.worldbank.org/x.parquet",
+    tempfile(fileext = ".parquet")
+  )
+
+  expect_identical(captured$method, "curl")
+  # `-C -` resume, retry on dropped streams, and a non-curl user-agent.
+  expect_true(all(c("-C", "-") %in% captured$extra))
+  expect_true("--retry" %in% captured$extra)
+  expect_true("--retry-all-errors" %in% captured$extra)
+  expect_true("-A" %in% captured$extra)
+  expect_false(any(grepl("^curl/", captured$extra)))
+})

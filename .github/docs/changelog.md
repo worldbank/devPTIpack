@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-05-21 (bug fixes #190/#191/#192 — Step 4 pipeline end-to-end)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_hex_fetch.R`: new internal helper `hex_curl_download()` — downloads via `download.file(method = "curl")` with `-C -` (resume), `--retry`/`--retry-all-errors`, and a browser User-Agent. `hex_resolve_path()`'s default `downloader` is now `hex_curl_download` instead of `utils::download.file`. Fixes #190 — the WB Data Catalog (Azure blob) drops large HTTP/2 transfers mid-stream, which a single un-resumed `download.file()` cannot survive. |
+| Tests | `tests/testthat/test-hex-resolve-path.R`: 2 new tests — `hex_resolve_path()` defaults to `hex_curl_download`, and `hex_curl_download()` calls `download.file()` with `method = "curl"` + the `-C -` / `--retry` / UA flags. |
+| Data | `inst/template_pti/00-master.R`: export `HEX_RESOLUTION` + `INCLUDE_HEX_IN_APP` (and `APP_URL`) as `PTI_*` environment variables before the renders — each `quarto_render()` is a fresh R process, so step `.qmd` files cannot see the orchestrator's globals (fixes #191). |
+| Data | `inst/template_pti/04-hex-data.qmd`: chunk 1 now reads `HEX_RESOLUTION` / `INCLUDE_HEX_IN_APP` from `Sys.getenv()` with standalone-safe defaults, instead of relying on never-defined globals (fixes #191). |
+| Data | `inst/template_pti/00-master.R`: full-site render call corrected to `quarto::quarto_render(input = ".")` — dropped the invalid `output_dir` argument; the website output dir comes from `output-dir:` in `_quarto.yml` (fixes #192). |
+| Tests | arch-13 §F/§J pipeline verified end-to-end (2026-05-21): a fresh Rwanda scaffold runs `source("00-master.R")` to completion — renders Steps 1/3/4/5, fetches live WB Data Catalog data, and produces `docs/index.html` + the full data-quality website. |
+
+---
+
 ## 2026-05-21 (workflow — dev integration branch)
 
 | Scope | Change |
@@ -825,3 +838,5 @@ R CMD check stays at 0 errors / 0 warnings / 3 notes (same baseline as PR #99 / 
 | Config | Updated `NAMESPACE` (auto-drafted — please refine). <!-- AUTODRAFT:NAMESPACE --> |
 | Code   | Updated `R/fct_pti_patch_admin_sheet.R` (auto-drafted — please refine). <!-- AUTODRAFT:R/fct_pti_patch_admin_sheet.R --> |
 | Tests  | Updated `tests/testthat/test-pti-patch-admin-sheet.R` (auto-drafted — please refine). <!-- AUTODRAFT:tests/testthat/test-pti-patch-admin-sheet.R --> |
+| Code   | Updated `R/fct_hex_fetch.R` (auto-drafted — please refine). <!-- AUTODRAFT:R/fct_hex_fetch.R --> |
+| Tests  | Updated `tests/testthat/test-hex-resolve-path.R` (auto-drafted — please refine). <!-- AUTODRAFT:tests/testthat/test-hex-resolve-path.R --> |

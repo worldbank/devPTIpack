@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-05-21 (workflow — dev integration branch)
+
+| Scope | Change |
+| ----- | ------ |
+| Rules | `.claude/CLAUDE.md`: branching policy switched to a `dev` integration branch — all PRs now target `dev` (the new GitHub default branch); `main` is the release branch, updated by periodic `dev`→`main` merges. Updated the issue-close workflow + `close-issue-on-merge` skill row to reference `dev`. |
+| Tooling | `.claude/hooks/post-merge-issues.sh`: post-merge issue-tracking hook now watches `worldbank/dev` instead of `worldbank/main`; state file renamed `.claude/.last-main-sha` → `.claude/.last-dev-sha` (`.gitignore` updated to match). |
+| Tooling | Repo branch cleanup: deleted 110 stale/merged branches (127 → 7 remote branches); kept `main`, `dev`, `gh-pages`, the three open-PR branches, and `enhancement/user_input_shp_tab` (pre-redesign, pending review). |
+
+---
+
 ## 2026-05-19 (bug fix #185 — hex_fetch_source handles https:// URLs)
 
 | Scope | Change |

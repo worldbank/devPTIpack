@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Stop hook: detect new merges on worldbank/main and report open-issue status.
+# Stop hook: detect new merges on worldbank/dev and report open-issue status.
 #
 # Does NOT auto-close anything. Instead:
-#   - When worldbank/main advances, shows which referenced issues are still
+#   - When worldbank/dev advances, shows which referenced issues are still
 #     OPEN (unexpected — GitHub auto-close should have handled them), so
 #     Claude knows to run the close-issue-on-merge skill if needed.
 #   - Always shows the remaining open-issue backlog after a merge.
 #
-# Silent (exits 0, no output) when main has not advanced since the last run.
+# Silent (exits 0, no output) when dev has not advanced since the last run.
 #
-# State file : .claude/.last-main-sha  (gitignored local state)
+# State file : .claude/.last-dev-sha  (gitignored local state)
 # GH token   : ~/.gh-pat-tmp           (same pattern as the rest of the project)
 
 set -uo pipefail
@@ -18,10 +18,10 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 [ -f "$REPO_ROOT/DESCRIPTION" ] || exit 0   # guard: only inside devPTIpack
 
 REPO="worldbank/devPTIpack"
-STATE_FILE="$REPO_ROOT/.claude/.last-main-sha"
+STATE_FILE="$REPO_ROOT/.claude/.last-dev-sha"
 
 # Read local tracking ref — no network call.
-CURRENT_SHA="$(git rev-parse worldbank/main 2>/dev/null)" || exit 0
+CURRENT_SHA="$(git rev-parse worldbank/dev 2>/dev/null)" || exit 0
 LAST_SHA="$(cat "$STATE_FILE" 2>/dev/null || echo "")"
 
 # Nothing new → exit silently.
@@ -36,11 +36,11 @@ GH_PAT="$HOME/.gh-pat-tmp"
 
 # Bail out gracefully if gh is not authenticated.
 gh auth status --hostname github.com > /dev/null 2>&1 || {
-  printf '[post-merge] worldbank/main advanced but gh auth unavailable — skipping issue check.\n' >&2
+  printf '[post-merge] worldbank/dev advanced but gh auth unavailable — skipping issue check.\n' >&2
   exit 0
 }
 
-printf '\n[post-merge] worldbank/main advanced (%s → %s).\n' \
+printf '\n[post-merge] worldbank/dev advanced (%s → %s).\n' \
   "${LAST_SHA:0:7}" "${CURRENT_SHA:0:7}" >&2
 
 # ── 1. Report issue status for each newly merged PR ──────────────────────────
@@ -50,7 +50,7 @@ NEEDS_CLOSE=()
 
 if [ -n "$LAST_SHA" ]; then
   NEW_PRS="$(
-    git log "${LAST_SHA}..worldbank/main" --oneline --merges 2>/dev/null \
+    git log "${LAST_SHA}..worldbank/dev" --oneline --merges 2>/dev/null \
       | grep -oE '#[0-9]+' | grep -oE '[0-9]+' | sort -u
   )"
 

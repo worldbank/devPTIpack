@@ -28,7 +28,7 @@ inst/doc
 # Claude Code: ScheduleWakeup lock file — runtime artefact, never commit.
 .claude/scheduled_tasks.lock
 # Claude Code: post-merge-issues hook state — local SHA tracker, never commit.
-.claude/.last-main-sha
+.claude/.last-dev-sha
 
 # History files
 .Rhistory

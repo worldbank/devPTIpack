@@ -34,10 +34,11 @@ A golem-based Shiny R package for computing, visualizing, and exploring Project 
 
 ## Branching
 
-- Default + integration branch: `main`.
-- Sub-branches per phase/batch (e.g. `feat/hex-year-resolver`, `cleanup/batch-1`, `docs/phase-2`) PR'd directly into `main`.
+- Integration + default branch: `dev`. Release branch: `main`.
+- **All PRs target `dev`.** `dev` is periodically merged into `main` for releases.
+- Sub-branches per phase/batch (e.g. `feat/hex-year-resolver`, `cleanup/batch-1`, `docs/phase-2`) PR'd into `dev`.
 - Each PR must keep `R CMD check` green and update the changelog.
-- Historical note: arch-redesign work lived on `koichi-arch-redesign` (and earlier on `eb-docs-pkgdown`) until both were merged into `main`. Issue [#9](https://github.com/worldbank/devPTIpack/issues/9) still tracks the overall redesign; sub-issues are referenced via `Closes #N` on individual PRs to `main`, which GitHub auto-closes on merge.
+- Historical note: PRs targeted `main` directly until 2026-05-21, when a `dev` integration branch was introduced and made the GitHub default. (Same day, the entire git history was rewritten to purge a leaked World Bank basemap API key — every pre-2026-05-21 commit SHA is dead; never restore old history.) Earlier still, arch-redesign work lived on `koichi-arch-redesign` / `eb-docs-pkgdown`. Issue [#9](https://github.com/worldbank/devPTIpack/issues/9) tracks the overall redesign; sub-issues are referenced via `Closes #N` on PRs to `dev` (the default branch), which GitHub auto-closes on merge.
 
 ## Skills & sub-agents
 
@@ -50,13 +51,13 @@ Project-scoped tooling under `.claude/`:
 | `cleanup-batch`          | skill     | Execute one arch-01 cleanup batch end-to-end (delete, document, test, check)          |
 | `roxygen-document`       | skill     | Add/upgrade roxygen2 per `.claude/rules/roxygen-documentation.md`                     |
 | `issue-progress-comment` | skill     | Draft a status comment for a GitHub issue from the recent diff/work                   |
-| `close-issue-on-merge`   | skill     | **Fallback only.** Close issues a merged PR claims to close when GitHub's auto-close didn't fire — e.g. the PR body omitted `Closes #N`, or a parent tracker issue wasn't directly referenced. PRs targeting `main` with `Closes #N` close on their own. |
+| `close-issue-on-merge`   | skill     | **Fallback only.** Close issues a merged PR claims to close when GitHub's auto-close didn't fire — e.g. the PR body omitted `Closes #N`, or a parent tracker issue wasn't directly referenced. PRs targeting `dev` with `Closes #N` close on their own. |
 | `pr-manual-verification` | skill     | Classify a PR's manual-verification needs as **None / Optional / REQUIRED** with item-level rationale; produces the `## Verification` markdown block + the chat-text one-liner |
 | `r-package-reviewer`     | sub-agent | Review diffs for R-package conventions (NAMESPACE, exports, examples, no `browser()`) |
 
 Invoke skills via the Skill tool by name. Spawn the sub-agent via the Agent tool with `subagent_type: r-package-reviewer`.
 
-**Issue-close workflow:** PRs target `main` (the default branch), so
+**Issue-close workflow:** PRs target `dev` (the default branch), so
 GitHub auto-closes any issue referenced by `Closes #N` / `Fixes #N` /
 `Resolves #N` in the PR body the moment the merge lands. No manual
 step required in the common case. Invoke the `close-issue-on-merge`
@@ -143,7 +144,7 @@ corrections, dependency bumps) need no PLAN.md edit.
 ## Post-merge issue tracking (automatic)
 
 A second Stop hook (`.claude/hooks/post-merge-issues.sh`) activates whenever
-`worldbank/main` advances (i.e. after `git pull` or `git fetch` following a merge).
+`worldbank/dev` advances (i.e. after `git pull` or `git fetch` following a merge).
 It is **silent** when nothing has changed.
 
 When it fires, it:
@@ -156,7 +157,7 @@ When it fires, it:
 **Does NOT auto-close** — only reports. Closing is done explicitly via the
 `close-issue-on-merge` skill to avoid silently closing the wrong issue.
 
-State file: `.claude/.last-main-sha` (gitignored, machine-local).
+State file: `.claude/.last-dev-sha` (gitignored, machine-local).
 
 ## Change Logging (COMPULSORY)
 

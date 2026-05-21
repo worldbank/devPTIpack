@@ -1030,6 +1030,12 @@ collections at H3 Level 6). Spec:
 - [ ] arch-12 §G — Add climate time-series (SPI) via REST (YAML-only PR;
       issue [#140](https://github.com/worldbank/devPTIpack/issues/140);
       depends on #139). SPI timeseries field TBD from `/timeseries_by_hexids`.
+- [x] arch-12 — Serve `flood_exposure` + `population` via Space2Stats REST;
+      drop the `wb_flood_exposure` parquet source (issue
+      [#196](https://github.com/worldbank/devPTIpack/issues/196), PR
+      [#197](https://github.com/worldbank/devPTIpack/pull/197)). Removes the
+      92 MB whole-file download — fetches are now geo-filtered server-side;
+      retroactively removes the root cause of #185/#190.
 
 **Execution order:** A complete. F in progress (PR open). B–E and G can
 proceed in parallel once F merges.

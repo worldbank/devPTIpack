@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-21 (arch-12 #196 — flood + population served via Space2Stats REST)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/hex_vars_registry.yaml`: dropped the `wb_flood_exposure` parquet source; moved `population` and `flood_exposure_15cm_1in100` into the `wb_space2stats_api` REST source (their `source_col` values `pop` / `pop_flood` are live Space2Stats `/fields`). `wb_space2stats_api` now carries `pop_var: population`. `registry_version` bumped `0.6.0` → `0.7.0`. Fetches are now geo-filtered server-side (only the deployer's hex IDs requested) instead of downloading the whole 92 MB global parquet — retroactively removing the root cause behind #185 and #190. |
+| Tests | `tests/testthat/test-hex-registry.R`: rewrote the source-schema test for `wb_space2stats_api`; added two #196 tests (no parquet `wb_flood_exposure` source; `flood_exposure` + `population` resolve to the REST backend). `tests/testthat/test-hex-fetch-rest.R`: the end-to-end test no longer needs a parquet population loader (single all-REST request); re-recorded the httptest2 fixture (`summary_by_hexids-235de9-POST.json`). |
+
+---
+
 ## 2026-05-21 (workflow — fix CI triggers + issue-close docs for dev branch)
 
 | Scope | Change |

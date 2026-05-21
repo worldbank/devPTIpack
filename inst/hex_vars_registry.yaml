@@ -52,24 +52,24 @@
 #                               composite PTI score by default
 #                               (display-only).
 
-registry_version: "0.6.0"
+registry_version: "0.7.0"
 
 sources:
 
-  wb_flood_exposure:
-    label: "WB Space2Stats Flood Exposure"
-    # World Bank Data Catalog, Space2Stats Database:
-    #   https://datacatalog.worldbank.org/int/search/dataset/0066820/Space2Stats-Database
-    # Schema verified 2026-05-12 via
-    #   arrow::open_dataset(<downloaded copy>) |> arrow::schema()
-    #   -> hex_id: string; pop: float; pop_flood: double; pop_flood_pct: double
-    # ~3.67M rows, ~92 MB, H3-6 global coverage, single non-temporal snapshot.
-    path: "https://datacatalogfiles.worldbank.org/ddh-published/0066820/DR0095272/flood_exposure_15cm_1in100.parquet"
+  wb_space2stats_api:
+    label: "WB Space2Stats REST API"
+    backend: "rest"
+    api_root: "https://space2stats.ds.io"
     hex_col: "hex_id"
     pop_var: "population"
-
     variables:
 
+      # Population + flood exposure are served by the Space2Stats REST
+      # API (`pop` / `pop_flood` fields). Until #196 these lived in a
+      # separate parquet source (wb_flood_exposure) — a 92 MB global
+      # file that had to be downloaded whole and filtered locally. The
+      # REST API filters server-side by hex_ids, so only the deployer's
+      # country is fetched.
       population:
         source_col: "pop"
         var_name: "Population"
@@ -107,13 +107,6 @@ sources:
         fun: "sum"
         fltr_exclude_pti: false
 
-  wb_space2stats_api:
-    label: "WB Space2Stats REST API"
-    backend: "rest"
-    api_root: "https://space2stats.ds.io"
-    hex_col: "hex_id"
-    pop_var: ~
-    variables:
       fires_density:
         source_col: "fires_density_mean"
         var_name: "Fire Density"

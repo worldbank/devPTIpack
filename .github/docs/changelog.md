@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-19 (bug fix #185 — hex_fetch_source handles https:// URLs)
+
+| Scope | Change |
+| ----- | ------ |
+| Code  | `R/fct_hex_fetch.R`: new internal helper `hex_resolve_path(path, downloader = utils::download.file)` that downloads `http://` / `https://` paths to a local tempfile (mode `"wb"`, `quiet = TRUE`) and returns the local path; non-HTTP paths pass through unchanged. `hex_fetch_source()` now calls `dataset_loader(hex_resolve_path(path))` so `arrow::open_dataset()` never sees an HTTPS URL (arrow's `FileSystem$from_uri()` only recognises `s3://` / `gs://` / `file://` / etc.). Surfaced during arch-13 §F/§J end-to-end verification against the live WB Data Catalog flood-exposure parquet. |
+| Tests | `tests/testthat/test-hex-resolve-path.R`: 4 new Tier-1 tests (16 expectations) covering pass-through of `s3://` / `file://` / local-path / `fake://` URIs; HTTPS → tempfile download with captured `(url, dest, mode, quiet)` args; `http://` parity with `https://`; and a `fetch_hex_data()` end-to-end test using `local_mocked_bindings(download.file = …)` to assert the spy `dataset_loader` receives the tempfile, not the URL. |
+
+---
+
 ## 2026-05-19 (bug fix #184 — 01-shapes.qmd builds admin9_Hexagon)
 
 | Scope | Change |

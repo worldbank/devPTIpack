@@ -20,22 +20,26 @@
 #' @importFrom shiny moduleServer observeEvent reactiveVal
 #' @importFrom leaflet leaflet renderLeaflet
 #' @noRd
-mod_plot_init_leaf_server <- function(id, shp_dta, ...){
-  moduleServer( id, function(input, output, session){
+mod_plot_init_leaf_server <- function(id, shp_dta, ...) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     leaf_to_init <- reactiveVal()
 
     observeEvent(
-        shp_dta(),
-        {
-          leaflet() %>%
-            plot_leaf_line_map2(shp_dta(), get_golem_options("show_adm_levels")) %>%
-            leaf_to_init()
-        },
-        ignoreInit = FALSE,
-        ignoreNULL = FALSE,
-        priority = 100)
+      shp_dta(),
+      {
+        leaflet() %>%
+          plot_leaf_line_map2(
+            shp_dta(),
+            get_golem_options("show_adm_levels")
+          ) %>%
+          leaf_to_init()
+      },
+      ignoreInit = FALSE,
+      ignoreNULL = FALSE,
+      priority = 100
+    )
 
     output[["leaf_id"]] <- leaflet::renderLeaflet({
       leaf_to_init()
@@ -72,10 +76,7 @@ mod_plot_init_leaf_server <- function(id, shp_dta, ...){
 #' @importFrom sf st_bbox
 #' @noRd
 plot_leaf_line_map2 <-
-  function(leaf_map,
-           shps_dta,
-           show_adm_levels = NULL,
-           ...) {
+  function(leaf_map, shps_dta, show_adm_levels = NULL, ...) {
     if (is.null(show_adm_levels)) {
       show_shps <-
         shps_dta %>%
@@ -92,13 +93,18 @@ plot_leaf_line_map2 <-
     line_size <- c(4, 2, rep(1, 100))
 
     leaf_map %>%
-      leaflet::fitBounds(shp_bounds[[1]], shp_bounds[[2]], shp_bounds[[3]], shp_bounds[[4]]) %>%
+      leaflet::fitBounds(
+        shp_bounds[[1]],
+        shp_bounds[[2]],
+        shp_bounds[[3]],
+        shp_bounds[[4]]
+      ) %>%
       leaflet::addMapPane("basetile", zIndex = 400) %>%
       leaflet::addMapPane("liene1", zIndex = 401) %>%
       leaflet::addMapPane("polygons", zIndex = 410) %>%
-      leaflet::addMapPane("bubles", zIndex = 430)  %>%
+      leaflet::addMapPane("bubles", zIndex = 430) %>%
       leaflet::addMapPane("points", zIndex = 440) %>%
-      addTiles(urlTemplate = "https://api.mapbox.com/styles/v1/gsdpm/cjrc1z9u53oci2tqxvbhhnf7r/tiles/256/{z}/{x}/{y}@2x?access_token=MAPBOX_TOKEN_REMOVED") %>%
+      leaflet::addProviderTiles(leaflet::providers$OpenStreetMap) %>%
       list() %>%
       append(show_shps) %>%
       reduce2(seq_along(show_shps), function(x, y, i) {

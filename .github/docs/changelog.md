@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-05-19 (bug fix #185 — hex_fetch_source handles https:// URLs)
+
+| Scope | Change |
+| ----- | ------ |
+| Code  | `R/fct_hex_fetch.R`: new internal helper `hex_resolve_path(path, downloader = utils::download.file)` that downloads `http://` / `https://` paths to a local tempfile (mode `"wb"`, `quiet = TRUE`) and returns the local path; non-HTTP paths pass through unchanged. `hex_fetch_source()` now calls `dataset_loader(hex_resolve_path(path))` so `arrow::open_dataset()` never sees an HTTPS URL (arrow's `FileSystem$from_uri()` only recognises `s3://` / `gs://` / `file://` / etc.). Surfaced during arch-13 §F/§J end-to-end verification against the live WB Data Catalog flood-exposure parquet. |
+| Tests | `tests/testthat/test-hex-resolve-path.R`: 4 new Tier-1 tests (16 expectations) covering pass-through of `s3://` / `file://` / local-path / `fake://` URIs; HTTPS → tempfile download with captured `(url, dest, mode, quiet)` args; `http://` parity with `https://`; and a `fetch_hex_data()` end-to-end test using `local_mocked_bindings(download.file = …)` to assert the spy `dataset_loader` receives the tempfile, not the URL. |
+
+---
+
+## 2026-05-19 (bug fix #184 — 01-shapes.qmd builds admin9_Hexagon)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/01-shapes.qmd`: added "Build hex grid + admin lookup" section between Validate and Save, calling `make_hex_grid(my_shp$admin0_Country, resolution = HEX_RESOLUTION)` and `make_admin_lookup(my_shp)`. Closes the template gap where Step 1 never produced the `admin9_Hexagon` layer that Step 4 (`fetch_hex_data()`) requires, surfaced during arch-13 §F/§J end-to-end verification. |
+| Tests | `tests/testthat/test-template-integration.R`: extended the "Step 01 produces app-data/shapes.rds" test to assert the saved RDS now contains 4 layers including `admin9_Hexagon`, with non-empty `admin9Pcod` and parent `admin0Pcod` populated by `make_admin_lookup()`. |
+
+---
+
 ## 2026-05-19 (arch-13 §J — 00-master.R APP_URL + full-site render to docs/)
 
 | Scope | Change |

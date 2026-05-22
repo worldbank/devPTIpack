@@ -170,3 +170,48 @@ test_that("pti_summary_table: invalid type is rejected", {
   data(ukr_mtdt_full, package = "devPTIpack")
   expect_error(pti_summary_table(ukr_mtdt_full, type = "invalid"))
 })
+
+# ---------------------------------------------------------------------------
+# pti_plot_choropleth() — arch-13 §H / issue #157
+#   Contract: pti_plot_choropleth(data, var) -> single ggplot choropleth.
+#   `data` is one sf layer already carrying the numeric `var` column.
+
+test_that("pti_plot_choropleth: returns a ggplot object", {
+  result <- pti_plot_choropleth(ukr_shp$admin1_Oblast, "area")
+  expect_s3_class(result, "gg")
+})
+
+test_that("pti_plot_choropleth: an all-NA variable column still returns a gg", {
+  layer <- ukr_shp$admin1_Oblast
+  layer$na_var <- NA_real_
+  result <- pti_plot_choropleth(layer, "na_var")
+  expect_s3_class(result, "gg")
+})
+
+test_that("pti_plot_choropleth: non-sf data produces an error", {
+  expect_error(
+    pti_plot_choropleth(ukr_mtdt_full$admin1_Oblast, "var_nval3_skewd_adm1"),
+    regexp = "sf"
+  )
+})
+
+test_that("pti_plot_choropleth: var not in data produces an error", {
+  expect_error(
+    pti_plot_choropleth(ukr_shp$admin1_Oblast, "no_such_column"),
+    regexp = "column"
+  )
+})
+
+test_that("pti_plot_choropleth: non-numeric var produces an error", {
+  expect_error(
+    pti_plot_choropleth(ukr_shp$admin1_Oblast, "admin1Name"),
+    regexp = "numeric"
+  )
+})
+
+test_that("pti_plot_choropleth: zero-row data produces an error", {
+  expect_error(
+    pti_plot_choropleth(ukr_shp$admin1_Oblast[0, ], "area"),
+    regexp = "row"
+  )
+})

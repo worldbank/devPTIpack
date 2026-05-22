@@ -16,7 +16,7 @@
 #   03  User data           -- working (pti_patch_admin_sheet + validate_metadata)
 #   04  HEX data            -- working (live WB parquet; needs internet)
 #   05  Compile             -- working (compile_pti_data merges + validates + renders)
-#   05r Compile report      -- stub pending #157 (compile-report.qmd not yet shipped)
+#   05r Compile report      -- working (HTML always, PDF best-effort; -> app-data/)
 #   06  Deploy              -- manual; see 06-deploy.R
 
 # ── App URL (set after deploying to Posit Connect / shinyapps.io) ────────────
@@ -60,7 +60,28 @@ quarto::quarto_render("01-shapes.qmd")
 quarto::quarto_render("03-user-data.qmd")
 quarto::quarto_render("04-hex-data.qmd")             # needs internet
 quarto::quarto_render("05-compile.qmd")
-# quarto::quarto_render("05-compile-report.qmd")     # pending arch-13 §H (#157)
+
+# ── Data-quality report -> app-data/pti-metadata.{html,pdf} ───────────────────
+# HTML always; PDF is best-effort (skipped with a warning if no LaTeX
+# engine is available). Both are staged into app-data/ alongside the
+# other deployment artefacts.
+quarto::quarto_render("05-compile-report.qmd", output_format = "html")
+tryCatch(
+  quarto::quarto_render("05-compile-report.qmd", output_format = "pdf"),
+  error = function(e) {
+    cli::cli_warn(c(
+      "PDF report skipped -- {conditionMessage(e)}",
+      "i" = "The HTML report was still produced; install a LaTeX \\
+engine for the PDF."
+    ))
+  }
+)
+for (.ext in c("html", "pdf")) {
+  .src <- paste0("05-compile-report.", .ext)
+  if (file.exists(.src)) {
+    file.rename(.src, file.path("app-data", paste0("pti-metadata.", .ext)))
+  }
+}
 
 # ── Render the full data-quality website ─────────────────────────────────────
 # Output goes to `docs/` as configured by `output-dir:` in `_quarto.yml`.

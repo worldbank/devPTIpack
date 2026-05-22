@@ -1,6 +1,11 @@
 project:
   type: website
   output-dir: docs
+  render:
+    # 05-compile-report.qmd is rendered explicitly by 00-master.R into
+    # app-data/pti-metadata.{html,pdf}; exclude it from the website build.
+    - "*.qmd"
+    - "!05-compile-report.qmd"
 
 website:
   title: "{{APP_NAME}}"

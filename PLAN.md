@@ -1069,7 +1069,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [x] arch-13 §E (#153) — rename `03-metadata.qmd` → `03-user-data.qmd`; `pti_patch_admin_sheet()` (after §C) (PR [#181](https://github.com/worldbank/devPTIpack/pull/181))
 - [x] arch-13 §F (#154) — `04-hex-data.qmd` remove `eval: false` guards; Section B as customisation point; `pti_summary_table(type = "hex")` summary; offline callout (PR [#182](https://github.com/worldbank/devPTIpack/pull/182))
 - [x] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex metadata + `var_overrides` block + `pti_summary_table` overview; `compile_pti_data()` gains a `var_overrides` arg (PR [#198](https://github.com/worldbank/devPTIpack/pull/198))
-- [ ] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF report (after §C)
+- [x] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF data-quality report; new exported `pti_plot_choropleth()` helper (PR [#199](https://github.com/worldbank/devPTIpack/pull/199))
 - [x] arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked) (PR [#178](https://github.com/worldbank/devPTIpack/pull/178))
 - [~] arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C + §I) (PR [#183](https://github.com/worldbank/devPTIpack/pull/183) — partial; `05-compile-report.qmd` render line still commented pending §H #157)
 - [ ] arch-13 §K (#160) — `06-deploy.R` GitHub Pages instructions (after §H + §I + §J)

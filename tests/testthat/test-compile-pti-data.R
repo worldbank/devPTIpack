@@ -2,7 +2,7 @@
 #
 # Coverage map (vs issue #83 acceptance criteria):
 #
-# 1. Single metadata input → all 3 outputs produced.
+# 1. Single metadata input → both outputs produced.
 # 2. Multiple metadata inputs → merged correctly (metadata rows union; admin
 #    sheets full-joined; duplicates flagged).
 # 3. Validates combined inputs → returns list(status, summary, issues).
@@ -12,10 +12,6 @@
 # 7. Output `shapefiles.zip` contains GeoJSON files (one per admin level).
 # 8. Verbose CLI output — emits the expected counts.
 # 9. Defensive input gate (missing / NULL / non-string / non-existent).
-#
-# PDF rendering is exercised only when LaTeX is available locally (we
-# skip on machines without `pdflatex`); the PDF artefact is tested at
-# the integration level (issue #82) when present.
 
 # ---------------------------------------------------------------------------
 # Helpers — write the bundled Ukraine fixtures to disk so we can test
@@ -55,7 +51,7 @@ test_that("compile_pti_data: single input produces all expected artefacts", {
   expect_setequal(
     names(res),
     c("status", "summary", "issues",
-      "metadata_path", "shapefiles_path", "pdf_path")
+      "metadata_path", "shapefiles_path")
   )
   expect_true(res$status %in% c("pass", "warn", "fail"))
 })
@@ -227,27 +223,6 @@ test_that("compile_pti_data: structured summary carries layer / polygon / indica
   expect_match(res$summary, "Polygons", all = FALSE)
   expect_match(res$summary, "Indicators", all = FALSE)
   expect_match(res$summary, paste0("Layers: ", length(ukr_shp)), all = FALSE)
-})
-
-# ---------------------------------------------------------------------------
-# 8) PDF rendering — skip when LaTeX is unavailable
-
-test_that("compile_pti_data: produces a non-empty pti-metadata.pdf when LaTeX is available", {
-  skip_if_not(nzchar(Sys.which("pdflatex")), "pdflatex not on PATH")
-
-  tmp <- tempfile("compile-pdf-"); dir.create(tmp, recursive = TRUE)
-  paths <- .write_ukr_inputs(tmp)
-
-  res <- suppressMessages(suppressWarnings(compile_pti_data(
-    paths$shp_path, paths$mtdt_path, tmp, error_on_fail = FALSE
-  )))
-
-  if (!is.na(res$pdf_path) && file.exists(res$pdf_path)) {
-    expect_gt(file.info(res$pdf_path)$size, 1000L)
-  } else {
-    succeed("PDF render not produced — likely a render error; the function ",
-            "tryCatches PDF failures and continues.")
-  }
 })
 
 # ---------------------------------------------------------------------------

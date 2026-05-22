@@ -35,7 +35,6 @@ Imports:
     cicerone (> 1.0.3),
     htmltools (>= 0.5.0),
     RColorBrewer (>= 1.1-2),
-    rmarkdown (>= 2.9),
     cli (>= 3.0),
     fs (>= 1.5),
     yesno (>= 0.1),

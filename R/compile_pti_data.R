@@ -4,9 +4,8 @@
 #' RDS plus one or more intermediate metadata Excel files (typically
 #' `metadata-user.xlsx` from Step 3 and / or `metadata-hex.xlsx` from
 #' Step 4), merges them into a single canonical metadata workbook,
-#' validates the combined inputs, renders the printable indicator
-#' atlas (`pti-metadata.pdf`), and bundles the boundary GeoJSONs into
-#' `shapefiles.zip` so the deployment package is a single self-
+#' validates the combined inputs, and bundles the boundary GeoJSONs
+#' into `shapefiles.zip` so the deployment package is a single self-
 #' contained directory.
 #'
 #' Used by Step 5 of the deployer template
@@ -38,10 +37,6 @@
 #'   by [fct_template_reader()].
 #' - `shapefiles.zip` -- one GeoJSON per admin level (filename =
 #'   slot name, e.g. `admin1_Province.geojson`).
-#' - `pti-metadata.pdf` -- rendered from the bundled
-#'   `inst/metadata.Rmd` template; one choropleth map per indicator.
-#'   Skipped (with a warning) when LaTeX is not available -- the rest
-#'   of the artefacts still produced.
 #'
 #' @param shp_path Character. Path to the compiled shapes `.rds`
 #'   produced by Step 1 (`01-shapes.qmd`). Must be readable by
@@ -51,9 +46,9 @@
 #'   the Step 3 output `metadata-user.xlsx` and / or the Step 4 output
 #'   `metadata-hex.xlsx`). Each must be readable by
 #'   [fct_template_reader()].
-#' @param output_dir Character. Directory where the three output
-#'   artefacts (`metadata.xlsx`, `shapefiles.zip`, `pti-metadata.pdf`)
-#'   are written. Created if it does not exist.
+#' @param output_dir Character. Directory where the two output
+#'   artefacts (`metadata.xlsx`, `shapefiles.zip`) are written.
+#'   Created if it does not exist.
 #' @param error_on_fail Logical. When `TRUE` (the default), throws if
 #'   either [validate_geometries()] or [validate_metadata()] reports
 #'   `status = "fail"` on the combined inputs. When `FALSE`, returns
@@ -72,11 +67,9 @@
 #'   - `summary` -- character vector of free-text summary lines.
 #'   - `issues` -- list of all validation issues (concatenation of the
 #'     two validators' `issues`).
-#'   Plus three extra fields:
+#'   Plus two extra fields:
 #'   - `metadata_path` -- path to the canonical merged xlsx.
 #'   - `shapefiles_path` -- path to the shapefiles zip.
-#'   - `pdf_path` -- path to the rendered PDF, or `NA_character_` if
-#'     PDF rendering was skipped.
 #'
 #' @seealso [validate_geometries()], [validate_metadata()],
 #'   [fct_template_reader()], [launch_pti()].
@@ -90,7 +83,6 @@
 #' @importFrom stats setNames
 #' @importFrom writexl write_xlsx
 #' @importFrom zip zipr
-#' @importFrom rmarkdown render
 #' @family pti-pipeline
 #' @export
 #'
@@ -261,27 +253,7 @@ compile_pti_data <- function(
   # Combined status: worst-of-two.
   combined_status <- pick_worst_status(geom_diag$status, mtdt_diag$status)
 
-  # ----- 7) render PDF (best-effort) ---------------------------------------
-
-  cli::cli_h2("Rendering pti-metadata.pdf")
-  pdf_path <- tryCatch(
-    compile_render_metadata_pdf(
-      shp_path = shp_path,
-      mtdt_path = out_xlsx,
-      output_dir = output_dir
-    ),
-    error = function(e) {
-      cli::cli_alert_warning(
-        "PDF render skipped: {conditionMessage(e)}"
-      )
-      NA_character_
-    }
-  )
-  if (!is.na(pdf_path) && file.exists(pdf_path)) {
-    cli::cli_alert_success("Wrote {.file pti-metadata.pdf}.")
-  }
-
-  # ----- 8) summary --------------------------------------------------------
+  # ----- 7) summary --------------------------------------------------------
 
   summary_lines <- c(
     paste0("Layers: ", length(shp_dta)),
@@ -311,8 +283,7 @@ compile_pti_data <- function(
     summary = summary_lines,
     issues = c(geom_diag$issues, mtdt_diag$issues),
     metadata_path = out_xlsx,
-    shapefiles_path = out_zip,
-    pdf_path = pdf_path
+    shapefiles_path = out_zip
   )
 
   if (isTRUE(error_on_fail) && combined_status == "fail") {
@@ -595,44 +566,6 @@ compile_write_shapefiles_zip <- function(shp_dta, path) {
 
   zip::zipr(zipfile = path, files = geojson_paths)
   invisible(path)
-}
-
-
-#' Render the parameterised `inst/metadata.Rmd` to a PDF in `output_dir`
-#'
-#' Copies the bundled Rmd to a tempfile and renders it with the path
-#' params filled in. Errors propagate to the caller, which wraps the
-#' call in `tryCatch()` so PDF failure (e.g. LaTeX missing) does not
-#' abort the rest of the compile.
-#'
-#' @param shp_path,mtdt_path Paths into the rendered Rmd's params.
-#' @param output_dir Where to write `pti-metadata.pdf`.
-#'
-#' @return Path to the rendered PDF.
-#' @noRd
-compile_render_metadata_pdf <- function(shp_path, mtdt_path, output_dir) {
-  rmd_template <- system.file("metadata.Rmd", package = "devPTIpack")
-  if (!nzchar(rmd_template)) {
-    stop("internal: metadata.Rmd not found in installed package.")
-  }
-  tmprmd <- tempfile(fileext = ".Rmd")
-  file.copy(rmd_template, tmprmd, overwrite = TRUE)
-  on.exit(unlink(tmprmd), add = TRUE)
-
-  rmarkdown::render(
-    input = tmprmd,
-    output_format = "pdf_document",
-    output_file = "pti-metadata.pdf",
-    output_dir = normalizePath(output_dir, mustWork = TRUE),
-    params = list(
-      shp_path = normalizePath(shp_path, mustWork = TRUE),
-      mtdt_path = normalizePath(mtdt_path, mustWork = TRUE)
-    ),
-    quiet = TRUE,
-    envir = new.env()
-  )
-
-  file.path(output_dir, "pti-metadata.pdf")
 }
 
 

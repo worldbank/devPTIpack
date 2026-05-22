@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-05-22 (#144 — audit and remove redundant inst/ artifacts)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | Deleted 16 unreferenced GIFs from `inst/app/www/` — both the numbered `010-name.gif` … `035-explorer.gif` set and the `guide_*.GIF` set; every reference to them in `R/fct_guide.R` is commented out (~4.1 MB removed). |
+| Data | Deleted 8 dead files from `inst/sample_pti/` (`app.R`, `landing-page.md`, `sample_pti.Rproj`, both `.keep`, `sample-shapes.rds`, `pti-metadata-pdf.{Rmd,pdf}`). Kept `app-data/sample-metadata.xlsx` — still a live test fixture for `test-template-reader.R` / `test-validators*.R`. |
+| Code | Deleted `inst/metadata.Rmd` and removed the superseded PDF-atlas path from `compile_pti_data()` — the `compile_render_metadata_pdf()` helper, the render block, and the `pdf_path` return-list element. The atlas is superseded by arch-13 §H's `05-compile-report.qmd`, whose output already overwrote it at the same `app-data/pti-metadata.pdf` path. `compile_pti_data()` now returns `status` / `summary` / `issues` / `metadata_path` / `shapefiles_path`. |
+| Config | Removed `rmarkdown` from `DESCRIPTION` Imports and `NAMESPACE` — `compile_pti_data()` was its last remaining user. Removed the now-dead `inst/sample_pti/.*/.keep` line from `.Rbuildignore`. |
+| Tests | `tests/testthat/test-compile-pti-data.R`: dropped the `pdf_path` name assertion and the LaTeX PDF-render test block to match the new `compile_pti_data()` contract. |
+| Docs | `inst/template_pti/05-compile.qmd`: `compile_pti_data()` now documented as producing two artefacts, with a note that the printable reference comes from `05-compile-report.qmd`. `R/supporting-goe-prep.R`: corrected `gg_admin_list()` roxygen that pointed at the deleted Rmd templates. Kept (rationale in the PR): `inst/app/generic-landing-page.HTML` (live `mod_infotab` fallback) and `WBG_Horizontal-black-web.png` (live app-UI logo). |
+
+---
+
 ## 2026-05-22 (#163 — end-to-end pipeline test, Rwanda)
 
 | Scope | Change |

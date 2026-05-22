@@ -7,15 +7,16 @@ format: html
      https://worldbank.github.io/devPTIpack/articles/build-pti-5-compile.html -->
 
 This step takes the intermediate metadata files produced by Steps 3
-(and optionally Step 4) and `compile_pti_data()` produces the three
+(and optionally Step 4) and `compile_pti_data()` produces the two
 deployment-ready artefacts under `app-data/`:
 
 - `app-data/metadata.xlsx` -- canonical merged metadata workbook.
 - `app-data/shapefiles.zip` -- GeoJSON archive (one file per admin
   level) for download from the deployed app.
-- `app-data/pti-metadata.pdf` -- printable indicator reference,
-  mapping each indicator at its most-disaggregated admin level (or
-  at the explicit `spatial_level` you set in metadata).
+
+The printable indicator reference (`app-data/pti-metadata.{html,pdf}`)
+is produced separately by the data-quality report
+(`05-compile-report.qmd`), which `00-master.R` renders after this step.
 
 `compile_pti_data()` also re-runs `validate_geometries()` and
 `validate_metadata()` on the combined inputs and prints a verbose

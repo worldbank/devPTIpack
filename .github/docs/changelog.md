@@ -14,6 +14,25 @@
 
 ---
 
+## 2026-05-22 (bugfix #201 — 05-compile-report.qmd cross-sectional data)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/05-compile-report.qmd`: fixed the "most recent year" filter so it no longer blanks every map and statistic for cross-sectional data. When `year` exists but is entirely `NA` (the bundled Rwanda sample and most single-snapshot apps), `max(year, na.rm = TRUE)` returned `-Inf`, `year == -Inf` was `NA` for every row, and the all-`NA` logical index nuked the table. The filter now runs only when `year` has a non-`NA` value, and excludes `NA` rows from the comparison. |
+| Data | `inst/template_pti/05-compile-report.qmd`: added `execute: echo: false` to the front matter — the deployer-facing data-quality report was echoing all of its R chunk source into the output. |
+
+---
+
+## 2026-05-22 (arch-13 §K #160 — 06-deploy.R GitHub Pages instructions)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/06-deploy.R`: added a "Publish the data-quality website to GitHub Pages" section after the Posit Connect block — one-time `usethis::use_github_pages(branch = "main", path = "/docs")` setup, the `git add docs/` → commit → push workflow, the `https://<org>.github.io/<repo>/` URL pattern, and a data-sensitivity warning about committing rendered HTML. Instructions only; no executable code added. |
+| Data | `inst/template_pti/_quarto.yml`: "Reports" sidebar entry now links `pti-metadata.html` instead of `app-data/pti-metadata.html` — the old path does not resolve once `docs/` is deployed standalone (the GitHub Pages site does not include `app-data/`). |
+| Data | `inst/template_pti/00-master.R`: after the website render, copies `app-data/pti-metadata.{html,pdf}` into `docs/` so the standalone GitHub Pages site can serve the data-quality report from the "Reports" sidebar link. |
+
+---
+
 ## 2026-05-22 (arch-13 §H #157 — 05-compile-report.qmd data-quality report)
 
 | Scope | Change |

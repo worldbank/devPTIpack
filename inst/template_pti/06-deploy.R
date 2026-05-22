@@ -37,11 +37,33 @@
 #   server   = NULL                       # set to your Connect server
 # )
 
-# Post-deployment:
+# Post-deployment (Posit Connect):
 #   - Set viewer permissions on Posit Connect so colleagues can access
 #     the app.
-#   - Optionally publish docs/ (the rendered Quarto trail) to GitHub
-#     Pages -- it is excluded from the Connect bundle by design.
+
+# -- Publish the data-quality website to GitHub Pages ------------------
 #
+# `source("00-master.R")` renders the data-quality website into `docs/`.
+# Publish that folder to GitHub Pages so collaborators and reviewers can
+# browse the data-quality report without running the pipeline locally.
+# `docs/` is excluded from the Connect bundle by design -- the app and
+# the website are deployed independently.
+#
+# One-time setup (run once per project):
+#   usethis::use_github_pages(branch = "main", path = "/docs")
+#
+# After each pipeline run:
+#   git add docs/
+#   git commit -m "chore: update data-quality website"
+#   git push
+#
+# GitHub re-deploys Pages automatically on every push to `main`.
+# Your website will be at: https://<org>.github.io/<repo>/
+#
+# IMPORTANT: review whether `docs/` should be tracked in git at all.
+# It contains rendered HTML built from your data -- consider whether
+# that is appropriate for your data sensitivity and repository
+# visibility before committing it.
+
 # See https://worldbank.github.io/devPTIpack/articles/build-pti-6-deploy.html
 # for the full deployment walkthrough.

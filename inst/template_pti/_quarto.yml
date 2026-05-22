@@ -3,7 +3,10 @@ project:
   output-dir: docs
   render:
     # 05-compile-report.qmd is rendered explicitly by 00-master.R into
-    # app-data/pti-metadata.{html,pdf}; exclude it from the website build.
+    # app-data/pti-metadata.{html,pdf}; exclude it from the website
+    # build. 00-master.R also copies the rendered report into docs/ so
+    # the standalone GitHub Pages site can link to it (see the "Reports"
+    # sidebar entry below).
     - "*.qmd"
     - "!05-compile-report.qmd"
 
@@ -28,7 +31,9 @@ website:
             text: "Step 5 — Compile"
       - section: "Reports"
         contents:
-          - href: app-data/pti-metadata.html
+          # Copied into docs/ by 00-master.R after the website render,
+          # so this link resolves when docs/ is deployed standalone.
+          - href: pti-metadata.html
             text: "Metadata report"
       - section: "App"
         contents:

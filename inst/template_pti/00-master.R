@@ -87,6 +87,22 @@ for (.ext in c("html", "pdf")) {
 # Output goes to `docs/` as configured by `output-dir:` in `_quarto.yml`.
 quarto::quarto_render(input = ".")
 
+# ── Stage the data-quality report into the website ───────────────────────────
+# The report was rendered into app-data/ above so it ships with the
+# Connect bundle. Copy it into docs/ as well so the standalone GitHub
+# Pages site — which does not include app-data/ — can link to it from
+# the "Reports" sidebar entry. PDF is copied only when it was produced.
+for (.ext in c("html", "pdf")) {
+  .report <- file.path("app-data", paste0("pti-metadata.", .ext))
+  if (file.exists(.report)) {
+    file.copy(
+      .report,
+      file.path("docs", paste0("pti-metadata.", .ext)),
+      overwrite = TRUE
+    )
+  }
+}
+
 cli::cli_inform(c(
   "v" = "Pipeline complete.",
   "i" = "Open {.file docs/index.html} to review the data-quality website.",

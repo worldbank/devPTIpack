@@ -21,6 +21,8 @@ The numbered files form the data-prep pipeline:
 | `06-deploy.R`              | Step 6 -- Deploy                      | Manual deployment script (Posit Connect + GitHub Pages guidance). |
 | `app.R`                    | Shiny app entry point                 | The deployed app. Loads from `app-data/` paths.                  |
 | `landing-page.md`          | App landing-page text                 | Markdown content shown on the app's About tab.                   |
+| `CLAUDE.md`                | AI context                            | Project domain model + pipeline map for AI coding assistants.    |
+| `.agents/skills/pti-data-prep/SKILL.md` | AI skill                 | Step-by-step data-prep workflow + common-error fixes for AI agents. |
 
 Render the pipeline with:
 

@@ -40,6 +40,7 @@ test_that("create_new_pti() copies the full arch-09 §5 tree", {
     "01-shapes.qmd", "02a-user-zonal-stats.qmd", "03-user-data.qmd",
     "04-hex-data.qmd", "05-compile.qmd", "06-deploy.R",
     "app.R", "landing-page.md", "README.md",
+    "CLAUDE.md", ".agents/skills/pti-data-prep/SKILL.md",
     "sample-data/rwa_adm0.geojson",
     "sample-data/rwa_adm1.geojson",
     "sample-data/rwa_adm2.geojson",
@@ -51,6 +52,25 @@ test_that("create_new_pti() copies the full arch-09 §5 tree", {
     expect_true(file.exists(file.path(.tmp_proj, f)),
                 info = paste("missing:", f))
   }
+})
+
+# ---------------------------------------------------------------------------
+# 1b) Bundled AI context (issue #165)
+
+test_that("scaffold bundles CLAUDE.md + pti-data-prep skill with tokens replaced", {
+  skip_if_not(.copy_status, "create_new_pti() failed at file load — see above")
+
+  claude_md <- file.path(.tmp_proj, "CLAUDE.md")
+  skill_md  <- file.path(.tmp_proj, ".agents/skills/pti-data-prep/SKILL.md")
+  expect_true(file.exists(claude_md))
+  expect_true(file.exists(skill_md))
+
+  claude_lines <- readLines(claude_md, warn = FALSE)
+  # create_new_pti() must have replaced the {{APP_NAME}} token.
+  expect_false(any(grepl("{{APP_NAME}}", claude_lines, fixed = TRUE)))
+  # Core pipeline context an AI agent needs must be present.
+  expect_true(any(grepl("00-master.R",           claude_lines, fixed = TRUE)))
+  expect_true(any(grepl("pti_patch_admin_sheet", claude_lines, fixed = TRUE)))
 })
 
 # ---------------------------------------------------------------------------

@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-05-22 (arch-13 §P #165 — bundle AI context with the scaffold)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/CLAUDE.md`: new file — project-level AI context (PTI overview, pipeline file map, the `shp_dta` / `inp_dta` / `metadata.xlsx` schemas, the `admin<N>_<HumanName>` naming convention, the never-hand-edit rule, and a key-function table). `create_new_pti()` copies it and replaces `{{APP_NAME}}` via its existing recursive copy + token pass — no function change needed. |
+| Data | `inst/template_pti/.agents/skills/pti-data-prep/SKILL.md`: new file — a reusable AI skill (trigger conditions, new-country workflow, common-error table, required code patterns, never-do list). Confirmed to survive `R CMD build` into the installed package. |
+| Tests | `tests/testthat/test-template-integration.R`: new RED-first test asserts the scaffold bundles `CLAUDE.md` + the `pti-data-prep` skill and that `{{APP_NAME}}` is replaced in `CLAUDE.md`; both paths added to the template-tree expectation. |
+| Data | `inst/template_pti/README.md`: file-order table now lists `CLAUDE.md` and the `pti-data-prep` skill. |
+
+---
+
 ## 2026-05-22 (arch-13 Doc #161 — tutorial vignette sync)
 
 | Scope | Change |

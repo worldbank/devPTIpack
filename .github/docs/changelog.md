@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-05-22 (#164 — API coordination)
+
+| Scope | Change |
+| ----- | ------ |
+| Docs | `R/fct_pti_patch_admin_sheet.R`: added an `@seealso` block cross-referencing the planned auto-generation path (`generate_metadata_from_csv()`, issue #7) and noting the two data-input functions are designed to coexist. Closes the coordination issue #164 — `pti_patch_admin_sheet()`'s signature was reviewed against #7's planned API with no naming or structural conflict. The reference is prose, not an Rd `[link]`, since `generate_metadata_from_csv()` does not yet exist (a link would break R CMD check). |
+
+---
+
 ## 2026-05-22 (#144 — audit and remove redundant inst/ artifacts)
 
 | Scope | Change |
@@ -971,3 +979,7 @@ R CMD check stays at 0 errors / 0 warnings / 3 notes (same baseline as PR #99 / 
 | Tests  | Updated `tests/testthat/test-pti-patch-admin-sheet.R` (auto-drafted — please refine). <!-- AUTODRAFT:tests/testthat/test-pti-patch-admin-sheet.R --> |
 | Code   | Updated `R/fct_hex_fetch.R` (auto-drafted — please refine). <!-- AUTODRAFT:R/fct_hex_fetch.R --> |
 | Tests  | Updated `tests/testthat/test-hex-resolve-path.R` (auto-drafted — please refine). <!-- AUTODRAFT:tests/testthat/test-hex-resolve-path.R --> |
+| Tooling | Updated `.claude/skills/grill-with-docs/ADR-FORMAT.md` (auto-drafted — please refine). <!-- AUTODRAFT:.claude/skills/grill-with-docs/ADR-FORMAT.md --> |
+| Tooling | Updated `.claude/skills/grill-with-docs/CONTEXT-FORMAT.md` (auto-drafted — please refine). <!-- AUTODRAFT:.claude/skills/grill-with-docs/CONTEXT-FORMAT.md --> |
+| Tooling | Updated `.claude/skills/grill-with-docs/SKILL.md` (auto-drafted — please refine). <!-- AUTODRAFT:.claude/skills/grill-with-docs/SKILL.md --> |
+| Tooling | Updated `.claude/skills/handoff/SKILL.md` (auto-drafted — please refine). <!-- AUTODRAFT:.claude/skills/handoff/SKILL.md --> |

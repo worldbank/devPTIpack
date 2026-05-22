@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-05-22 (#194 — Quarto data-quality site landing page)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/index.qmd`: new file — landing page for the scaffolded data-quality website. Reviewer-facing (deployer + WB task team): a one-line intro, a "Start here" callout pointing at the Metadata report, a five-row pipeline-steps table, and a Live-app link. Fixes the redirect-stub `docs/index.html` — Quarto auto-generates a redirect when a website project has no index document. `create_new_pti()` copies it and replaces `{{APP_NAME}}` via its existing recursive copy + token pass — no function change needed. |
+| Config | `inst/template_pti/_quarto.yml`: added `index.qmd` as the first sidebar entry ("Overview"), above the Data pipeline / Reports / App sections. |
+| Tests | `tests/testthat/test-template-integration.R`: added `index.qmd` to the scaffold-tree expectation (RED-first). |
+
+---
+
 ## 2026-05-22 (arch-13 §P #165 — bundle AI context with the scaffold)
 
 | Scope | Change |

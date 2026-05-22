@@ -39,6 +39,7 @@ test_that("create_new_pti() copies the full arch-09 §5 tree", {
     "00-master.R",
     "01-shapes.qmd", "02a-user-zonal-stats.qmd", "03-user-data.qmd",
     "04-hex-data.qmd", "05-compile.qmd", "06-deploy.R",
+    "index.qmd",
     "app.R", "landing-page.md", "README.md",
     "CLAUDE.md", ".agents/skills/pti-data-prep/SKILL.md",
     "sample-data/rwa_adm0.geojson",

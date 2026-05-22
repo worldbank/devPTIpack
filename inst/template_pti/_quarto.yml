@@ -17,6 +17,8 @@ website:
     style: "docked"
     search: false
     contents:
+      - href: index.qmd
+        text: "Overview"
       - section: "Data pipeline"
         contents:
           - href: 01-shapes.qmd

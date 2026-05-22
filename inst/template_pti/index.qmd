@@ -1,0 +1,43 @@
+---
+title: "{{APP_NAME}} — Data Quality Review"
+---
+
+This site is the record of the data-preparation pipeline behind the
+**{{APP_NAME}}** PTI app. It is published so the task team can review
+every indicator — the boundaries, the values, and the gaps — before
+and after the app goes live.
+
+::: {.callout-tip}
+## Start here — Metadata report
+
+The [Metadata report](pti-metadata.html) maps and summarises **every
+indicator** in the compiled app: a choropleth, a value distribution
+with decile markers, and summary statistics for each one. It is the
+fastest way to catch a miscoded variable, a wrong admin level, or an
+unexpected data gap.
+:::
+
+## The pipeline
+
+The app's data was assembled in five steps. Each page below is the
+rendered record of that step — the code that ran and the output it
+produced.
+
+| Step | What it does |
+| ---- | ------------ |
+| [Step 1 — Shapefiles](01-shapes.qmd) | Loads and validates the administrative boundaries, then builds the H3 hex grid. |
+| [Step 2 — Zonal stats](02a-user-zonal-stats.qmd) | *Optional.* Extracts indicators from raster data before Step 3. |
+| [Step 3 — User data](03-user-data.qmd) | Merges the indicator workbook into the app metadata and validates it. |
+| [Step 4 — HEX data](04-hex-data.qmd) | Pulls H3 hex-grid indicators from the World Bank Space2Stats catalog. |
+| [Step 5 — Compile](05-compile.qmd) | Merges every intermediate into the final, deployment-ready dataset. |
+
+## The live app
+
+The [Live app](app-page.qmd) page embeds the deployed {{APP_NAME}} PTI
+tool once its URL is set in `00-master.R`.
+
+---
+
+This site is regenerated every time the pipeline is re-run
+(`source("00-master.R")`), so it always reflects the most recent
+compiled data.

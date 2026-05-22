@@ -1071,7 +1071,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [x] arch-13 §G (#158) — `05-compile.qmd` auto-detect hex metadata + `var_overrides` block + `pti_summary_table` overview; `compile_pti_data()` gains a `var_overrides` arg (PR [#198](https://github.com/worldbank/devPTIpack/pull/198))
 - [x] arch-13 §H (#157) — `05-compile-report.qmd` new HTML/PDF data-quality report; new exported `pti_plot_choropleth()` helper (PR [#199](https://github.com/worldbank/devPTIpack/pull/199)); post-merge bugfix for cross-sectional data + `echo: false` (#201, PR [#202](https://github.com/worldbank/devPTIpack/pull/202))
 - [x] arch-13 §I (#156) — `_quarto.yml` Quarto website template (unblocked) (PR [#178](https://github.com/worldbank/devPTIpack/pull/178))
-- [~] arch-13 §J (#159) — `00-master.R` APP_URL + render full site (after §C + §I) (PR [#183](https://github.com/worldbank/devPTIpack/pull/183) — partial; `05-compile-report.qmd` render line still commented pending §H #157)
+- [x] arch-13 §J (#159) — `00-master.R` APP_URL + render full site + un-comment Step 04 (PR [#183](https://github.com/worldbank/devPTIpack/pull/183)); the `05-compile-report.qmd` render line was un-commented once §H #157 landed — all three §J deliverables are now in `00-master.R` (#159 still awaiting issue close)
 - [x] arch-13 §K (#160) — `06-deploy.R` GitHub Pages deployment instructions; `_quarto.yml` Reports link + `00-master.R` stage report into `docs/` so the standalone site resolves it (PR [#200](https://github.com/worldbank/devPTIpack/pull/200))
 - [x] arch-13 §L (#162) — `app.R` + `landing-page.md` generic template (unblocked) (PR [#179](https://github.com/worldbank/devPTIpack/pull/179))
 
@@ -1080,8 +1080,8 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [x] arch-13 §P (#165) — bundle `CLAUDE.md` + `.agents/skills/pti-data-prep/SKILL.md` with the scaffold; `create_new_pti()` copies + token-replaces both unchanged (PR [#206](https://github.com/worldbank/devPTIpack/pull/206))
 
 **Standalone:**
-- [ ] #163 — API coordination: `pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7)
-- [ ] #164 — end-to-end automated pipeline test (Rwanda + Ethiopia)
+- [~] #163 — end-to-end automated pipeline test (Rwanda + Ethiopia): Rwanda E2E (`tests/testthat/test-e2e-pipeline.R`) + `e2e-pipeline.yml` CI workflow shipped (PR TBD); Ethiopia scenario `skip()`s pending Inf-4 (#148 — `get_country_shapes()` unbuilt)
+- [ ] #164 — API coordination: `pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7)
 - [ ] #144 — audit and remove redundant `inst/` artifacts (unblocked)
 
 **Bugs surfaced during §F/§J E2E verification (2026-05-19 – 05-21):**
@@ -1096,7 +1096,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 **DoD:** `source("00-master.R")` on fresh Rwanda project produces shapes.rds, metadata.xlsx,
 pti-metadata.html, docs/index.html; `shiny::runApp("app.R")` launches; all tutorial
 vignettes updated; scaffolded project contains `CLAUDE.md` + skill; end-to-end test
-(#164) passes for Rwanda + Ethiopia; `R CMD check` 0/0/0.
+(#163) passes for Rwanda + Ethiopia; `R CMD check` 0/0/0.
 
 ---
 

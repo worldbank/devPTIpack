@@ -1,10 +1,8 @@
 #' Build a list of ggplot maps from PTI admin data
 #'
 #' For each indicator column in `dta`, joins the matching admin
-#' geometries from `mt` and produces a `ggplot` choropleth. Used by
-#' the metadata-PDF rmarkdown templates
-#' (`inst/metadata.Rmd`, `inst/sample_pti/app-data/pti-metadata-pdf.Rmd`)
-#' to render one map per indicator alongside its description.
+#' geometries from `mt` and produces a `ggplot` choropleth -- one map
+#' per indicator alongside its description.
 #'
 #' Variable codes are relabelled to human-readable `var_name` values
 #' when `metadata` supplies them; otherwise the raw code is kept.

@@ -206,6 +206,43 @@ test_that("build_hex_metadata: registry legend_revert_colours propagates", {
 })
 
 # ---------------------------------------------------------------------------
+# spatial_level must name a data sheet that exists in the workbook (issue #203)
+# ---------------------------------------------------------------------------
+
+test_that("build_hex_metadata: include_hex=FALSE sets spatial_level to finest admin level", {
+  out <- tmp_xlsx()
+  build_hex_metadata(
+    aggregated   = make_aggregated_meta(),
+    shp_dta      = make_shp_dta_meta(),
+    country_name = "Rwanda",
+    output_path  = out,
+    include_hex  = FALSE
+  )
+  meta   <- readxl::read_excel(out, sheet = "metadata")
+  sheets <- readxl::excel_sheets(out)
+  # The hex sheet is omitted, so spatial_level must not point at it.
+  expect_false("admin9_Hexagon" %in% sheets)
+  expect_equal(meta$spatial_level[[1L]], "admin1_Province")
+  # spatial_level must name a data sheet that exists in the workbook.
+  expect_true(meta$spatial_level[[1L]] %in% sheets)
+})
+
+test_that("build_hex_metadata: include_hex=TRUE keeps spatial_level at the hex level", {
+  out <- tmp_xlsx()
+  build_hex_metadata(
+    aggregated   = make_aggregated_meta(),
+    shp_dta      = make_shp_dta_meta(),
+    country_name = "Rwanda",
+    output_path  = out,
+    include_hex  = TRUE
+  )
+  meta   <- readxl::read_excel(out, sheet = "metadata")
+  sheets <- readxl::excel_sheets(out)
+  expect_equal(meta$spatial_level[[1L]], "admin9_Hexagon")
+  expect_true(meta$spatial_level[[1L]] %in% sheets)
+})
+
+# ---------------------------------------------------------------------------
 # include_population flag
 # ---------------------------------------------------------------------------
 

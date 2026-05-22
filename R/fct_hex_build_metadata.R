@@ -136,6 +136,26 @@ build_hex_metadata <- function(aggregated, shp_dta, indicator_config = NULL,
     }
   }
 
+  # ── 5b. Spatial level recorded in the metadata rows ──────────────────
+  # Hex-derived indicators are aggregated into every admin sheet. When
+  # the hex sheet is excluded, point `spatial_level` at the finest admin
+  # level actually written, so the metadata never references a sheet
+  # that is absent from the workbook (issue #203).
+  if (include_hex) {
+    meta_spatial_level <- hex_slot
+  } else {
+    non_hex_slots <- setdiff(names(aggregated), hex_slot)
+    if (length(non_hex_slots) == 0L) {
+      cli::cli_abort(c(
+        "{.arg aggregated} contains only a hex slot but {.code include_hex = FALSE}.",
+        "i" = "Provide admin-level aggregates or set {.code include_hex = TRUE}."
+      ))
+    }
+    non_hex_lvls <- as.integer(sub("admin([0-9]+).*", "\\1", non_hex_slots))
+    non_hex_lvls[is.na(non_hex_lvls)] <- 0L
+    meta_spatial_level <- non_hex_slots[which.max(non_hex_lvls)]
+  }
+
   # ── 6. Build metadata rows (one per output column) ───────────────────
   meta_rows <- lapply(seq_along(all_cols), function(i) {
     col  <- all_cols[[i]]
@@ -173,7 +193,7 @@ build_hex_metadata <- function(aggregated, shp_dta, indicator_config = NULL,
       var_description       = as.character(meta$var_description %||% NA_character_),
       var_order             = i,
       var_units             = as.character(meta$var_units %||% NA_character_),
-      spatial_level         = hex_slot,
+      spatial_level         = meta_spatial_level,
       pillar_group          = as.character(meta$pillar_group %||% NA_character_),
       pillar_name           = as.character(meta$pillar_name %||% NA_character_),
       pillar_description    = as.character(meta$pillar_description %||% NA_character_),

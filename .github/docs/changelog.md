@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-22 (bugfix #201 — 05-compile-report.qmd cross-sectional data)
+
+| Scope | Change |
+| ----- | ------ |
+| Data | `inst/template_pti/05-compile-report.qmd`: fixed the "most recent year" filter so it no longer blanks every map and statistic for cross-sectional data. When `year` exists but is entirely `NA` (the bundled Rwanda sample and most single-snapshot apps), `max(year, na.rm = TRUE)` returned `-Inf`, `year == -Inf` was `NA` for every row, and the all-`NA` logical index nuked the table. The filter now runs only when `year` has a non-`NA` value, and excludes `NA` rows from the comparison. |
+| Data | `inst/template_pti/05-compile-report.qmd`: added `execute: echo: false` to the front matter — the deployer-facing data-quality report was echoing all of its R chunk source into the output. |
+
+---
+
 ## 2026-05-22 (arch-13 §K #160 — 06-deploy.R GitHub Pages instructions)
 
 | Scope | Change |

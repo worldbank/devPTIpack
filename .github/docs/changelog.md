@@ -15,6 +15,7 @@
 | Config | Removed `rmarkdown` from `DESCRIPTION` Imports and `NAMESPACE` — `compile_pti_data()` was its last remaining user. Removed the now-dead `inst/sample_pti/.*/.keep` line from `.Rbuildignore`. |
 | Tests | `tests/testthat/test-compile-pti-data.R`: dropped the `pdf_path` name assertion and the LaTeX PDF-render test block to match the new `compile_pti_data()` contract. |
 | Docs | `inst/template_pti/05-compile.qmd`: `compile_pti_data()` now documented as producing two artefacts, with a note that the printable reference comes from `05-compile-report.qmd`. `R/supporting-goe-prep.R`: corrected `gg_admin_list()` roxygen that pointed at the deleted Rmd templates. Kept (rationale in the PR): `inst/app/generic-landing-page.HTML` (live `mod_infotab` fallback) and `WBG_Horizontal-black-web.png` (live app-UI logo). |
+| Docs | `PLAN.md`: filled in the #144 row's merged-PR number (#210). |
 
 ---
 

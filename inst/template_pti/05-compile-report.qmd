@@ -8,6 +8,8 @@ format:
   pdf:
     toc: true
     number-sections: false
+execute:
+  echo: false
 ---
 
 <!-- For detailed instructions, see:
@@ -107,10 +109,13 @@ for (i in seq_len(nrow(md))) {
     next
   }
 
-  # Panel data: report the most recent year only.
-  if ("year" %in% names(layer_tbl)) {
+  # Panel data: report the most recent year only. Skip when `year` is
+  # absent or entirely NA (cross-sectional data) -- filtering on an
+  # all-NA column would otherwise select NA rows and blank every value.
+  if ("year" %in% names(layer_tbl) && any(!is.na(layer_tbl$year))) {
+    keep_year <- max(layer_tbl$year, na.rm = TRUE)
     layer_tbl <- layer_tbl[
-      layer_tbl$year == max(layer_tbl$year, na.rm = TRUE), ,
+      !is.na(layer_tbl$year) & layer_tbl$year == keep_year, ,
       drop = FALSE
     ]
   }

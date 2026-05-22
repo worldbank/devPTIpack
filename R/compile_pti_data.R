@@ -59,6 +59,11 @@
 #'   `status = "fail"` on the combined inputs. When `FALSE`, returns
 #'   the structured result and lets the caller decide (matches the
 #'   existing validator convention).
+#' @param var_overrides Optional data frame with columns `canonical_name`,
+#'   `in_pti`, and `in_explorer`. Rows are matched to merged metadata by
+#'   `canonical_name` against `metadata$var_code`; non-`NA` logical values
+#'   override the corresponding inclusion flags before writing
+#'   `metadata.xlsx`.
 #'
 #' @return Invisibly, a list with the same shape as the existing
 #'   validators:
@@ -110,7 +115,8 @@ compile_pti_data <- function(
   shp_path,
   metadata_paths,
   output_dir,
-  error_on_fail = TRUE
+  error_on_fail = TRUE,
+  var_overrides = NULL
 ) {
   # ----- 1) input gate -----------------------------------------------------
 
@@ -158,6 +164,41 @@ compile_pti_data <- function(
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   }
+  if (!is.null(var_overrides) && !is.data.frame(var_overrides)) {
+    stop("'var_overrides' must be a data frame (or NULL).", call. = FALSE)
+  }
+  if (!is.null(var_overrides)) {
+    required_cols <- c("canonical_name", "in_pti", "in_explorer")
+    missing_cols <- setdiff(required_cols, names(var_overrides))
+    if (length(missing_cols) > 0L) {
+      stop(
+        "'var_overrides' is missing required column(s): ",
+        paste(missing_cols, collapse = ", "),
+        ".",
+        call. = FALSE
+      )
+    }
+    if (
+      !is.logical(var_overrides$in_pti) ||
+        !is.logical(var_overrides$in_explorer)
+    ) {
+      stop(
+        "'var_overrides' columns 'in_pti' and 'in_explorer' must be logical.",
+        call. = FALSE
+      )
+    }
+    dup_names <- unique(var_overrides$canonical_name[
+      duplicated(var_overrides$canonical_name)
+    ])
+    if (length(dup_names) > 0L) {
+      stop(
+        "'var_overrides' has duplicate canonical_name value(s): ",
+        paste(dup_names, collapse = ", "),
+        ".",
+        call. = FALSE
+      )
+    }
+  }
 
   cli::cli_h1("Compiling PTI deployment artefacts")
 
@@ -183,6 +224,12 @@ compile_pti_data <- function(
   # ----- 3) merge ----------------------------------------------------------
 
   merged <- compile_merge_metadata(parsed_inputs, source_labels)
+  if (!is.null(var_overrides) && nrow(var_overrides) > 0L) {
+    merged$metadata <- compile_apply_var_overrides(
+      merged$metadata,
+      var_overrides
+    )
+  }
   n_indicators <- NROW(merged$metadata)
   n_pillars <- length(unique(merged$metadata$pillar_group))
   cli::cli_alert_info(
@@ -277,6 +324,50 @@ compile_pti_data <- function(
   }
 
   invisible(result)
+}
+
+
+#' Apply compile-time inclusion overrides to merged metadata
+#'
+#' @param metadata Merged metadata data frame.
+#' @param var_overrides Data frame already validated by
+#'   [compile_pti_data()].
+#'
+#' @return Modified metadata data frame.
+#' @noRd
+compile_apply_var_overrides <- function(metadata, var_overrides) {
+  unmatched <- character(0L)
+
+  for (i in seq_len(nrow(var_overrides))) {
+    canonical_name <- var_overrides$canonical_name[[i]]
+    matched <- which(metadata$var_code == canonical_name)
+
+    if (length(matched) == 0L) {
+      unmatched <- c(unmatched, canonical_name)
+      next
+    }
+
+    in_pti <- var_overrides$in_pti[[i]]
+    if (!is.na(in_pti)) {
+      metadata$fltr_exclude_pti[matched] <- !in_pti
+    }
+
+    in_explorer <- var_overrides$in_explorer[[i]]
+    if (!is.na(in_explorer)) {
+      metadata$fltr_exclude_explorer[matched] <- !in_explorer
+    }
+  }
+
+  if (length(unmatched) > 0L) {
+    cli::cli_warn(
+      c(
+        "var_overrides: canonical_name(s) not found in merged metadata -- skipped:",
+        "*" = "{.val {unmatched}}"
+      )
+    )
+  }
+
+  metadata
 }
 
 

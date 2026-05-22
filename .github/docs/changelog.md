@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-05-22 (bugfix #203 — build_hex_metadata() spatial_level)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_hex_build_metadata.R`: fixed `build_hex_metadata()` so the `metadata` sheet's `spatial_level` never names a sheet absent from the workbook. Previously it was set to the hex slot (`admin9_Hexagon`) unconditionally, but `include_hex = FALSE` skips the hex *data* sheet — leaving metadata that points nowhere. It now records the finest admin level actually written when `include_hex = FALSE`, and keeps `admin9_Hexagon` when `include_hex = TRUE`. Errors if `aggregated` has only a hex slot under `include_hex = FALSE`. |
+| Tests | `tests/testthat/test-hex-build-metadata.R`: 2 new tests (RED-first) — `include_hex = FALSE` sets `spatial_level` to the finest admin level present (and that level is a real sheet); `include_hex = TRUE` keeps `admin9_Hexagon`. 47 PASS / 0 FAIL. |
+
+---
+
 ## 2026-05-22 (arch-13 §H #157 — 05-compile-report.qmd data-quality report)
 
 | Scope | Change |

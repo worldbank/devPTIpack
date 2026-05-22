@@ -1090,7 +1090,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [x] #190 — hex parquet download fails mid-stream (WB Data Catalog drops large HTTP/2 transfers); needs retry+resume (PR [#193](https://github.com/worldbank/devPTIpack/pull/193))
 - [x] #191 — `04-hex-data.qmd` references `INCLUDE_HEX_IN_APP` not passed into the render; pass via env vars (PR [#193](https://github.com/worldbank/devPTIpack/pull/193))
 - [x] #192 — `00-master.R` passes invalid `output_dir` arg to `quarto::quarto_render()` (PR [#193](https://github.com/worldbank/devPTIpack/pull/193))
-- [x] #194 — data-quality site had no `index.qmd`, so `docs/index.html` was a redirect stub; added a reviewer-facing landing page + first sidebar entry (PR TBD)
+- [x] #194 — data-quality site had no `index.qmd`, so `docs/index.html` was a redirect stub; added a reviewer-facing landing page + first sidebar entry (PR [#207](https://github.com/worldbank/devPTIpack/pull/207))
 - E2E verified 2026-05-21: fresh Rwanda scaffold → `source("00-master.R")` → `docs/index.html` + full site, `✔ Pipeline complete.`
 
 **DoD:** `source("00-master.R")` on fresh Rwanda project produces shapes.rds, metadata.xlsx,

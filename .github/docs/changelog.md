@@ -12,6 +12,7 @@
 | Tests | `tests/testthat/test-e2e-pipeline.R`: new file — gated end-to-end pipeline test. Scaffolds a fresh project with `create_new_pti()`, runs the full `00-master.R` pipeline headlessly, and asserts every deployment artefact (`app-data/shapes.rds` + `validate_geometries()`, `metadata.xlsx` via `fct_template_reader()`, `metadata-hex.xlsx`, `pti-metadata.html`, `docs/index.html`) plus `launch_pti()`. The whole file is inert unless `PTI_RUN_E2E=true`, so it never runs in the per-PR `tests.yaml` budget. Also checks `create_new_pti()` replaced every `{{APP_NAME}}` token. The Ethiopia scenario `skip()`s pending Inf-4 (#148 — `get_country_shapes()` unbuilt, no Ethiopia data bundled). |
 | Config | `.github/workflows/e2e-pipeline.yml`: new CI workflow — installs the package + Quarto, sets `PTI_RUN_E2E=true`, and runs the E2E test via `devtools::test(filter = "e2e-pipeline")` on pushes to `main`, a weekly schedule, and manual dispatch. |
 | Docs | `PLAN.md`: corrected the swapped #163 / #164 issue numbers (#163 = E2E test, #164 = API coordination); marked arch-13 §J (#159) done — all three §J deliverables are present in `00-master.R`. |
+| Docs | `PLAN.md`: filled in the #163 row's merged-PR number (#208). |
 
 ---
 

@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-05-22 (arch-13 §G #158 — 05-compile.qmd auto-detect, var_overrides, summary)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/compile_pti_data.R`: new `var_overrides` parameter — a data frame of `canonical_name` / `in_pti` / `in_explorer` (or `NULL`, the default; non-breaking). When supplied, matching merged-metadata rows have `fltr_exclude_pti` / `fltr_exclude_explorer` set to `!in_pti` / `!in_explorer` before `metadata.xlsx` is written; an `NA` cell leaves that flag unchanged; unmatched `canonical_name`s warn and skip. Input gate validates type, required columns, logical flag columns, and duplicate `canonical_name`. New `@noRd` helper `compile_apply_var_overrides()`. |
+| Tests | `tests/testthat/test-compile-pti-data.R`: 7 new tests (RED-first) — flag flip on matched rows, `NA`-cell passthrough, unmatched-name warning, and the four input-gate errors. |
+| Data | `inst/template_pti/05-compile.qmd`: auto-detects `metadata-hex.xlsx` (no manual uncomment — included whenever Step 4 produced it); adds a documented `var_overrides` tribble block before the compile call; replaces the static pre-launch bullet checklist with a `pti_summary_table(type = "overview")` bird's-eye reactable. |
+
+---
+
 ## 2026-05-21 (arch-12 #196 — flood + population served via Space2Stats REST)
 
 | Scope | Change |

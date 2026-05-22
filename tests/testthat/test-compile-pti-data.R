@@ -342,3 +342,108 @@ test_that("compile_merge_metadata: .x/.y columns trigger a warning", {
     regexp = "\\.x|\\.y|mismatch"
   )
 })
+
+# ---------------------------------------------------------------------------
+# var_overrides argument (arch-13 §G / issue #158)
+
+test_that("compile_pti_data: var_overrides flips fltr_exclude flags on matched rows", {
+  tmp <- tempfile("compile-vo-")
+  paths <- .write_ukr_inputs(tmp)
+  vo <- tibble::tibble(
+    canonical_name = "var_nval3_skewd_adm1",
+    in_pti         = FALSE,
+    in_explorer    = TRUE
+  )
+  compile_pti_data(
+    shp_path       = paths$shp_path,
+    metadata_paths = paths$mtdt_path,
+    output_dir     = tmp,
+    error_on_fail  = FALSE,
+    var_overrides  = vo
+  )
+  m <- fct_template_reader(file.path(tmp, "metadata.xlsx"))$metadata
+  row <- m[m$var_code == "var_nval3_skewd_adm1", ]
+  expect_true(row$fltr_exclude_pti)        # in_pti = FALSE  -> excluded
+  expect_false(row$fltr_exclude_explorer)  # in_explorer = TRUE -> kept
+  other <- m[m$var_code == "var_nval6_na_adm12", ]
+  expect_false(other$fltr_exclude_pti)     # untouched row keeps its default
+})
+
+test_that("compile_pti_data: var_overrides NA cell leaves that one flag unchanged", {
+  tmp <- tempfile("compile-vo-na-")
+  paths <- .write_ukr_inputs(tmp)
+  vo <- tibble::tibble(
+    canonical_name = "var_nval3_skewd_adm1",
+    in_pti         = NA,
+    in_explorer    = FALSE
+  )
+  compile_pti_data(
+    shp_path = paths$shp_path, metadata_paths = paths$mtdt_path,
+    output_dir = tmp, error_on_fail = FALSE, var_overrides = vo
+  )
+  m <- fct_template_reader(file.path(tmp, "metadata.xlsx"))$metadata
+  row <- m[m$var_code == "var_nval3_skewd_adm1", ]
+  expect_false(row$fltr_exclude_pti)       # in_pti = NA -> unchanged (default)
+  expect_true(row$fltr_exclude_explorer)   # in_explorer = FALSE -> excluded
+})
+
+test_that("compile_pti_data: var_overrides warns and skips an unmatched canonical_name", {
+  tmp <- tempfile("compile-vo-unmatched-")
+  paths <- .write_ukr_inputs(tmp)
+  vo <- tibble::tibble(
+    canonical_name = "no_such_variable",
+    in_pti         = FALSE,
+    in_explorer    = FALSE
+  )
+  expect_warning(
+    compile_pti_data(
+      shp_path = paths$shp_path, metadata_paths = paths$mtdt_path,
+      output_dir = tmp, error_on_fail = FALSE, var_overrides = vo
+    ),
+    regexp = "no_such_variable"
+  )
+})
+
+test_that("compile_pti_data: var_overrides must be a data frame or NULL", {
+  tmp <- tempfile("compile-vo-err1-")
+  paths <- .write_ukr_inputs(tmp)
+  expect_error(
+    compile_pti_data(paths$shp_path, paths$mtdt_path, tmp,
+                     var_overrides = c("a", "b")),
+    regexp = "var_overrides.*data frame"
+  )
+})
+
+test_that("compile_pti_data: var_overrides missing a required column errors", {
+  tmp <- tempfile("compile-vo-err2-")
+  paths <- .write_ukr_inputs(tmp)
+  vo <- tibble::tibble(canonical_name = "x", in_pti = TRUE)
+  expect_error(
+    compile_pti_data(paths$shp_path, paths$mtdt_path, tmp, var_overrides = vo),
+    regexp = "var_overrides.*column"
+  )
+})
+
+test_that("compile_pti_data: var_overrides non-logical flag column errors", {
+  tmp <- tempfile("compile-vo-err3-")
+  paths <- .write_ukr_inputs(tmp)
+  vo <- tibble::tibble(canonical_name = "x", in_pti = "yes", in_explorer = TRUE)
+  expect_error(
+    compile_pti_data(paths$shp_path, paths$mtdt_path, tmp, var_overrides = vo),
+    regexp = "logical"
+  )
+})
+
+test_that("compile_pti_data: var_overrides duplicate canonical_name errors", {
+  tmp <- tempfile("compile-vo-err4-")
+  paths <- .write_ukr_inputs(tmp)
+  vo <- tibble::tibble(
+    canonical_name = c("dup", "dup"),
+    in_pti         = c(TRUE, FALSE),
+    in_explorer    = c(TRUE, TRUE)
+  )
+  expect_error(
+    compile_pti_data(paths$shp_path, paths$mtdt_path, tmp, var_overrides = vo),
+    regexp = "duplicate"
+  )
+})

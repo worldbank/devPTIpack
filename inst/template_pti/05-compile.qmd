@@ -19,37 +19,71 @@ deployment-ready artefacts under `app-data/`:
 
 `compile_pti_data()` also re-runs `validate_geometries()` and
 `validate_metadata()` on the combined inputs and prints a verbose
-CLI summary (layers, polygon counts, indicator + pillar counts,
-files produced). On validation failure it errors by default; pass
+CLI summary. On validation failure it errors by default; pass
 `error_on_fail = FALSE` to inspect the structured result instead.
 
+## Variable overrides
+
+This table controls what each indicator does in the deployed app.
+**Do not** edit the metadata Excel files (`metadata-user.xlsx` /
+`metadata-hex.xlsx`) directly -- Steps 3 and 4 regenerate them and any
+manual edit is overwritten. Set overrides here instead.
+
+- `in_pti = FALSE` -- variable excluded from the composite PTI score.
+- `in_explorer = FALSE` -- variable hidden from the Data Explorer tab.
+
+`canonical_name` is the variable's `var_code` as shown in the data
+summary further down. Mind the commas when uncommenting rows.
+
+```{r}
+var_overrides <- tibble::tribble(
+  ~canonical_name, ~in_pti, ~in_explorer
+  # , "flood_exposure_15cm_1in100", FALSE, TRUE   # keep in explorer, drop from PTI
+  # , "poverty_rate",                TRUE, FALSE  # in PTI, hide from explorer
+)
+```
+
 ## Run
+
+`metadata-hex.xlsx` (Step 4's output) is included automatically when
+it exists -- no manual edit needed. If you skipped Step 4, only the
+user metadata is compiled.
 
 ```{r}
 #| message: false
 library(devPTIpack)
 
+hex_mtdt_path  <- "app-data/metadata-hex.xlsx"
+metadata_paths <- c(
+  "app-data/metadata-user.xlsx",
+  if (file.exists(hex_mtdt_path)) hex_mtdt_path
+)
+
 compile_pti_data(
   shp_path       = "app-data/shapes.rds",
-  metadata_paths = c(
-    "app-data/metadata-user.xlsx"
-    # "app-data/metadata-hex.xlsx"  # uncomment when Step 4 produces output
-  ),
-  output_dir     = "app-data"
+  metadata_paths = metadata_paths,
+  output_dir     = "app-data",
+  var_overrides  = var_overrides
 )
 ```
 
-## Pre-launch checklist
+## Data summary
 
-After `compile_pti_data()` completes you should see all of:
+A bird's-eye view of every compiled indicator -- pillar, inclusion
+flags, source admin level, and the value distribution. Use it to
+confirm the compile did what you expected before launching.
 
-- `app-data/shapes.rds`
-- `app-data/metadata.xlsx`
-- `app-data/pti-metadata.pdf` (skipped with a warning if LaTeX is unavailable)
-- `app-data/shapefiles.zip`
+```{r}
+pti_summary_table(
+  fct_template_reader("app-data/metadata.xlsx"),
+  type = "overview"
+)
+```
 
-Edit `landing-page.md` (in the project root) to describe your app, then
-launch locally:
+## Preview locally
+
+Edit `landing-page.md` (in the project root) to describe your app,
+then launch it:
 
 ```{r}
 #| eval: false

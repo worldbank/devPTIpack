@@ -15,9 +15,10 @@ The numbered files form the data-prep pipeline:
 | `01-shapes.qmd`            | Step 1 -- Shapefiles                  | Load + validate boundary GeoJSONs, save `app-data/shapes.rds`.   |
 | `02a-user-zonal-stats.qmd` | Step 2 -- Zonal stats (optional)      | Stub. Extract raster zonal stats. Run manually if needed.       |
 | `03-user-data.qmd`         | Step 3 -- User data                   | Merge indicator data into the metadata workbook via `pti_patch_admin_sheet()`, validate, stage `metadata-user.xlsx`. |
-| `04-hex-data.qmd`          | Step 4 -- HEX data                    | Stub. Blocked by the HEX API -- coming in a later release.       |
-| `05-compile.qmd`           | Step 5 -- Compile and finalise        | Merges intermediates into `metadata.xlsx` + `pti-metadata.pdf` + `shapefiles.zip`. |
-| `06-deploy.R`              | Step 6 -- Deploy                      | Plain R script with `rsconnect::deployApp()` boilerplate.       |
+| `04-hex-data.qmd`          | Step 4 -- HEX data                    | Pull H3 hex-grid indicators from World Bank Space2Stats into `metadata-hex.xlsx`. |
+| `05-compile.qmd`           | Step 5 -- Compile and finalise        | `compile_pti_data()` merges intermediates into `metadata.xlsx` + `shapefiles.zip`. |
+| `05-compile-report.qmd`    | Step 5 -- Data-quality report         | Renders the per-indicator data-quality report (`pti-metadata.{html,pdf}`). |
+| `06-deploy.R`              | Step 6 -- Deploy                      | Manual deployment script (Posit Connect + GitHub Pages guidance). |
 | `app.R`                    | Shiny app entry point                 | The deployed app. Loads from `app-data/` paths.                  |
 | `landing-page.md`          | App landing-page text                 | Markdown content shown on the app's About tab.                   |
 
@@ -47,6 +48,7 @@ tutorial. The tutorials live at:
 sample-data/   Rwanda raw inputs (GeoJSONs + synthetic indicator workbooks).
 data-raw/      Seeded scripts that produced sample-data/ (re-runnable).
 app-data/      Pipeline outputs. THIS IS THE FOLDER YOU DEPLOY.
+docs/          Data-quality website built by Step 5 (publish to GitHub Pages).
 R/             golem boilerplate.
 ```
 
@@ -64,16 +66,16 @@ Don't let it slip through unreviewed.
 
 ## Current template state
 
-Steps 1, 3, and 5 ship with **working Rwanda code** that produces
-real outputs into `app-data/`. Step 4 ships as a **stub** awaiting
-the HEX data API.
+All pipeline steps ship with **working Rwanda code** that produces
+real outputs into `app-data/`.
 
-`00-master.R` renders Steps 01, 03, and 05 by default; the 02a (optional
-zonal stats), 04 (HEX), and 06 (deploy) lines are commented and clearly
-marked.
+`00-master.R` renders Steps 01, 03, 04, and 05 by default, then the
+data-quality report and the `docs/` website. The 02a (optional zonal
+stats) line is commented and clearly marked; 06 (deploy) is always
+manual.
 
 Visual-validation app calls (`app_validate_shp()` in `01-shapes.qmd`
-and `app_validate_metadata()` in `03-metadata.qmd`) are commented in
+and `app_validate_metadata()` in `03-user-data.qmd`) are commented in
 the template because `00-master.R` runs the files unattended. Uncomment
 them and re-source the relevant `.qmd` interactively when you want a
 visual pass over the data.

@@ -12,9 +12,9 @@ The Posit Connect / shinyapps.io bundle is **`app.R` + `landing-page.md` + `app-
 | --------------------------- | ------------------------------------------------------------------------------------------------ |
 | `sample-data/`              | Raw inputs — already baked into `app-data/` by Steps 1, 3, 5.                                    |
 | `data-raw/`                 | Generators for the sample data; not needed at runtime.                                           |
-| `01-shapes.qmd` … `05-compile.qmd` | Pipeline scripts — already executed; their outputs are in `app-data/`.                          |
+| `01-shapes.qmd` … `05-compile-report.qmd`, `app-page.qmd`, `_quarto.yml` | Pipeline + website scripts — already executed; their outputs are in `app-data/` and `docs/`. |
 | `06-deploy.R`               | This script. Self-evidently not deployed.                                                        |
-| `docs/`                     | Optional rendered Quarto trail. If you publish it at all, it goes to GitHub Pages, not Connect.   |
+| `docs/`                     | The data-quality website built by Step 5. Published separately to GitHub Pages — not bundled into Connect. |
 | `00-master.R`, `R/`, `README.md` | Build-time scaffolding.                                                                       |
 
 The `appFiles` argument on `rsconnect::deployApp()` enforces this — see the snippet under [CLI deployment](#cli-deployment) below.
@@ -87,18 +87,34 @@ Once Posit Connect confirms the deploy, two more things to set up before sharing
 1. **Viewer permissions.** On the Connect dashboard for your app: **Access → Sharing → Add user/group**. The default for new apps is "Owner only" — colleagues will hit a 403 until you grant them access. For public dashboards, set **Anyone, no login required**.
 2. **Resource limits** *(optional)*. The default Connect runtime settings are usually fine; only revisit if your app is unresponsive under realistic load.
 3. **Custom URL** *(optional)*. Connect lets you pick a friendlier URL slug than the default UUID. Set it under **Settings → Vanity URL** on your app's Connect page.
+4. **Wire the URL into the data-quality website** *(optional)*. Paste the deployed app URL into `APP_URL` at the top of `00-master.R` and re-run the pipeline — the `docs/` website's "Live app" page then embeds your running dashboard in an iframe.
 
 After the first deploy, every subsequent `deployApp()` call updates the existing app at the same URL — there's no need to delete-and-republish.
 
-## Optional: publish `docs/` to GitHub Pages
+## Publish the data-quality website to GitHub Pages
 
-If `00-master.R` rendered the Quarto trail under `docs/` (the orchestrator can do this for any documented repo), you can publish it as a project landing page on GitHub Pages — separately from the Connect deploy:
+Every pipeline run rebuilds the `docs/` data-quality website (Step 5). Publish it to GitHub Pages so collaborators and reviewers can browse the data-quality report without running the pipeline locally — separately from, and orthogonal to, the Connect deploy.
 
-1. Push the `docs/` folder to a branch (commonly `main`).
-2. In your GitHub repo: **Settings → Pages → Source = `main` / `/docs`**.
-3. GitHub serves the built site at `https://<org>.github.io/<repo>/`.
+One-time setup, run once per project:
 
-This is purely optional and orthogonal to the Connect deploy — `docs/` is excluded from the Connect bundle by design.
+```r
+#| eval: false
+usethis::use_github_pages(branch = "main", path = "/docs")
+```
+
+After each pipeline run, commit and push the rebuilt site:
+
+```sh
+git add docs/
+git commit -m "chore: update data-quality website"
+git push
+```
+
+GitHub re-deploys Pages automatically on every push to `main`; the site appears at `https://<org>.github.io/<repo>/`.
+
+::: {.callout-warning}
+`docs/` contains rendered HTML built from your data. Review whether it should be tracked in git at all — weigh your data sensitivity and the repository's visibility before committing it.
+:::
 
 ## Where to ask for help
 
@@ -112,5 +128,6 @@ This is purely optional and orthogonal to the Connect deploy — `docs/` is excl
 Your PTI app is live. To iterate:
 
 1. Edit your raw inputs under `sample-data/` (or replace them with new official data).
-2. Re-run `source("00-master.R")` — Steps 1, 3, 5 regenerate `app-data/`.
+2. Re-run `source("00-master.R")` — Steps 1, 3, 4, 5 regenerate `app-data/` and rebuild `docs/`.
 3. Re-run `rsconnect::deployApp(...)` (or hit Publish) — the existing Connect URL updates in place.
+4. Commit and push `docs/` if you publish the data-quality website on GitHub Pages.

@@ -36,8 +36,8 @@ For the full column reference, P-code uniqueness rules, cascade-rule enforcement
 
 ## B. Load pre-existing official shapefiles
 
-> ⚠ **Feature under development.** A future `load_official_shp(country)`
-> helper will pull World Bank internal official boundaries (with consistent
+> ⚠ **Feature under development.** A future `get_country_shapes(country)`
+> helper will pull World Bank Official Boundaries (with consistent
 > P-codes and naming) so deployers don't need to download or rename
 > anything. Until that lands, follow §C–§D below using the publicly
 > available geoBoundaries data shipped with the template.
@@ -117,6 +117,13 @@ app_validate_shp(my_shp)
 ```
 
 It opens a leaflet map with one tab per admin level, hover popups for `admin<N>Pcod` / `admin<N>Name`, and a side-panel summary of the structural validator's output. Use it to spot holes between polygons, wrong boundaries, or duplicate names that the structural checks can't catch from columns alone. The app is read-only — it does not edit your data.
+
+For a quick, non-interactive check, [`pti_plot_boundaries()`](../reference/pti_plot_boundaries.html) draws every admin level as a small-multiple `ggplot` — the same boundary panel the Step 5 data-quality report uses:
+
+```r
+#| eval: false
+pti_plot_boundaries(my_shp)
+```
 
 ## D. Fix problems and save
 
@@ -233,4 +240,4 @@ Two notes on resolution choice:
 Once `app-data/shapes.rds` is in place:
 
 - If you have **raster data** to extract zonal stats from, continue with [Step 2 — Zonal stats](build-pti-2-zonal-stats.html).
-- Otherwise, jump to [Step 3 — Metadata Excel](build-pti-3-metadata.html) to prepare your indicator workbook.
+- Otherwise, jump to [Step 3 — User data](build-pti-3-metadata.html) to prepare your indicator workbook.

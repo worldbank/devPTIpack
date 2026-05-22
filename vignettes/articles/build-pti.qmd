@@ -1,8 +1,9 @@
 ---
 title: "Build a PTI"
 description: >
-  Overview of the seven-step pipeline that takes raw country data through to
-  a deployed Project Targeting Index (PTI) Shiny dashboard with `devPTIpack`.
+  Overview of the pipeline that takes raw country data through to a
+  deployed Project Targeting Index (PTI) Shiny dashboard with
+  `devPTIpack`.
 ---
 
 A **Project Targeting Index (PTI)** is a composite map ranking
@@ -24,13 +25,13 @@ Two inputs are mandatory; one is optional:
 | Input | Format | Step that produces it |
 |------------------|----------------------------|---------------------------|
 | Boundary shapes | Named list of `sf` tibbles, one per admin level. | [Step 1](build-pti-1-shapefiles.html) |
-| Metadata workbook | Multi-sheet `.xlsx` — indicator dictionary + per-admin values. | [Step 3](build-pti-3-metadata.html) |
-| HEX gridded data | H3 res-6 polygons + indicator values. *Optional.* | [Step 4](build-pti-4-hex.html) (under development) |
+| User data + metadata | Multi-sheet `.xlsx` — indicator dictionary plus per-admin values. | [Step 3](build-pti-3-metadata.html) |
+| HEX gridded data | H3 hex-grid indicator values pulled from World Bank Space2Stats. *Optional.* | [Step 4](build-pti-4-hex.html) |
 
 The full column contract for both lives in [Data preparation
 reference](dataprep.html).
 
-## Reproducible quick start — the bundled Rwanda app in \< 5 lines
+## Reproducible quick start — the bundled Rwanda app
 
 The fastest way to see a working PTI app is the Rwanda template that
 ships with the package:
@@ -39,44 +40,48 @@ ships with the package:
 #| eval: false
 install.packages("pak"); pak::pak("worldbank/devPTIpack")
 library(devPTIpack)
-create_new_pti("~/projects/rwa_pti")           # scaffold
-source("~/projects/rwa_pti/00-master.R")       # Steps 1 + 3 (+ 5 once enabled)
-shiny::runApp("~/projects/rwa_pti/app.R")      # local launch
+create_new_pti("~/projects/rwa_pti")   # scaffold the project
+setwd("~/projects/rwa_pti")            # run from the project root
+source("00-master.R")                  # run the whole pipeline
+shiny::runApp("app.R")                 # preview the app locally
 ```
 
-Five Rwandan provinces, 30 districts, 3 synthetic indicators, two
-pillars — a complete dashboard in under five minutes. Once that runs,
-swap in your country's data and re-run the same pipeline.
+Five Rwandan provinces, 30 districts, three synthetic indicators, two
+pillars — a complete dashboard, plus a `docs/` data-quality website, in
+a few minutes. Once that runs, swap in your country's data and re-run
+the same pipeline.
 
 ## The journey
 
-The pipeline is seven steps. Steps 1–5 produce files in `app-data/`; the
-deployed app consumes them.
+The pipeline is seven tutorials (Steps 0–6). Steps 1–5 write the files
+the deployed app reads into `app-data/`, and render a `docs/`
+data-quality website you can review locally or publish.
 
 | \# | Step | What it does | Required? |
 |-----|-----------|-----------------------------|---------------|
 | 0 | [Setup](build-pti-0-setup.html) | Install `devPTIpack`, scaffold the project folder via `create_new_pti()`. | Always |
-| 1 | [Shapefiles](build-pti-1-shapefiles.html) | Load + validate administrative boundaries; save `app-data/shapes.rds`. | Always |
-| 2 | [Zonal stats](build-pti-2-zonal-stats.html) | Extract polygon-level indicators from raster surfaces. | Optional |
-| 3 | [Metadata Excel](build-pti-3-metadata.html) | Build the indicator workbook; validate against shapes; save `app-data/metadata-user.xlsx`. | Always |
-| 4 | [HEX data](build-pti-4-hex.html) | Pull H3 res-6 indicator values from the HEX API. *Order-flexible* — before or after Step 3. | Optional |
-| 5 | [Compile & finalise](build-pti-5-compile.html) | Merge metadata + re-validate + render PDF + zip GeoJSONs. | Always |
-| 6 | [Deploy](build-pti-6-deploy.html) | Publish `app.R` + `landing-page.md` + `app-data/` to Posit Connect or shinyapps.io. | When sharing |
+| 1 | [Shapefiles](build-pti-1-shapefiles.html) | Load + validate administrative boundaries, build the hex grid, save `app-data/shapes.rds`. | Always |
+| 2 | [Zonal stats](build-pti-2-zonal-stats.html) | Extract polygon-level indicators from raster surfaces into `sample-data/`. | Optional |
+| 3 | [User data](build-pti-3-metadata.html) | Merge your indicator values into the metadata workbook; validate against shapes; save `app-data/metadata-user.xlsx`. | Always |
+| 4 | [HEX data](build-pti-4-hex.html) | Pull H3 hex-grid indicators from World Bank Space2Stats; save `app-data/metadata-hex.xlsx`. | Optional |
+| 5 | [Compile & finalise](build-pti-5-compile.html) | Merge all metadata + re-validate + render the data-quality report + zip GeoJSONs. | Always |
+| 6 | [Deploy](build-pti-6-deploy.html) | Publish the app to Posit Connect / shinyapps.io, and the `docs/` website to GitHub Pages. | When sharing |
 
 **Step 4 is order-flexible** — it produces an independent
 `app-data/metadata-hex.xlsx` that Step 5 merges with the user metadata.
-You can do it before or after Step 3. The other steps run sequentially.
+You can run it before or after Step 3. The other steps run sequentially.
 
 ## The `00-master.R` shortcut
 
 Each scaffolded project ships
 [`00-master.R`](https://github.com/worldbank/devPTIpack/blob/main/inst/template_pti/00-master.R)
 — a pipeline orchestrator that calls `quarto::quarto_render()` on the
-step `.qmd` files top-to-bottom, populates `app-data/`, and (optionally)
-writes the rendered Quarto trail under `docs/`. After your first
+step `.qmd` files top-to-bottom, populates `app-data/`, renders the
+data-quality report, and builds the `docs/` website. After your first
 walkthrough, **`source("00-master.R")` is the everyday command** — it
-re-runs Steps 1, (3), 5 every time your raw inputs change. Comment /
-uncomment lines to skip optional steps (Step 2, 4) or pause work.
+re-runs the whole pipeline every time your raw inputs change. Comment /
+uncomment lines to skip optional steps (Step 2 is off by default) or
+pause work.
 
 The website tutorials (this page and Steps 0–6) are how you *learn* the
 pipeline. `00-master.R` is how you *operate* it once you know it.

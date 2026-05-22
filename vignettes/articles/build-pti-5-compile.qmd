@@ -10,29 +10,55 @@ Steps 1, 3 and (optionally) 4 each leave one or more files under `app-data/`:
 
 - `app-data/shapes.rds` from Step 1.
 - `app-data/metadata-user.xlsx` from Step 3.
-- `app-data/metadata-hex.xlsx` from Step 4 (when the HEX feature lands).
+- `app-data/metadata-hex.xlsx` from Step 4 (when you ran it).
 
 `compile_pti_data()` is the final pass that:
 
 1. **Merges** all intermediate metadata workbooks into a single canonical `metadata.xlsx`.
 2. **Re-validates** the combined inputs end-to-end via `validate_geometries()` + `validate_metadata()` — this catches issues that only surface after merge (a HEX indicator's `var_code` colliding with a user one, mismatched `spatial_level` references, missing `admin<N>Pcod` cascades).
-3. **Renders** a printable indicator atlas PDF — one map per indicator at the most disaggregated admin level (or at the explicit `spatial_level` you set in the metadata).
-4. **Exports** a GeoJSON archive of every admin layer for the dashboard's "Download shapes" button.
+3. **Exports** a GeoJSON archive of every admin layer (`shapefiles.zip`) for the dashboard's "Download shapes" button.
 
-The output goes back into `app-data/` and replaces the intermediates as the canonical inputs the deployed app reads.
+The companion file `05-compile-report.qmd` then renders a **data-quality report** into `app-data/pti-metadata.{html,pdf}` — see [The data-quality report](#the-data-quality-report) below. The compiled outputs go back into `app-data/` and replace the intermediates as the canonical inputs the deployed app reads.
+
+## Variable overrides
+
+By default every indicator is included both in the composite PTI score and in the Data Explorer. The `var_overrides` table — set at the top of `05-compile.qmd`, **not** by editing the metadata Excel — changes that per variable:
+
+```r
+#| eval: false
+var_overrides <- tibble::tribble(
+  ~canonical_name,              ~in_pti, ~in_explorer,
+  "flood_exposure_15cm_1in100", FALSE,   TRUE,   # keep in explorer, drop from PTI
+  "poverty_rate",               TRUE,    FALSE   # in PTI, hide from explorer
+)
+```
+
+- `in_pti = FALSE` excludes the variable from the composite PTI score.
+- `in_explorer = FALSE` hides the variable from the Data Explorer tab.
+- `canonical_name` is the variable's `var_code`.
+- An `NA` cell leaves that flag unchanged.
+
+Don't edit `metadata-user.xlsx` / `metadata-hex.xlsx` by hand — Steps 3 and 4 regenerate them and overwrite manual edits. `var_overrides` is the supported place to make these adjustments.
 
 ## Run `compile_pti_data()`
+
+`metadata-hex.xlsx` is picked up automatically whenever Step 4 produced it — no manual edit needed:
 
 ```r
 #| eval: false
 library(devPTIpack)
 
+hex_mtdt_path  <- "app-data/metadata-hex.xlsx"
+metadata_paths <- c(
+  "app-data/metadata-user.xlsx",
+  if (file.exists(hex_mtdt_path)) hex_mtdt_path
+)
+
 result <- compile_pti_data(
   shp_path       = "app-data/shapes.rds",
-  metadata_paths = c("app-data/metadata-user.xlsx"
-                     # , "app-data/metadata-hex.xlsx"   # uncomment when Step 4 lands
-                     ),
-  output_dir     = "app-data"
+  metadata_paths = metadata_paths,
+  output_dir     = "app-data",
+  var_overrides  = var_overrides
 )
 ```
 
@@ -42,7 +68,8 @@ result <- compile_pti_data(
 | ----------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `shp_path`        | character   | Path to `app-data/shapes.rds` written by Step 1.                                                                                   |
 | `metadata_paths`  | character vector | One or more `.xlsx` paths. At least one must exist. Typical: `metadata-user.xlsx` (Step 3) ± `metadata-hex.xlsx` (Step 4).      |
-| `output_dir`      | character   | Where to write the three artefacts. Almost always `"app-data"` for a real project.                                                  |
+| `output_dir`      | character   | Where to write the artefacts. Almost always `"app-data"` for a real project.                                                        |
+| `var_overrides`   | data frame / `NULL` | The `canonical_name` / `in_pti` / `in_explorer` table described above. `NULL` (the default) leaves every indicator's flags as declared in the metadata. |
 | `error_on_fail`   | logical     | Default `TRUE` — abort on `status = "fail"`. Set `FALSE` to inspect the structured result instead (handy when iterating).         |
 
 ### Outputs (under `output_dir/`)
@@ -51,7 +78,8 @@ result <- compile_pti_data(
 | --------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `metadata.xlsx`       | Canonical merged metadata workbook. Round-trips cleanly through `fct_template_reader()`.                            |
 | `shapefiles.zip`      | One GeoJSON file per admin layer (filename = slot name from `shapes.rds`). Served by the dashboard's download tab. **Includes `admin9_Hexagon.geojson` by default** when Step 1 built a hex layer. |
-| `pti-metadata.pdf`    | Printable indicator atlas, one map per indicator. **Skipped with a warning when LaTeX is unavailable** — the rest of the artefacts still produce. |
+
+The data-quality report `app-data/pti-metadata.{html,pdf}` is produced separately by `05-compile-report.qmd` — see [The data-quality report](#the-data-quality-report).
 
 ::: callout-note
 ## Hex layer size in `shapefiles.zip`
@@ -80,8 +108,6 @@ The function prints a structured `cli` summary as it runs — admin levels, poly
 ── Validating combined inputs ──
 ✔ validate_geometries: all checks passed.
 ✔ validate_metadata: all checks passed.
-── Rendering pti-metadata.pdf ──
-✔ Wrote pti-metadata.pdf.
 ── Summary ──
 * Layers: 4
 * Polygons (total): 543
@@ -104,8 +130,7 @@ list(
   summary         = character(),
   issues          = list(),
   metadata_path   = "app-data/metadata.xlsx",
-  shapefiles_path = "app-data/shapefiles.zip",
-  pdf_path        = "app-data/pti-metadata.pdf"   # NA_character_ if LaTeX skipped
+  shapefiles_path = "app-data/shapefiles.zip"
 )
 ```
 
@@ -130,6 +155,26 @@ result$issues      # the structured issue list, ready to print or filter
 
 For the visual inspector, drop back to [Step 1's `app_validate_shp()`](build-pti-1-shapefiles.html) or [Step 3's `app_validate_metadata()`](build-pti-3-metadata.html) and fix at the source. `compile_pti_data()` is *not* the place to fix — it is the place to confirm.
 
+## Review the compiled data — `pti_summary_table()`
+
+Before launching, get a bird's-eye view of every compiled indicator — its pillar, inclusion flags, source admin level, and value distribution:
+
+```r
+#| eval: false
+pti_summary_table(
+  fct_template_reader("app-data/metadata.xlsx"),
+  type = "overview"
+)
+```
+
+The `"overview"` table is one row per indicator. Use it to confirm the compile did what you expected — that your `var_overrides` took effect, that every indicator landed at the right `spatial_level`, and that no indicator is unexpectedly all-`NA`.
+
+## The data-quality report {#the-data-quality-report}
+
+`05-compile-report.qmd` renders `app-data/pti-metadata.{html,pdf}` — a per-indicator data-quality reference. Section 1 maps the administrative boundaries with a per-layer polygon-count and area table; Section 2 shows, for every variable, a choropleth at its source admin level, a decile histogram, and a summary-statistics table. `00-master.R` renders it automatically after the compile.
+
+The HTML version always renders. The PDF is best-effort — it is skipped with a warning when no LaTeX engine is available (see [Step 0](build-pti-0-setup.html)). Open `app-data/pti-metadata.html` to review your data before deploying; the same report is also published as the "Metadata report" page of the `docs/` website.
+
 ## Edit the landing page
 
 `landing-page.md` lives in the project root. Its contents render on the dashboard's **Info** tab. Edit it to describe your country, the data sources, and any contact information stakeholders need:
@@ -151,7 +196,7 @@ Before launching locally — and definitely before deploying — confirm all of:
 - [ ] `compile_pti_data()` returned `status = "pass"`.
 - [ ] `app-data/metadata.xlsx` exists and round-trips through `fct_template_reader()`.
 - [ ] `app-data/shapes.rds` exists and `validate_geometries()` is happy with it.
-- [ ] `app-data/pti-metadata.pdf` exists (or you have explicitly accepted that LaTeX is unavailable).
+- [ ] `app-data/pti-metadata.html` exists — review the data-quality report (the `.pdf` is best-effort).
 - [ ] `app-data/shapefiles.zip` exists and contains one `.geojson` per admin layer.
 - [ ] `landing-page.md` describes *your* app, not the placeholder template.
 
@@ -186,7 +231,7 @@ Click through every tab. Hover popups should appear on every polygon; download b
 
 ## The `00-master.R` shortcut
 
-The template ships [`00-master.R`](https://github.com/worldbank/devPTIpack/blob/main/inst/template_pti/00-master.R) — a pipeline orchestrator that renders Steps 1, (3), and 5 in order. After your one-time tutorial walkthrough, **`source("00-master.R")` is the everyday command** to refresh `app-data/` whenever your raw inputs change. Edit comments to enable Step 4 (HEX) once it lands, or to skip Step 3 if your data lives entirely in HEX.
+The template ships [`00-master.R`](https://github.com/worldbank/devPTIpack/blob/main/inst/template_pti/00-master.R) — a pipeline orchestrator that renders Steps 1, 3, 4 and 5 in order, then the data-quality report and the `docs/` website. After your one-time tutorial walkthrough, **`source("00-master.R")` is the everyday command** to refresh `app-data/` whenever your raw inputs change. Comment out the Step 2 or Step 4 lines to skip optional steps.
 
 ## Next
 

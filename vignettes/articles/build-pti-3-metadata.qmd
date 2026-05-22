@@ -1,10 +1,10 @@
 ---
-title: "Step 3 — Metadata Excel"
+title: "Step 3 — User data"
 ---
 
-Build the metadata Excel workbook that holds the indicator dictionary and per-admin-level values consumed by the PTI calculation pipeline.
+Assemble your indicator values into the metadata workbook the PTI calculation pipeline consumes.
 
-The end product of this step is `app-data/metadata-user.xlsx`. Step 5 merges it (with optional Step 4 outputs) into the canonical `app-data/metadata.xlsx`, validates the combined inputs, renders the indicator atlas PDF, and writes the deployment artefacts.
+The end product of this step is `app-data/metadata-user.xlsx`. Step 5 merges it (with optional Step 4 outputs) into the canonical `app-data/metadata.xlsx`, validates the combined inputs, renders the data-quality report, and writes the deployment artefacts.
 
 This page walks through the bundled Rwanda templates: a **simple case** (`sample-metadata-adm1.xlsx` — 5 provinces, 3 indicators) and a **multi-level case** (`sample-metadata-adm1-adm2.xlsx` — same 3 indicators with 30 districts joined onto the same provinces).
 
@@ -85,6 +85,35 @@ Wide format. Every admin sheet must carry these key columns plus one numeric col
 | `<var_code>`          | numeric   | One column per indicator declared in `metadata` for this `spatial_level`.        |
 
 Indicator columns not declared in `metadata` are silently dropped at template-load time — handy when carrying scratch columns through your prep pipeline, but a debugging hazard otherwise. Full reference at [§2.4](dataprep.html).
+
+## Two ways to fill the workbook
+
+How you populate the admin sheets depends on where your indicator values come from:
+
+- **Bundled demo** — the Rwanda `sample-metadata-*.xlsx` workbooks ship *already populated*. To run the template as-is you only read, validate, and stage the workbook (the walkthroughs below).
+- **Your own data** — start from a metadata *skeleton* (a workbook whose `metadata` sheet declares your indicators but whose admin sheets are empty) and merge your value tables in with `pti_patch_admin_sheet()`.
+
+### Merging your own data — `pti_patch_admin_sheet()`
+
+[`pti_patch_admin_sheet()`](../reference/pti_patch_admin_sheet.html) left-joins a table of indicator values onto one admin sheet of the metadata workbook, keyed by `admin<N>Pcod`. Use it once per data table — whether the table came from [Step 2](build-pti-2-zonal-stats.html) or from your own analysis. **Never edit the admin data sheets by hand**: declare each indicator's `var_code` in the skeleton's `metadata` sheet, then patch the values in.
+
+```r
+#| eval: false
+library(devPTIpack)
+
+# A table of values keyed by admin2Pcod, one column per var_code.
+adm2_values <- readxl::read_xlsx("sample-data/zonal-stats-adm2.xlsx")
+
+pti_patch_admin_sheet(
+  mtdt_path   = "sample-data/metadata-skeleton.xlsx",  # declares the indicators
+  admin_level = "admin2_District",                     # target admin sheet
+  values      = adm2_values,
+  pcod_col    = "admin2Pcod",
+  output_path = "app-data/metadata-user.xlsx"          # patched workbook
+)
+```
+
+Polygons your value table doesn't cover are left as `NA`; the workbook's other sheets pass through untouched. To patch a second admin level into the same workbook, call `pti_patch_admin_sheet()` again with `mtdt_path` pointing at the file you just wrote.
 
 ## Simple case walkthrough — Adm1 only
 
@@ -171,7 +200,10 @@ Use it to spot value-level problems the structural validator can't see:
 
 ## How and where to save
 
-Save the validated workbook to its canonical intermediate location:
+The deployable workbook lives at `app-data/metadata-user.xlsx`.
+
+- If you merged your own data with `pti_patch_admin_sheet()`, its `output_path` already wrote the file there — nothing more to do.
+- If you ran the bundled demo workbook as-is, stage it now:
 
 ```r
 #| eval: false

@@ -1,0 +1,146 @@
+---
+title: "{{APP_NAME}} -- Data Reference"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    embed-resources: true
+  pdf:
+    toc: true
+    number-sections: false
+---
+
+<!-- For detailed instructions, see:
+     https://worldbank.github.io/devPTIpack/articles/build-pti-5-compile.html -->
+
+::: {.content-visible when-format="html"}
+[⬇ Download PDF version](pti-metadata.pdf){.btn .btn-outline-primary}
+:::
+
+This is the data-quality and metadata reference for the compiled PTI
+app. It is generated from `app-data/shapes.rds` and
+`app-data/metadata.xlsx` -- run Step 5 (`05-compile.qmd`) first.
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(devPTIpack)
+
+my_shp   <- readRDS("app-data/shapes.rds")
+compiled <- fct_template_reader("app-data/metadata.xlsx")
+
+# Em dash for empty metadata cells.
+or_dash <- function(x) {
+  if (length(x) == 0L || is.na(x) || !nzchar(as.character(x))) {
+    "—"
+  } else {
+    as.character(x)
+  }
+}
+```
+
+## Spatial boundaries
+
+One panel per administrative level in the compiled shapes, with a
+polygon-count and area summary.
+
+```{r}
+#| label: boundaries-map
+#| fig-width: 8
+#| fig-height: 5
+pti_plot_boundaries(my_shp)
+```
+
+```{r}
+#| label: boundaries-table
+boundary_summary <- do.call(rbind, lapply(names(my_shp), function(nm) {
+  layer    <- my_shp[[nm]]
+  area_km2 <- as.numeric(sf::st_area(layer)) / 1e6
+  data.frame(
+    Layer               = nm,
+    Polygons            = nrow(layer),
+    `Mean area (km2)`   = round(mean(area_km2), 1),
+    `Min area (km2)`    = round(min(area_km2), 1),
+    `Max area (km2)`    = round(max(area_km2), 1),
+    check.names = FALSE
+  )
+}))
+knitr::kable(boundary_summary)
+```
+
+## Variable reference
+
+Every indicator in `metadata.xlsx`, ordered by pillar then
+`var_order`. Each shows a choropleth at its source admin level, the
+value distribution with decile markers, and summary statistics.
+
+```{r}
+#| label: variable-reference
+#| results: asis
+#| fig-width: 7
+#| fig-height: 4
+#| message: false
+#| warning: false
+md <- compiled$metadata
+md <- md[order(md$pillar_group, md$var_order), , drop = FALSE]
+
+for (i in seq_len(nrow(md))) {
+  v   <- md[i, ]
+  lvl <- v$spatial_level
+  vc  <- v$var_code
+
+  cat("\n\n### ", or_dash(v$var_name), "\n\n", sep = "")
+  cat(
+    "**Pillar:** ", or_dash(v$pillar_name),
+    "  |  **Units:** ", or_dash(v$var_units),
+    "  |  **Admin level:** ", or_dash(lvl),
+    "\n\n", sep = ""
+  )
+
+  layer_tbl <- compiled[[lvl]]
+  geom      <- my_shp[[lvl]]
+
+  if (is.null(layer_tbl) || is.null(geom) || !vc %in% names(layer_tbl)) {
+    cat("_No data found for this variable at ", or_dash(lvl), "._\n\n",
+        sep = "")
+    next
+  }
+
+  # Panel data: report the most recent year only.
+  if ("year" %in% names(layer_tbl)) {
+    layer_tbl <- layer_tbl[
+      layer_tbl$year == max(layer_tbl$year, na.rm = TRUE), ,
+      drop = FALSE
+    ]
+  }
+
+  # Join the indicator column onto the layer geometry for the map.
+  pcod   <- paste0(sub("_.*", "", lvl), "Pcod")
+  joined <- dplyr::left_join(
+    geom, layer_tbl[, c(pcod, vc)], by = pcod
+  )
+
+  print(pti_plot_choropleth(joined, vc))
+  print(pti_plot_histogram(layer_tbl, vc))
+
+  vals <- layer_tbl[[vc]]
+  qs   <- stats::quantile(vals, c(.1, .25, .5, .75, .9), na.rm = TRUE)
+  stat_tbl <- data.frame(
+    Statistic = c("Min", "Q10", "Q25", "Median", "Mean",
+                  "Q75", "Q90", "Max", "SD", "NA count"),
+    Value = c(
+      min(vals, na.rm = TRUE), qs[[1]], qs[[2]], qs[[3]],
+      mean(vals, na.rm = TRUE), qs[[4]], qs[[5]],
+      max(vals, na.rm = TRUE), stats::sd(vals, na.rm = TRUE),
+      sum(is.na(vals))
+    ),
+    check.names = FALSE
+  )
+  cat(knitr::kable(stat_tbl, digits = 2), sep = "\n")
+  cat("\n\n")
+
+  # Three variables per page.
+  if (i %% 3 == 0 && i < nrow(md)) cat("{{< pagebreak >}}\n\n")
+}
+```

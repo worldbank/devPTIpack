@@ -228,3 +228,57 @@ pti_reactable <- function(summary_tbl, ...) {
   )
   widget
 }
+
+#' Plot a choropleth map for a PTI variable
+#'
+#' Builds a `ggplot2` choropleth from a single `sf` object, mapping a named
+#' numeric column to polygon fill without joining or transforming the input.
+#'
+#' @param data An `sf` object containing `var` and a geometry column.
+#' @param var Character scalar naming the numeric column to map as polygon fill.
+#'
+#' @return A `ggplot` choropleth object.
+#' @family pti-report
+#' @importFrom ggplot2 ggplot aes geom_sf scale_fill_gradient theme_void
+#' @importFrom cli cli_abort
+#' @importFrom rlang .data
+#' @export
+#'
+#' @examples
+#' data(ukr_shp)
+#' pti_plot_choropleth(ukr_shp$admin1_Oblast, "area")
+pti_plot_choropleth <- function(data, var) {
+  if (!inherits(data, "sf")) {
+    cli::cli_abort("{.arg data} must be an {.cls sf} object.")
+  }
+
+  if (!is.character(var) || length(var) != 1L || is.na(var)) {
+    cli::cli_abort("{.arg var} must be a character scalar.")
+  }
+
+  if (!var %in% names(data)) {
+    cli::cli_abort("{.arg var} must name a column in {.arg data}.")
+  }
+
+  if (!is.numeric(data[[var]])) {
+    cli::cli_abort("{.arg var} must name a numeric column.")
+  }
+
+  if (nrow(data) == 0L) {
+    cli::cli_abort("{.arg data} must contain at least one row.")
+  }
+
+  ggplot2::ggplot(data) +
+    ggplot2::geom_sf(
+      ggplot2::aes(fill = .data[[var]]),
+      colour = "grey40",
+      linewidth = 0.15
+    ) +
+    ggplot2::scale_fill_gradient(
+      name = var,
+      low = "grey90",
+      high = "#E86C2C",
+      na.value = "grey85"
+    ) +
+    ggplot2::theme_void()
+}

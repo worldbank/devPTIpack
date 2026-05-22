@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-05-22 (arch-13 §H #157 — 05-compile-report.qmd data-quality report)
+
+| Scope | Change |
+| ----- | ------ |
+| Code | `R/fct_pti_report_helpers.R`: new exported `pti_plot_choropleth(data, var)` — a static ggplot2 choropleth of one numeric variable from a single `sf` layer (the choropleth sibling of `pti_plot_boundaries()` / `pti_plot_histogram()`); `@family pti-report`. Errors on non-`sf` data, a missing or non-numeric `var`, or zero rows; an all-`NA` column renders grey rather than erroring. |
+| Tests | `tests/testthat/test-pti-report-helpers.R`: 6 new tests (RED-first) for `pti_plot_choropleth()` — happy path, all-`NA` column, and the four error conditions. |
+| Config | `NAMESPACE`: export `pti_plot_choropleth`. |
+| Data | `inst/template_pti/05-compile-report.qmd`: new file — the data-quality / metadata reference report. Section 1 is the spatial-boundary map plus a per-layer polygon-count / area table; Section 2 is, per variable, a choropleth at its source admin level + a decile histogram + a stats table (3 variables per page). HTML (`embed-resources`, self-contained) plus a best-effort PDF; the HTML carries a PDF download button; the `{{APP_NAME}}` title token is filled at scaffold time. |
+| Data | `inst/template_pti/00-master.R`: renders `05-compile-report.qmd` after Step 5 — HTML always, PDF best-effort (warns rather than aborting when no LaTeX engine is available) — and stages the outputs into `app-data/pti-metadata.{html,pdf}`. |
+| Data | `inst/template_pti/_quarto.yml`: excludes `05-compile-report.qmd` from the website render — it is rendered explicitly into `app-data/`, not as a website page. |
+
+---
+
 ## 2026-05-22 (arch-13 §G #158 — 05-compile.qmd auto-detect, var_overrides, summary)
 
 | Scope | Change |

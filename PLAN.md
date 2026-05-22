@@ -1080,7 +1080,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 - [x] arch-13 §P (#165) — bundle `CLAUDE.md` + `.agents/skills/pti-data-prep/SKILL.md` with the scaffold; `create_new_pti()` copies + token-replaces both unchanged (PR [#206](https://github.com/worldbank/devPTIpack/pull/206))
 
 **Standalone:**
-- [~] #163 — end-to-end automated pipeline test (Rwanda + Ethiopia): Rwanda E2E (`tests/testthat/test-e2e-pipeline.R`) + `e2e-pipeline.yml` CI workflow shipped (PR TBD); Ethiopia scenario `skip()`s pending Inf-4 (#148 — `get_country_shapes()` unbuilt)
+- [~] #163 — end-to-end automated pipeline test (Rwanda + Ethiopia): Rwanda E2E (`tests/testthat/test-e2e-pipeline.R`) + `e2e-pipeline.yml` CI workflow shipped (PR [#208](https://github.com/worldbank/devPTIpack/pull/208)); Ethiopia scenario `skip()`s pending Inf-4 (#148 — `get_country_shapes()` unbuilt)
 - [ ] #164 — API coordination: `pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7)
 - [ ] #144 — audit and remove redundant `inst/` artifacts (unblocked)
 

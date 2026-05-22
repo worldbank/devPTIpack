@@ -61,10 +61,14 @@ my_zonal <- adm2 |>
   )
 
 # Save next to the rest of your raw inputs so Step 3 can pick it up.
-write_xlsx(my_zonal, "sample-data/my-zonal-stats-adm2.xlsx")
+write_xlsx(my_zonal, "sample-data/zonal-stats-adm2.xlsx")
 ```
 
-The package convention is one Excel sheet per admin level; if you produce multiple admin levels in this step, write each into its own sheet before Step 3 ingests them.
+Save the file into `sample-data/`, **not** `app-data/` — it is a raw
+*input*, not a pipeline output. If you extract indicators at more than
+one admin level, write one file per level (e.g. `zonal-stats-adm1.xlsx`,
+`zonal-stats-adm2.xlsx`); Step 3 patches each into its matching admin
+sheet separately.
 
 ## Hex-level extraction (optional)
 
@@ -87,17 +91,21 @@ A note on choice of summary function for hex cells: H3-6 cells have near-uniform
 
 ## How the output feeds into Step 3
 
-Step 3 (the metadata workbook) expects one sheet per admin level — `admin<N>_<HumanName>` — containing the indicator columns referenced by the `metadata` sheet. The output of this step is one of those sheets (or one input that feeds into one of them).
+Step 3 merges this file into the metadata workbook with
+[`pti_patch_admin_sheet()`](../reference/pti_patch_admin_sheet.html) —
+you never copy values into the Excel by hand. The function left-joins
+your zonal table onto the matching `admin<N>_<HumanName>` sheet by
+`admin<N>Pcod`, leaving `NA` for any polygon your table doesn't cover.
 
 A typical workflow is:
 
-1. Run this step once per raster indicator.
-2. Merge the resulting tidy tables into your draft metadata workbook by `admin<N>Pcod` (left-join on the relevant admin sheet).
-3. Add a row to the workbook's `metadata` sheet for the new indicator.
-4. Validate in Step 3.
+1. Run this step once per raster indicator, saving each result into `sample-data/`.
+2. Declare the new indicator columns in the metadata skeleton's `metadata` sheet — the column names must match the `var_code` values exactly.
+3. In Step 3, call `pti_patch_admin_sheet()` once per file to merge the values in.
+4. Validate the merged workbook with `validate_metadata()`.
 
 The full column contract for Step 3 admin sheets lives in [Data preparation reference §2.4](dataprep.html). Refer there for required types, the parent P-code cascade, and what `validate_metadata()` checks.
 
 ## Next
 
-When your zonal-stats outputs are ready, continue with [Step 3 — Metadata Excel](build-pti-3-metadata.html).
+When your zonal-stats outputs are ready, continue with [Step 3 — User data](build-pti-3-metadata.html).

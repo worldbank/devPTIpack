@@ -22,8 +22,10 @@ written into `metadata-hex.xlsx` and shipped with the app.  Aggregated
 indicator values at admin1, admin2, etc. are **always** included
 regardless of this switch (see [§E](#e-build-metadata-excel) below).
 
-This step is **order-flexible**: it can run before or after Step 3.
-The outputs are independent intermediate files merged in Step 5.
+`00-master.R` runs this step by default. It is **order-flexible** — it
+can run before or after Step 3 — and its output is an independent
+intermediate file merged in Step 5. To skip it (e.g. when working
+offline), comment out the `04-hex-data.qmd` line in `00-master.R`.
 
 ## Prerequisites
 
@@ -53,8 +55,8 @@ Returns a tibble — one row per registered variable — with columns:
 `source_id`, `source_label`, `canonical_name`, `var_name`, `var_units`,
 `time_col`, `available_years`, `weight`, `fun`, `is_population`.
 
-To query the **live** parquet for the actual years present (not just the
-registry hint):
+To query the **live** data source for the actual years present (not just
+the registry hint):
 
 ```{r}
 #| eval: false
@@ -98,8 +100,8 @@ actionable message — always supply explicit years when scripting.
 hex_data <- fetch_hex_data(hex_ids = hex_ids, vars = vars)
 ```
 
-Only hexagons matching `hex_ids` are read (parquet predicate pushdown).
-Temporal variables are pivoted wide:
+Only hexagons matching `hex_ids` are fetched — the request is scoped to
+your grid. Temporal variables are pivoted wide:
 `flood_exposure_15cm_1in100_2020`, etc.
 Population is always the first indicator column after `hex_id`.
 
@@ -254,11 +256,17 @@ that do not match your project's analytical design before compiling.
 
 ## Supported admin levels
 
-Hex-derived indicators appear on **every** admin-level sheet in the
-output Excel (admin1, admin2, etc.).  The `spatial_level` column in the
-metadata sheet points to the **hex level** (e.g. `admin9_Hexagon`) —
-the finest available resolution, regardless of which admin-level sheet
-the user is viewing.
+Hex-derived indicators are aggregated onto **every** admin-level sheet
+in the output Excel (admin1, admin2, etc.). The `spatial_level` recorded
+for each indicator in the `metadata` sheet depends on
+`INCLUDE_HEX_IN_APP`:
+
+- `INCLUDE_HEX_IN_APP = TRUE` — the `admin9_Hexagon` sheet ships, and
+  `spatial_level` is `admin9_Hexagon`.
+- `INCLUDE_HEX_IN_APP = FALSE` (default) — no hex sheet ships, so
+  `spatial_level` is set to the finest admin level actually written
+  (e.g. `admin2_District`). This keeps the `metadata` sheet consistent
+  with the data sheets present in the workbook.
 
 ## Next
 

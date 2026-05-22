@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-05-22 (arch-13 Doc #161 — tutorial vignette sync)
+
+| Scope | Change |
+| ----- | ------ |
+| Docs | `vignettes/articles/build-pti.qmd`: refreshed the journey map — corrected the step table (Step 4 active, Step 5 renders the data-quality report, Step 6 covers GitHub Pages), the quick-start block, and file names. |
+| Docs | `vignettes/articles/build-pti-0-setup.qmd`: documented `create_new_pti()` token replacement + next-steps banner; updated the scaffold tree (`05-compile-report.qmd`, `_quarto.yml`, `app-page.qmd`, `CHECKLIST.md`, `docs/`); corrected the `00-master.R` step list. |
+| Docs | `vignettes/articles/build-pti-1-shapefiles.qmd`: renamed the planned official-boundaries helper to `get_country_shapes()`; referenced `pti_plot_boundaries()`. |
+| Docs | `vignettes/articles/build-pti-2-zonal-stats.qmd`: replaced the manual left-join workflow with `pti_patch_admin_sheet()`; aligned the output filename with the template. |
+| Docs | `vignettes/articles/build-pti-3-metadata.qmd`: retitled "Step 3 — User data"; documented the `pti_patch_admin_sheet()` workflow (skeleton + value tables). |
+| Docs | `vignettes/articles/build-pti-4-hex.qmd`: noted Step 4 runs by default; corrected the `spatial_level` description for the `include_hex` toggle (per #203). |
+| Docs | `vignettes/articles/build-pti-5-compile.qmd`: documented `var_overrides`, `pti_summary_table()`, the `05-compile-report.qmd` data-quality report, and auto-detection of `metadata-hex.xlsx`. |
+| Docs | `vignettes/articles/build-pti-6-deploy.qmd`: added the GitHub Pages publishing section (`usethis::use_github_pages()` + push workflow) and the `APP_URL` post-deploy step. |
+| Docs | `inst/template_pti/README.md`: synced the file-order table and "current template state" — Step 4 active, `00-master.R` renders Steps 1/3/4/5 plus the report and website. |
+
+---
+
 ## 2026-05-22 (bugfix #203 — build_hex_metadata() spatial_level)
 
 | Scope | Change |

@@ -14,6 +14,13 @@
 #'
 #' @return Invisibly returns `output_path`.
 #'
+#' @seealso This function is the *skeleton-patching* data-input path: the
+#'   deployer maintains the workbook's `metadata` sheet by hand and
+#'   supplies only indicator values. A complementary *auto-generation*
+#'   path that derives the full metadata dictionary from a bare CSV --
+#'   the planned `generate_metadata_from_csv()` -- is tracked in issue
+#'   #7; the two are designed to coexist.
+#'
 #' @importFrom cli cli_abort
 #' @importFrom dplyr left_join
 #' @importFrom purrr map set_names

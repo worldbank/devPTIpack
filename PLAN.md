@@ -1081,7 +1081,7 @@ Spec: [`arch-13-data-pipeline-redesign.md`](.github/docs/arch-13-data-pipeline-r
 
 **Standalone:**
 - [~] #163 — end-to-end automated pipeline test (Rwanda + Ethiopia): Rwanda E2E (`tests/testthat/test-e2e-pipeline.R`) + `e2e-pipeline.yml` CI workflow shipped (PR [#208](https://github.com/worldbank/devPTIpack/pull/208)); Ethiopia scenario `skip()`s pending Inf-4 (#148 — `get_country_shapes()` unbuilt)
-- [ ] #164 — API coordination: `pti_patch_admin_sheet()` vs `generate_metadata_from_csv()` (#7)
+- [x] #164 — API coordination: reviewed `pti_patch_admin_sheet()` against #7's planned `generate_metadata_from_csv()` (no conflict); added an `@seealso` cross-reference to the auto-generation path (PR TBD)
 - [x] #144 — audit and remove redundant `inst/` artifacts: deleted 16 dead GIFs + 8 dead `sample_pti/` files + `inst/metadata.Rmd`; cut the superseded PDF-atlas path from `compile_pti_data()`; dropped the `rmarkdown` dependency (PR [#210](https://github.com/worldbank/devPTIpack/pull/210))
 
 **Bugs surfaced during §F/§J E2E verification (2026-05-19 – 05-21):**

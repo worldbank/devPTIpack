@@ -1,8 +1,2 @@
 /.quarto/
 **/*.quarto_ipynb
-
-# Rendered slide-deck outputs (regenerable from _build-pti-slides.qmd).
-# Source tracked: _build-pti-slides.qmd + _pti-slides-theme.scss.
-_build-pti-slides.html
-_build-pti-slides.pdf
-_build-pti-slides_files/

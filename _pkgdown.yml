@@ -1,7 +1,6 @@
 url: https://worldbank.github.io/devPTIpack/
 
 home:
-  logo: man/figures/logo.svg
   title: devPTIpack — Project Targeting Index for Shiny Dashboards
   description: >
     A framework for building geo-spatial Project Targeting Index (PTI)
@@ -38,27 +37,12 @@ template:
   bootstrap: 5
   bootswatch: flatly
   bslib:
-    primary:                   "#872C8F"
-    secondary:                 "#123154"
-    link-color:                "#872C8F"
-    navbar-light-bg:           "#FFFFFF"
-    navbar-light-color:        "#123154"
-    navbar-light-active-color: "#872C8F"
-    navbar-light-brand-color:  "#123154"
-    font-scale:                1.05
-  includes:
-    in_header: |
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
-
-footer:
-  structure:
-    left:  [developed_by, built_with]
-    right: [legal]
-  components:
-    legal: |
-      <img src="man/figures/logo-wbg-footer.svg" height="28" alt="World Bank Group" style="vertical-align:middle;margin-right:0.5em">
-      <span style="font-size:0.8rem;color:#555555">© 2026 World Bank Group. All Rights Reserved.</span>
+    primary: "#00457C"
+    navbar-light-color: "#ffffff"
+    navbar-light-active-color: "#ffffff"
+    navbar-light-bg: "#00457C"
+    navbar-dark-brand-color: "#ffffff"
+    font-scale: 1.05
 
 lang: en
 

@@ -88,6 +88,3 @@ _site/*
 /docs/
 !.github/docs/
 man/
-
-.agents/
-.claude/skills/

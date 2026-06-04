@@ -5,30 +5,6 @@
 
 ---
 
-## 2026-06-04 (pkgdown visual identity)
-
-| Scope | Change |
-| ----- | ------ |
-| Config | `_pkgdown.yml`: replaced WB navy (`#00457C`) palette with GeoPovData brand colours — purple `#872C8F` as primary, dark blue `#123154` as secondary/navbar; added Google Fonts (`in_header`) for Open Sans + Source Code Pro; added `home.logo` pointing to the new GeoPov logo; added `footer` block with WB Group logo and copyright attribution. |
-| Config | `pkgdown/extra.css` (new): ports GeoPovData's `style.css` into the pkgdown context — transparent→scrolled navbar, uppercase 13 px nav links, purple-bordered TOC sidebar, home-page hero banner (SVG background), styled dropdowns, footer border-radius, scrollable code blocks, Open Sans/Source Code Pro font application. |
-| Config | `pkgdown/extra.js` (new): scroll-reactive navbar script mirroring GeoPovData's `navbar-scroll.html` — adds `.scrolled` class to `.navbar` when the user scrolls past the page header, triggering the white-background+shadow transition. |
-| Data | `man/figures/logo.svg`, `man/figures/banner.svg`, `man/figures/logo-wbg-footer.svg` (new): GeoPov logo, flipped banner SVG, and WB Group footer logo copied from `geoPovData/brand/` and `geoPovData/logos/`; used by pkgdown navbar, home page hero, and footer respectively. |
-
----
-
-## 2026-06-04 (build-pti slide deck)
-
-| Scope | Change |
-| ----- | ------ |
-| Docs | New self-standing slide deck `vignettes/articles/_build-pti-slides.qmd` distilling the `build-pti-*` tutorial series (Steps 0–6) into a code-forward, low-text presentation. `_`-prefixed so pkgdown ignores it (kept off the website); `vignettes/articles` is already `.Rbuildignore`d so R CMD check is unaffected. Code chunks are display-only (` ```r `, not ` ```{r} `) so the deck builds with no R dependency. |
-| Docs | Made the deck **dual-format** from one source: `format: revealjs` (HTML, `embed-resources: true` → one portable ~10 MB self-contained file, animated app GIFs) **and** `format: beamer` (PDF, Metropolis theme, ~2.9 MB / 37 slides, static PNG stills). Images are format-switched via `.content-visible when-format=…` (GIF for HTML, PNG for PDF — GIFs can't embed in a pdflatex PDF); body text kept ASCII-safe (`->` not Unicode arrows) so the same source compiles under pdflatex (verified: 0 missing-char, 0 Overfull \vbox). Enriched beyond the source tutorials: a "How the score is computed" slide (z-score normalization + weighted-sum formula via MathJax/LaTeX + priority-class ranking), the bundled app demos (map, change-weights, compare, explorer), and a closing "Used across 30+ countries" catalogue (SSA / MENA+SA / EAP) from the Past Projects article. |
-| Data | New `vignettes/articles/img/demo-{map,weights,compare,explorer}.png` — final-frame stills extracted (Python/Pillow) from the `inst/app/www/` demo GIFs, used as the static figures in the Beamer/PDF build (where animated GIFs cannot render). |
-| Config | New `vignettes/articles/_pti-slides-theme.scss` — minimal Metropolis-like reveal.js theme with the World Bank navy accent (`#00457C`): navy headings + h2 underline rule, navy progress bar/slide numbers, flat figures, compact tables/code. |
-| Tooling | Installed the `beamertheme-metropolis` + `pgfopts` + `pgfplots` TeX packages via TinyTeX `tlmgr` for the Beamer render. |
-| Config | `vignettes/articles/.gitignore`: ignore the regenerable deck outputs (`_build-pti-slides.html`, `.pdf`, `_files/`); the `.qmd` + `.scss` source (and the `img/demo-*.png` stills) stay tracked. |
-
----
-
 ## 2026-05-19 (arch-13 §F — 04-hex-data.qmd executable by default)
 
 | Scope | Change |

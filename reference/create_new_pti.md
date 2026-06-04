@@ -54,7 +54,7 @@ Other pti-launch:
 # rstudioapi::hasFun("initializeProject") is FALSE outside RStudio.
 new_app <- file.path(tempdir(), "demo_pti")
 create_new_pti(new_app, open = FALSE)
-#> ✔ Project scaffolded at /tmp/Rtmp4XxsU5/demo_pti
+#> ✔ Project scaffolded at /tmp/RtmpAlzuTw/demo_pti
 #> ℹ Open this folder as a new project in your IDE to get started.
 #> ✔ Project directory created
 #> ✔ Skeleton files copied

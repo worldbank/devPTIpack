@@ -59,7 +59,7 @@ GitHub repositories on the [wbPTI](https://github.com/wbPTI) organisation.
 |---------|-----|----------|-----------|
 | Iraq | ✅ [app](https://datanalytics.worldbank.org/irqDB/) | — | — |
 | Morocco | 🔒 [app](https://datanalytics-int.worldbank.org/marPTI/) | [r-shiny](https://github.com/wbPTI/r-shiny/) | — |
-| Palestine | 🔒 [app](https://datanalytics-int.worldbank.org/content/7099a4c4-4721-48dd-bebc-b09924267047/) | [palestine_golem](https://github.com/wbPTI/palestine_golem) | [palestine_golem](https://github.com/wbPTI/palestine_golem) |
+| West Bank and Gaza | 🔒 [app](https://datanalytics-int.worldbank.org/content/7099a4c4-4721-48dd-bebc-b09924267047/) | [West Bank and Gaza](https://github.com/wbPTI/palestine_golem) | [West Bank and Gaza](https://github.com/wbPTI/palestine_golem) |
 | Yemen | 🔒 [app](https://datanalytics-int.worldbank.org/yemPTI/) | [r-shiny](https://github.com/wbPTI/r-shiny/) | — |
 | Pakistan | ✅ [app](https://datanalytics.worldbank.org/data-for-pakistan/) · ✅ [flooding](https://datanalytics.worldbank.org/pakistan-flooding/) | — | — |
 
